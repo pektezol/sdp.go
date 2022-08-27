@@ -4,9 +4,18 @@ import (
 	"encoding/binary"
 	"log"
 	"math"
+	"math/bits"
 	"os"
 	"unsafe"
 )
+
+func ReverseByteArrayValues(byteArr []byte, size int) []byte {
+	arr := make([]byte, size)
+	for index, byteValue := range byteArr {
+		arr[index] = bits.Reverse8(byteValue)
+	}
+	return arr
+}
 
 func ReadByteFromFile(file *os.File, size int32) []byte {
 	tmp := make([]byte, size)
@@ -20,28 +29,6 @@ func CheckError(e error) {
 	}
 }
 
-/*
-github.com/32bitkid/bitreader
-
-	func ReadBitsWithFirstBitCheckFromFile(file *os.File) (byteArr []byte, err error) {
-		arr := make([]byte, 4)
-		reader := bitreader.NewReader(file)
-		n := 0
-		state, err := reader.Read1()
-		if err != nil || state == true {
-			return nil, fmt.Errorf("ERR or VAL in BIT CHECK")
-		}
-		n += 1
-		if n == 0 {
-			val, err := reader.Read32(32)
-			if err != nil {
-				return nil, fmt.Errorf("ERR or VAL in BIT CHECK")
-			}
-			binary.LittleEndian.PutUint32(arr, val)
-		}
-		return arr, nil
-	}
-*/
 func IntFromBytes(byteArr []byte) uint32 {
 	int := binary.LittleEndian.Uint32(byteArr)
 	return int
