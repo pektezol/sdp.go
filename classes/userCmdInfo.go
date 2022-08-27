@@ -1,7 +1,10 @@
 package classes
 
 import (
+	"fmt"
 	"parser/utils"
+
+	"github.com/potterxu/bitreader"
 )
 
 type UserCmdInfo struct {
@@ -23,7 +26,15 @@ type UserCmdInfo struct {
 
 func UserCmdInfoInit(byteArr []byte, size int) (output UserCmdInfo) {
 	var class UserCmdInfo
-	if size-1 >= 4 {
+	fmt.Println("Size: ", size)
+	reader := bitreader.BitReader(byteArr)
+	flag, err := reader.ReadBit()
+	utils.CheckError(err)
+	fmt.Println(flag)
+	flag2, err := reader.ReadBit()
+	utils.CheckError(err)
+	fmt.Println(flag2)
+	/*if size-1 >= 4 {
 		class.CommandNumber = int32(utils.IntFromBytes(byteArr[:4]))
 	}
 	if size-1 >= 8 {
@@ -52,6 +63,6 @@ func UserCmdInfoInit(byteArr []byte, size int) (output UserCmdInfo) {
 	}
 	if size-1 >= 40 {
 		class.Impulse = byteArr[36]
-	}
+	}*/
 	return class
 }

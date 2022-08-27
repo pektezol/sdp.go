@@ -6,8 +6,6 @@ import (
 	"math"
 	"os"
 	"unsafe"
-
-	"github.com/potterxu/bitreader"
 )
 
 func ReadByteFromFile(file *os.File, size int32) []byte {
@@ -22,15 +20,28 @@ func CheckError(e error) {
 	}
 }
 
-func CheckFirstBit(byteArr []byte) bool {
-	reader := bitreader.BitReader(byteArr)
-	state, err := reader.ReadBit()
-	if err != nil {
-		state = false
-	}
-	return state
-}
+/*
+github.com/32bitkid/bitreader
 
+	func ReadBitsWithFirstBitCheckFromFile(file *os.File) (byteArr []byte, err error) {
+		arr := make([]byte, 4)
+		reader := bitreader.NewReader(file)
+		n := 0
+		state, err := reader.Read1()
+		if err != nil || state == true {
+			return nil, fmt.Errorf("ERR or VAL in BIT CHECK")
+		}
+		n += 1
+		if n == 0 {
+			val, err := reader.Read32(32)
+			if err != nil {
+				return nil, fmt.Errorf("ERR or VAL in BIT CHECK")
+			}
+			binary.LittleEndian.PutUint32(arr, val)
+		}
+		return arr, nil
+	}
+*/
 func IntFromBytes(byteArr []byte) uint32 {
 	int := binary.LittleEndian.Uint32(byteArr)
 	return int
