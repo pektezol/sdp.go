@@ -1,13 +1,17 @@
-name: Golang Windows amd64
+name: CI
 
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - '.github/*'
+      - '.gitignore'
+      - '**.md'
+      - 'LICENSE'
   pull_request:
     branches: [ "main" ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
