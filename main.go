@@ -17,12 +17,12 @@ func main() {
 	if err != nil { // If it's not a directory
 		file, err := os.Open(os.Args[1])
 		utils.CheckError(err)
-		utils.HeaderOut(file)
+		messages.ParseHeader(file)
 		for {
-			code := messages.MessageTypeCheck(file)
+			code := messages.ParseMessage(file)
 			if code == 7 {
-				messages.MessageTypeCheck(file)
-				break // TODO: Check last CustomData
+				messages.ParseMessage(file)
+				break
 			}
 		}
 		defer file.Close()
@@ -30,16 +30,15 @@ func main() {
 	for _, fileinfo := range files { // If it is a directory
 		file, err := os.Open(os.Args[1] + fileinfo.Name())
 		utils.CheckError(err)
-		utils.HeaderOut(file)
+		messages.ParseHeader(file)
 		for {
-			code := messages.MessageTypeCheck(file)
+			code := messages.ParseMessage(file)
 			if code == 7 {
-				messages.MessageTypeCheck(file)
-				break // TODO: Check last CustomData
+				messages.ParseMessage(file)
+				break
 			}
 		}
 		defer file.Close()
 	}
-
 	fmt.Scanln()
 }

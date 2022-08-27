@@ -1,5 +1,25 @@
 package messages
 
+type Header struct {
+	DemoFileStamp   string
+	DemoProtocol    int32
+	NetworkProtocol int32
+	ServerName      string
+	ClientName      string
+	MapName         string
+	GameDirectory   string
+	PlaybackTime    float32
+	PlaybackTicks   int32
+	PlaybackFrames  int32
+	SignOnLength    int32
+}
+
+type Message struct {
+	Type byte
+	Tick int
+	Slot byte
+}
+
 type Packet struct {
 	PacketInfo  []byte
 	InSequence  int32

@@ -9,6 +9,12 @@ import (
 	"unsafe"
 )
 
+func CheckError(e error) {
+	if e != nil {
+		log.Panic(e)
+	}
+}
+
 func ReverseByteArrayValues(byteArr []byte, size int) []byte {
 	arr := make([]byte, size)
 	for index, byteValue := range byteArr {
@@ -21,12 +27,6 @@ func ReadByteFromFile(file *os.File, size int32) []byte {
 	tmp := make([]byte, size)
 	file.Read(tmp)
 	return tmp
-}
-
-func CheckError(e error) {
-	if e != nil {
-		log.Panic(e)
-	}
 }
 
 func IntFromBytes(byteArr []byte) uint32 {

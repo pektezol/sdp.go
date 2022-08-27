@@ -1,11 +1,5 @@
 package classes
 
-import (
-	"parser/utils"
-
-	"github.com/potterxu/bitreader"
-)
-
 type UserCmdInfo struct {
 	CommandNumber int32
 	TickCount     int32
@@ -17,6 +11,7 @@ type UserCmdInfo struct {
 	UpMove        float32
 }
 
+/*
 func UserCmdInfoInit(byteArr []byte, size int) (output UserCmdInfo) {
 	var class UserCmdInfo
 	reversedByteArr := utils.ReverseByteArrayValues(byteArr, size)
@@ -111,3 +106,4 @@ func UserCmdInfoInit(byteArr []byte, size int) (output UserCmdInfo) {
 	}
 	return class
 }
+*/
