@@ -1,2 +1,2 @@
-# p2DemoParser
-Work-In-Progress demo parser for Portal 2.
+# DemoParser [![Go Report Card](https://goreportcard.com/badge/github.com/bisaxa/demoparser)](https://goreportcard.com/report/github.com/bisaxa/demoparser) [![CI Badge](https://github.com/bisaxa/DemoParser/actions/workflows/CI.yml/badge.svg)](https://github.com/BiSaXa/DemoParser/actions/workflows/CI.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/BiSaXa/DemoParser/blob/main/LICENSE)
+Work-In-Progress demo parser for Portal 2. https://github.com/bisaxa/DemoParser/actions/workflows/CI.yml/badge.svg
