@@ -1,5 +1,11 @@
 package classes
 
+import (
+	"fmt"
+
+	"github.com/bisaxa/demoparser/utils"
+)
+
 type UserCmdInfo struct {
 	CommandNumber int32
 	TickCount     int32
@@ -9,6 +15,15 @@ type UserCmdInfo struct {
 	ForwardMove   float32
 	SideMove      float32
 	UpMove        float32
+}
+
+func UserCmdInfoInit(byteArr []byte, size int32) (output UserCmdInfo) {
+	var class UserCmdInfo
+	if utils.ReadBitsFromReversedByteArray1(byteArr) {
+		class.CommandNumber = int32(utils.ReadBitsFromReversedByteArray16(byteArr, 15))
+		fmt.Printf("%b\n", class.CommandNumber)
+	}
+	return class
 }
 
 /*

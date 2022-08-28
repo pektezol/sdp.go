@@ -1,6 +1,6 @@
 package classes
 
-import "parser/utils"
+import "github.com/bisaxa/demoparser/utils"
 
 type CmdInfo struct {
 	Flags            int32

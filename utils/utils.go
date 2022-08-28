@@ -1,18 +1,49 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/binary"
 	"log"
 	"math"
 	"math/bits"
 	"os"
 	"unsafe"
+
+	"github.com/32bitkid/bitreader"
 )
 
 func CheckError(e error) {
 	if e != nil {
 		log.Panic(e)
 	}
+}
+
+func ReadBitsFromReversedByteArray1(byteArr []byte) bool {
+	r := bitreader.NewReader(bytes.NewBuffer(ReverseByteArrayValues(byteArr, len(byteArr))))
+	value, err := r.Read1()
+	CheckError(err)
+	return value
+}
+
+func ReadBitsFromReversedByteArray8(byteArr []byte, bitLength uint) uint8 {
+	r := bitreader.NewReader(bytes.NewBuffer(ReverseByteArrayValues(byteArr, len(byteArr))))
+	value, err := r.Read8(bitLength)
+	CheckError(err)
+	return value
+}
+
+func ReadBitsFromReversedByteArray16(byteArr []byte, bitLength uint) uint16 {
+	r := bitreader.NewReader(bytes.NewBuffer(ReverseByteArrayValues(byteArr, len(byteArr))))
+	value, err := r.Read16(bitLength)
+	CheckError(err)
+	return value
+}
+
+func ReadBitsFromReversedByteArray32(byteArr []byte, bitLength uint) uint32 {
+	r := bitreader.NewReader(bytes.NewBuffer(ReverseByteArrayValues(byteArr, len(byteArr))))
+	value, err := r.Read32(bitLength)
+	CheckError(err)
+	return value
 }
 
 func ReverseByteArrayValues(byteArr []byte, size int) []byte {

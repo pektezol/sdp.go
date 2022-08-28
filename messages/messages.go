@@ -3,7 +3,9 @@ package messages
 import (
 	"fmt"
 	"os"
-	"parser/utils"
+
+	"github.com/bisaxa/demoparser/classes"
+	"github.com/bisaxa/demoparser/utils"
 )
 
 const MSSC int32 = 2
@@ -46,12 +48,12 @@ func ParseMessage(file *os.File) (statusCode int) {
 		return 4
 	case 0x05: // Usercmd FIXME: Correct bit-packing inside classes
 		var usercmd UserCmd
-		// var usercmdinfo classes.UserCmdInfo
+		var usercmdinfo classes.UserCmdInfo
 		usercmd.Cmd = int32(utils.IntFromBytes(utils.ReadByteFromFile(file, 4)))
 		usercmd.Size = int32(utils.IntFromBytes(utils.ReadByteFromFile(file, 4)))
 		usercmd.Data = utils.ReadByteFromFile(file, usercmd.Size)
-		// usercmdinfo = classes.UserCmdInfoInit(usercmd.Data, int(usercmd.Size))
-		// fmt.Printf("[%d] UserCmd: %v\n", utils.IntFromBytes(Tick), usercmdinfo)
+		usercmdinfo = classes.UserCmdInfoInit(usercmd.Data, usercmd.Size)
+		fmt.Printf("[%d] UserCmd: %v\n", message.Tick, usercmdinfo)
 		return 5
 	case 0x06: // DataTables
 		var datatables DataTables
