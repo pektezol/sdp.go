@@ -12,8 +12,9 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-windows:
+    name: Windows Build
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
     
@@ -22,6 +23,18 @@ jobs:
       with:
         go-version: 1.18
         architecture: amd64
-
     - name: Build
       run: env GOOS=windows GOARCH=amd64 go build .
+  build-linux:
+    name: Linux Build
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Go environment
+      uses: actions/setup-go@v3.3.0
+      with:
+        go-version: 1.18
+        architecture: amd64
+    - name: Build
+      run: env GOOS=linux GOARCH=amd64 go build .
