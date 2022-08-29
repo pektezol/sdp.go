@@ -1,8 +1,6 @@
 package classes
 
 import (
-	"fmt"
-
 	"github.com/bisaxa/demoparser/utils"
 )
 
@@ -15,110 +13,56 @@ type UserCmdInfo struct {
 	ForwardMove   float32
 	SideMove      float32
 	UpMove        float32
+	// Buttons       int32	This could work but no idea on parsing buttons
+	// Impulse       byte	}
+	// WeaponSelect  int32	}
+	// WeaponSubtype int32	Not worth the effort, no one cares about these
+	// MouseDx       int16	}
+	// MouseDy       int	}
 }
 
+// It is so janky it hurts, but hey it is at least working (hopefully)
+// Reading the data is really weird, who even implemented this smh
 func UserCmdInfoInit(byteArr []byte, size int32) (output UserCmdInfo) {
 	var class UserCmdInfo
-	if utils.ReadBitsFromReversedByteArray1(byteArr) {
-		class.CommandNumber = int32(utils.ReadBitsFromReversedByteArray16(byteArr, 15))
-		fmt.Printf("%b\n", class.CommandNumber)
-	}
-	return class
-}
-
-/*
-func UserCmdInfoInit(byteArr []byte, size int) (output UserCmdInfo) {
-	var class UserCmdInfo
-	reversedByteArr := utils.ReverseByteArrayValues(byteArr, size)
-	reader := bitreader.BitReader(reversedByteArr)
-	if size-1 >= 4 {
-		bit, err := reader.ReadBit()
-		utils.CheckError(err)
-		if bit {
-			value, err := reader.ReadBits(32)
-			utils.CheckError(err)
-			class.CommandNumber = int32(value)
-		} else {
-			return class
+	successCount := 0
+	failedCount := 0
+	looped := 0
+	classIndex := 0
+	// fmt.Println(byteArr)
+	// fmt.Printf("%08b", byteArr)
+	for i := 0; i < 8; i++ {
+		if successCount+failedCount > 7 {
+			failedCount = -successCount
+			looped++
 		}
-	}
-	if size-1 >= 8 {
-		bit, err := reader.ReadBit()
+		firstBit, err := utils.ReadBitStateLSB(byteArr[successCount*4+looped], successCount+failedCount)
 		utils.CheckError(err)
-		if bit {
-			value, err := reader.ReadBits(32)
-			utils.CheckError(err)
-			class.TickCount = int32(value)
+		if firstBit {
+			successCount++
+			switch classIndex {
+			case 0:
+				class.CommandNumber = utils.Read32BitsAfterFirstBitInt32(byteArr, successCount+failedCount, successCount*4+looped)
+			case 1:
+				class.TickCount = utils.Read32BitsAfterFirstBitInt32(byteArr, successCount+failedCount, successCount*4+looped)
+			case 2:
+				class.ViewAnglesX = utils.Read32BitsAfterFirstBitFloat32(byteArr, successCount+failedCount, successCount*4+looped)
+			case 3:
+				class.ViewAnglesY = utils.Read32BitsAfterFirstBitFloat32(byteArr, successCount+failedCount, successCount*4+looped)
+			case 4:
+				class.ViewAnglesZ = utils.Read32BitsAfterFirstBitFloat32(byteArr, successCount+failedCount, successCount*4+looped)
+			case 5:
+				class.ForwardMove = utils.Read32BitsAfterFirstBitFloat32(byteArr, successCount+failedCount, successCount*4+looped)
+			case 6:
+				class.SideMove = utils.Read32BitsAfterFirstBitFloat32(byteArr, successCount+failedCount, successCount*4+looped)
+			case 7:
+				class.UpMove = utils.Read32BitsAfterFirstBitFloat32(byteArr, successCount+failedCount, successCount*4+looped)
+			}
+			classIndex++
 		} else {
-			return class
-		}
-	}
-	if size-1 >= 12 {
-		bit, err := reader.ReadBit()
-		utils.CheckError(err)
-		if bit {
-			value, err := reader.ReadBits(32)
-			utils.CheckError(err)
-			class.ViewAnglesX = float32(value)
-		} else {
-			return class
-		}
-	}
-	if size-1 >= 16 {
-		bit, err := reader.ReadBit()
-		utils.CheckError(err)
-		if bit {
-			value, err := reader.ReadBits(32)
-			utils.CheckError(err)
-			class.ViewAnglesY = float32(value)
-		} else {
-			return class
-		}
-	}
-	if size-1 >= 20 {
-		bit, err := reader.ReadBit()
-		utils.CheckError(err)
-		if bit {
-			value, err := reader.ReadBits(32)
-			utils.CheckError(err)
-			class.ViewAnglesZ = float32(value)
-		} else {
-			return class
-		}
-	}
-	if size-1 >= 24 {
-		bit, err := reader.ReadBit()
-		utils.CheckError(err)
-		if bit {
-			value, err := reader.ReadBits(32)
-			utils.CheckError(err)
-			class.ForwardMove = float32(value)
-		} else {
-			return class
-		}
-	}
-	if size-1 >= 28 {
-		bit, err := reader.ReadBit()
-		utils.CheckError(err)
-		if bit {
-			value, err := reader.ReadBits(32)
-			utils.CheckError(err)
-			class.SideMove = float32(value)
-		} else {
-			return class
-		}
-	}
-	if size-1 >= 32 {
-		bit, err := reader.ReadBit()
-		utils.CheckError(err)
-		if bit {
-			value, err := reader.ReadBits(32)
-			utils.CheckError(err)
-			class.UpMove = float32(value)
-		} else {
-			return class
+			failedCount++
+			classIndex++
 		}
 	}
 	return class
 }
-*/
