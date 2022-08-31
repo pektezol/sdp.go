@@ -6,6 +6,59 @@ import (
 	"strconv"
 )
 
+func ReadButtonsDataFromInt32(input int32) []string {
+	buttonList := [32]string{
+		"Attack",
+		"Jump",
+		"Duck",
+		"Forward",
+		"Back",
+		"Use",
+		"Cancel",
+		"Left",
+		"Right",
+		"MoveLeft",
+		"MoveRight",
+		"Attack2",
+		"Run",
+		"Reload",
+		"Alt1",
+		"Alt2",
+		"Score",
+		"Speed",
+		"Walk",
+		"Zoom",
+		"Weapon1",
+		"Weapon2",
+		"BullRush",
+		"Grenade1",
+		"Grenade2",
+		"LookSpin",
+		"CurrentAbility",
+		"PreviousAbility",
+		"Ability1",
+		"Ability2",
+		"Ability3",
+		"Ability4",
+	}
+	var buttons []string
+	if input == 0 {
+		buttons = append(buttons, buttonList[0])
+		return buttons
+	}
+	for i := 1; i < 33; i++ {
+		if ReadBitState(input, i) {
+			buttons = append(buttons, buttonList[i])
+		}
+	}
+	return buttons
+}
+
+func ReadBitState(input int32, index int) bool {
+	value := input & (1 << index)
+	return value > 0
+}
+
 func ReadBitStateLSB(input byte, index int) (bool, error) {
 	if index < 0 && index > 7 {
 		return false, fmt.Errorf("IndexOutOfBounds for type byte")

@@ -13,7 +13,7 @@ type UserCmdInfo struct {
 	ForwardMove   float32
 	SideMove      float32
 	UpMove        float32
-	// Buttons       int32	This could work but no idea on parsing buttons
+	Buttons       int32
 	// Impulse       byte	}
 	// WeaponSelect  int32	}
 	// WeaponSubtype int32	Not worth the effort, no one cares about these
@@ -31,7 +31,7 @@ func UserCmdInfoInit(byteArr []byte, size int32) (output UserCmdInfo) {
 	classIndex := 0
 	// fmt.Println(byteArr)
 	// fmt.Printf("%08b", byteArr)
-	for i := 0; i < 8; i++ {
+	for i := 0; i < 9; i++ {
 		if successCount+failedCount > 7 {
 			failedCount = -successCount
 			looped++
@@ -57,6 +57,8 @@ func UserCmdInfoInit(byteArr []byte, size int32) (output UserCmdInfo) {
 				class.SideMove = utils.Read32BitsAfterFirstBitFloat32(byteArr, successCount+failedCount, successCount*4+looped)
 			case 7:
 				class.UpMove = utils.Read32BitsAfterFirstBitFloat32(byteArr, successCount+failedCount, successCount*4+looped)
+			case 8:
+				class.Buttons = utils.Read32BitsAfterFirstBitInt32(byteArr, successCount+failedCount, successCount*4+looped)
 			}
 			classIndex++
 		} else {
