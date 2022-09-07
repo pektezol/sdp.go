@@ -1,5 +1,7 @@
 package messages
 
+import "github.com/bisaxa/demoparser/classes"
+
 type Header struct {
 	DemoFileStamp   string
 	DemoProtocol    int32
@@ -14,14 +16,8 @@ type Header struct {
 	SignOnLength    int32
 }
 
-type Message struct {
-	Type byte
-	Tick int
-	Slot byte
-}
-
 type Packet struct {
-	PacketInfo  []byte
+	PacketInfo  []classes.CmdInfo
 	InSequence  int32
 	OutSequence int32
 	Size        int32
@@ -36,7 +32,7 @@ type ConsoleCmd struct {
 type UserCmd struct {
 	Cmd  int32
 	Size int32
-	Data []byte
+	Data classes.UserCmdInfo
 }
 
 type DataTables struct {

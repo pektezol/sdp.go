@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/bisaxa/demoparser/messages"
-	"github.com/bisaxa/demoparser/utils"
 )
 
 func main() {
@@ -17,12 +16,13 @@ func main() {
 	files, err := ioutil.ReadDir(os.Args[1])
 	if err != nil { // If it's not a directory
 		file, err := os.Open(os.Args[1])
-		utils.CheckError(err)
+		if err != nil {
+			panic(err)
+		}
 		messages.ParseHeader(file)
 		for {
 			code := messages.ParseMessage(file)
 			if code == 7 {
-				messages.ParseMessage(file)
 				break
 			}
 		}
@@ -30,15 +30,17 @@ func main() {
 	}
 	for _, fileinfo := range files { // If it is a directory
 		file, err := os.Open(os.Args[1] + fileinfo.Name())
-		utils.CheckError(err)
-		messages.ParseHeader(file)
+		if err != nil {
+			panic(err)
+		}
+		/*messages.ParseHeader(file)
 		for {
 			code := messages.ParseMessage(file)
 			if code == 7 {
 				messages.ParseMessage(file)
 				break
 			}
-		}
+		}*/
 		defer file.Close()
 	}
 	fmt.Scanln()
