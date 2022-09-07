@@ -1,6 +1,8 @@
 package classes
 
 import (
+	"fmt"
+
 	"github.com/bisaxa/demoparser/utils"
 )
 
@@ -29,8 +31,8 @@ func UserCmdInfoInit(byteArr []byte, size int32) (output UserCmdInfo) {
 	failedCount := 0
 	looped := 0
 	classIndex := 0
-	// fmt.Println(byteArr)
-	// fmt.Printf("%08b", byteArr)
+	//fmt.Println(byteArr)
+	fmt.Printf("%08b\n", byteArr)
 	for i := 0; i < 9; i++ {
 		if successCount+failedCount > 7 {
 			failedCount = -successCount
