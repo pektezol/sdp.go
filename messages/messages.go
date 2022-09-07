@@ -46,7 +46,7 @@ func ParseMessage(file *os.File) (statusCode int) {
 		consolecmd.Data = string(utils.ReadByteFromFile(file, consolecmd.Size))
 		//fmt.Printf("[%d] %s\n", message.Tick, consolecmd.Data)
 		return 4
-	case 0x05: // Usercmd FIXME: Correct bit-packing inside classes
+	case 0x05: // Usercmd
 		var usercmd UserCmd
 		var usercmdinfo classes.UserCmdInfo
 		usercmd.Cmd = int32(utils.IntFromBytes(utils.ReadByteFromFile(file, 4)))
