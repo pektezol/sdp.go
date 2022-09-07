@@ -37,7 +37,7 @@ type UserCmd struct {
 
 type DataTables struct {
 	Size int32
-	Data []byte
+	Data classes.DataTables
 }
 
 type CustomData struct {
@@ -48,5 +48,5 @@ type CustomData struct {
 
 type StringTables struct {
 	Size int32
-	Data []byte
+	Data []classes.StringTable
 }
