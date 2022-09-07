@@ -26,3 +26,35 @@ type UserCmdInfo struct {
 	MouseDx       int16
 	MouseDy       int16
 }
+
+type DataTables struct {
+	SendTable       []SendTable
+	ServerClassInfo []ServerClassInfo
+}
+
+type SendTable struct {
+	NetTableName  string
+	NumOfProps    int
+	SendPropType  int
+	SendPropName  string
+	SendPropFlags int
+}
+
+type ServerClassInfo struct {
+}
+
+type StringTable struct {
+	NumOfTables        int8
+	TableName          string
+	NumOfEntries       int16
+	EntryName          string
+	EntrySize          int16
+	EntryData          []byte
+	NumOfClientEntries int16
+	ClientEntryName    string
+	ClientEntrySize    int16
+	ClientEntryData    []byte
+}
+
+type GameEvent struct {
+}
