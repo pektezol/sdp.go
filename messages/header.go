@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bisaxa/bitreader"
-	"github.com/bisaxa/demoparser/utils"
+	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/utils"
 )
 
 func ParseHeader(file *os.File) {
@@ -22,5 +22,8 @@ func ParseHeader(file *os.File) {
 	header.PlaybackTicks = int32(reader.TryReadInt32())
 	header.PlaybackFrames = int32(reader.TryReadInt32())
 	header.SignOnLength = int32(reader.TryReadInt32())
+	if header.DemoProtocol != 4 { // Old Engine == 2, 3 / New Engine == 4
+		panic("Only New Engine is supported.")
+	}
 	fmt.Printf("%+v", header)
 }

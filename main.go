@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/bisaxa/demoparser/messages"
+	"github.com/pektezol/demoparser/messages"
 )
 
 func main() {
