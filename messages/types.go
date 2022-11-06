@@ -1,6 +1,6 @@
 package messages
 
-import "github.com/bisaxa/demoparser/classes"
+import "github.com/pektezol/demoparser/classes"
 
 type Header struct {
 	DemoFileStamp   string

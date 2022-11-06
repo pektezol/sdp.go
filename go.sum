@@ -1,4 +1,2 @@
-github.com/bisaxa/bitreader v1.0.1-0.20220907142402-05d7eb4e0f7b h1:OBmlKXvF6Uo+uMowYnu3y3BJWAnZlQzLAJYuwXS97HI=
-github.com/bisaxa/bitreader v1.0.1-0.20220907142402-05d7eb4e0f7b/go.mod h1:AKIwOt+ZqRtuT7SyjGAF8x0kVPhlK8fgTVMlPEh7d0I=
-github.com/bisaxa/bitreader v1.0.1-0.20220907151525-64e0e23b8a0f h1:b48EQo2AaOOAxsWGk3NI+ZJDrXe9YT9KKSXz/agSuzQ=
-github.com/bisaxa/bitreader v1.0.1-0.20220907151525-64e0e23b8a0f/go.mod h1:AKIwOt+ZqRtuT7SyjGAF8x0kVPhlK8fgTVMlPEh7d0I=
+github.com/pektezol/bitreader v1.1.2 h1:F0u8qiauIwh52lwiwy7UMQ03/bw4NuEXQU0UFBL+A2w=
+github.com/pektezol/bitreader v1.1.2/go.mod h1:RKAUiA//jCPJzO10P+VSkBq4wfY38TaNjpCjQ+DmbcQ=

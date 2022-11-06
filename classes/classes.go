@@ -4,8 +4,8 @@ import (
 	"encoding/binary"
 	"os"
 
-	"github.com/bisaxa/bitreader"
-	"github.com/bisaxa/demoparser/utils"
+	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/utils"
 )
 
 func ParseCmdInfo(file *os.File, MSSC int) []CmdInfo {

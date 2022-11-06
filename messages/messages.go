@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bisaxa/bitreader"
-	"github.com/bisaxa/demoparser/classes"
-	"github.com/bisaxa/demoparser/utils"
+	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/classes"
+	"github.com/pektezol/demoparser/classes/netsvc"
+	"github.com/pektezol/demoparser/utils"
 )
 
 func ParseMessage(file *os.File) (statusCode int) {
@@ -22,7 +23,10 @@ func ParseMessage(file *os.File) (statusCode int) {
 		packet.InSequence = int32(reader.TryReadInt32())
 		packet.OutSequence = int32(reader.TryReadInt32())
 		packet.Size = int32(reader.TryReadInt32())
-		reader.SkipBytes(int(packet.Size)) // TODO: NET/SVC Message Parsing
+		data := utils.ReadByteFromFile(file, packet.Size)
+		//fmt.Println(data)
+		netsvc.ParseNetSvcMessage(data)
+		//reader.SkipBytes(int(packet.Size)) // TODO: NET/SVC Message Parsing
 		fmt.Printf("[%d] (%d) SignOn: %v\n", messageTick, messageSlot, packet)
 		return 1
 	case 0x02: // Packet
@@ -32,7 +36,7 @@ func ParseMessage(file *os.File) (statusCode int) {
 		packet.OutSequence = int32(reader.TryReadInt32())
 		packet.Size = int32(reader.TryReadInt32())
 		reader.SkipBytes(int(packet.Size)) // TODO: NET/SVC Message Parsing
-		fmt.Printf("[%d] Packet: %v\n", messageTick, packet)
+		//fmt.Printf("[%d] Packet: %v\n", messageTick, packet)
 		return 2
 	case 0x03: // SyncTick
 		return 3
@@ -40,14 +44,14 @@ func ParseMessage(file *os.File) (statusCode int) {
 		var consolecmd ConsoleCmd
 		consolecmd.Size = int32(reader.TryReadInt32())
 		consolecmd.Data = string(utils.ReadByteFromFile(file, consolecmd.Size))
-		fmt.Printf("[%d] ConsoleCmd: %s\n", messageTick, consolecmd.Data)
+		//fmt.Printf("[%d] ConsoleCmd: %s\n", messageTick, consolecmd.Data)
 		return 4
 	case 0x05: // UserCmd
 		var usercmd UserCmd
 		usercmd.Cmd = int32(reader.TryReadInt32())
 		usercmd.Size = int32(reader.TryReadInt32())
 		usercmd.Data = classes.ParseUserCmdInfo(file, int(usercmd.Size))
-		fmt.Printf("[%d] UserCmd: %v\n", messageTick, usercmd.Data)
+		//fmt.Printf("[%d] UserCmd: %v\n", messageTick, usercmd.Data)
 		return 5
 	case 0x06: // DataTables
 		var datatables DataTables

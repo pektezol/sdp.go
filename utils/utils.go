@@ -1,10 +1,11 @@
 package utils
 
 import (
+	"bytes"
 	"os"
 	"unsafe"
 
-	"github.com/bisaxa/bitreader"
+	"github.com/pektezol/bitreader"
 )
 
 func CheckError(e error) {
@@ -22,6 +23,20 @@ func ReadByteFromFile(file *os.File, size int32) []byte {
 func ReadStringFromFile(file *os.File) string {
 	var output string
 	reader := bitreader.Reader(file, true)
+	for {
+		value, err := reader.ReadBytes(1)
+		CheckError(err)
+		if value == 0 {
+			break
+		}
+		output += string(rune(value))
+	}
+	return output
+}
+
+func ReadStringFromSlice(file []byte) string {
+	var output string
+	reader := bitreader.Reader(bytes.NewReader(file), true)
 	for {
 		value, err := reader.ReadBytes(1)
 		CheckError(err)
