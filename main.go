@@ -6,7 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/pektezol/demoparser/messages"
+	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/packets"
 )
 
 func main() {
@@ -19,9 +20,10 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		messages.ParseHeader(file)
+		reader := bitreader.Reader(file, true)
+		packets.ParseHeader(reader)
 		for {
-			code := messages.ParseMessage(file)
+			code := packets.ParseMessage(reader)
 			if code == 7 {
 				break
 			}
