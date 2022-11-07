@@ -1,21 +1,23 @@
 package packets
 
+import "github.com/pektezol/demoparser/packets/classes"
+
 type Header struct {
 	DemoFileStamp   string
-	DemoProtocol    uint
-	NetworkProtocol uint
+	DemoProtocol    uint32
+	NetworkProtocol uint32
 	ServerName      string
 	ClientName      string
 	MapName         string
 	GameDirectory   string
 	PlaybackTime    float32
-	PlaybackTicks   int
-	PlaybackFrames  int
-	SignOnLength    uint
+	PlaybackTicks   int32
+	PlaybackFrames  int32
+	SignOnLength    uint32
 }
 
 type SignOn struct {
-	PacketInfo  []byte
+	PacketInfo  []classes.CmdInfo
 	InSequence  int32
 	OutSequence int32
 	Size        int32
@@ -23,7 +25,7 @@ type SignOn struct {
 }
 
 type Packet struct {
-	PacketInfo  []byte
+	PacketInfo  []classes.CmdInfo
 	InSequence  int32
 	OutSequence int32
 	Size        int32
@@ -40,7 +42,7 @@ type ConsoleCmd struct {
 type UserCmd struct {
 	Cmd  int32
 	Size int32
-	Data []byte
+	Data classes.UserCmdInfo
 }
 
 type DataTables struct {

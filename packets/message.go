@@ -4,56 +4,74 @@ import (
 	"fmt"
 
 	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/packets/classes"
 )
+
+const MSSC = 2
 
 func ParseMessage(reader *bitreader.ReaderType) (status int) {
 	messageType := reader.TryReadInt8()
 	messageTick := reader.TryReadInt32()
 	messageSlot := reader.TryReadInt8()
-	//fmt.Println(messageType, messageTick, messageSlot)
 	switch messageType {
-	case 0x01:
-		//signOn := SignOn{}
-		reader.SkipBytes(76*2 + 8)
-		val := reader.TryReadInt32()
-		reader.SkipBytes(int(val))
-		fmt.Printf("[%d] (%d) {%d} SignOn: \n", messageTick, messageType, messageSlot)
+	case 0x01: // TODO: SignOn - Data
+		signOn := SignOn{
+			PacketInfo:  classes.ParseCmdInfo(reader, MSSC),
+			InSequence:  int32(reader.TryReadInt32()),
+			OutSequence: int32(reader.TryReadInt32()),
+			Size:        int32(reader.TryReadInt32()),
+		}
+		reader.SkipBytes(int(signOn.Size))
+		fmt.Printf("[%d] (%d) {%d} SignOn: %v\n", messageTick, messageType, messageSlot, signOn)
 		return 1
-	case 0x02:
-		reader.SkipBytes(76*2 + 8)
-		val := reader.TryReadInt32()
-		reader.SkipBytes(int(val))
-		// fmt.Printf("[%d] (%d) Packet: \n", messageTick, messageType)
+	case 0x02: // TODO: Packet - Data
+		packet := Packet{
+			PacketInfo:  classes.ParseCmdInfo(reader, MSSC),
+			InSequence:  int32(reader.TryReadInt32()),
+			OutSequence: int32(reader.TryReadInt32()),
+			Size:        int32(reader.TryReadInt32()),
+		}
+		//classes.ParseUserCmdInfo(reader, packet.Size)
+		reader.SkipBytes(int(packet.Size))
+		//fmt.Printf("[%d] (%d) Packet: %v\n", messageTick, messageType, packet)
 		return 2
 	case 0x03:
-		fmt.Printf("[%d] (%d) SyncTick: \n", messageTick, messageType)
+		syncTick := SyncTick{}
+		fmt.Printf("[%d] (%d) SyncTick: %v\n", messageTick, messageType, syncTick)
 		return 3
 	case 0x04:
-		val := reader.TryReadInt32()
-		reader.SkipBytes(int(val))
-		// fmt.Printf("[%d] (%d) ConsoleCmd: \n", messageTick, messageType)
+		consoleCmd := ConsoleCmd{
+			Size: int32(reader.TryReadInt32()),
+		}
+		consoleCmd.Data = reader.TryReadStringLen(int(consoleCmd.Size))
+		//fmt.Printf("[%d] (%d) ConsoleCmd: %s\n", messageTick, messageType, consoleCmd.Data)
 		return 4
-	case 0x05:
-		reader.SkipBytes(4)
-		val := reader.TryReadInt32()
-		reader.SkipBytes(int(val))
-		// fmt.Printf("[%d] (%d) UserCmd: \n", messageTick, messageType)
+	case 0x05: // TODO: UserCmd - Buttons
+		userCmd := UserCmd{
+			Cmd:  int32(reader.TryReadInt32()),
+			Size: int32(reader.TryReadInt32()),
+		}
+		userCmd.Data = classes.ParseUserCmdInfo(reader, int(userCmd.Size))
+		fmt.Printf("[%d] (%d) UserCmd: %v\n", messageTick, messageType, userCmd)
 		return 5
-	case 0x06:
+	case 0x06: // TODO: DataTables
 		val := reader.TryReadInt32()
 		reader.SkipBytes(int(val))
 		// fmt.Printf("[%d] (%d) DataTables: \n", messageTick, messageType)
 		return 6
-	case 0x07:
-		fmt.Printf("[%d] (%d) Stop: \n", messageTick, messageType)
+	case 0x07: // TODO: Stop - RemainingData
+		stop := Stop{
+			RemainingData: nil,
+		}
+		fmt.Printf("[%d] (%d) Stop: %v\n", messageTick, messageType, stop)
 		return 7
-	case 0x08:
+	case 0x08: // TODO: CustomData
 		reader.SkipBytes(4)
 		val := reader.TryReadInt32()
 		reader.SkipBytes(int(val))
 		// fmt.Printf("[%d] (%d) CustomData: \n", messageTick, messageType)
 		return 8
-	case 0x09:
+	case 0x09: // TODO: StringTables
 		val := reader.TryReadInt32()
 		reader.SkipBytes(int(val))
 		// fmt.Printf("[%d] (%d) StringTables: \n", messageTick, messageType)
