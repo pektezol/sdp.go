@@ -62,5 +62,5 @@ type CustomData struct {
 
 type StringTables struct {
 	Size int32
-	Data []byte
+	Data []classes.StringTable
 }

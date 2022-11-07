@@ -31,7 +31,6 @@ func ParseMessage(reader *bitreader.ReaderType) (status int) {
 			OutSequence: int32(reader.TryReadInt32()),
 			Size:        int32(reader.TryReadInt32()),
 		}
-		//classes.ParseUserCmdInfo(reader, packet.Size)
 		reader.SkipBytes(int(packet.Size))
 		//fmt.Printf("[%d] (%d) Packet: %v\n", messageTick, messageType, packet)
 		return 2
@@ -51,15 +50,15 @@ func ParseMessage(reader *bitreader.ReaderType) (status int) {
 			Cmd:  int32(reader.TryReadInt32()),
 			Size: int32(reader.TryReadInt32()),
 		}
-		userCmd.Data = classes.ParseUserCmdInfo(reader, int(userCmd.Size))
-		fmt.Printf("[%d] (%d) UserCmd: %v\n", messageTick, messageType, userCmd)
+		userCmd.Data = classes.ParseUserCmdInfo(reader.TryReadBytesToSlice(int(userCmd.Size)))
+		// fmt.Printf("[%d] (%d) UserCmd: %v\n", messageTick, messageType, userCmd)
 		return 5
 	case 0x06: // TODO: DataTables
 		val := reader.TryReadInt32()
 		reader.SkipBytes(int(val))
 		// fmt.Printf("[%d] (%d) DataTables: \n", messageTick, messageType)
 		return 6
-	case 0x07: // TODO: Stop - RemainingData
+	case 0x07:
 		stop := Stop{
 			RemainingData: nil,
 		}
@@ -71,10 +70,12 @@ func ParseMessage(reader *bitreader.ReaderType) (status int) {
 		reader.SkipBytes(int(val))
 		// fmt.Printf("[%d] (%d) CustomData: \n", messageTick, messageType)
 		return 8
-	case 0x09: // TODO: StringTables
-		val := reader.TryReadInt32()
-		reader.SkipBytes(int(val))
-		// fmt.Printf("[%d] (%d) StringTables: \n", messageTick, messageType)
+	case 0x09: // TODO: StringTables - Data
+		stringTables := StringTables{
+			Size: int32(reader.TryReadInt32()),
+		}
+		stringTables.Data = classes.ParseStringTable(reader.TryReadBytesToSlice(int(stringTables.Size)))
+		// fmt.Printf("[%d] (%d) StringTables: %v\n", messageTick, messageType, stringTables)
 		return 9
 	default:
 		return 0
