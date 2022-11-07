@@ -1,0 +1,5 @@
+package classes
+
+func ParseStringTable() {
+
+}
