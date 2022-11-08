@@ -5,11 +5,12 @@ import (
 
 	"github.com/pektezol/bitreader"
 	"github.com/pektezol/demoparser/packets/classes"
+	"github.com/pektezol/demoparser/packets/messages"
 )
 
 const MSSC = 2
 
-func ParseMessage(reader *bitreader.ReaderType) (status int) {
+func ParsePacket(reader *bitreader.ReaderType) (status int) {
 	messageType := reader.TryReadInt8()
 	messageTick := reader.TryReadInt32()
 	messageSlot := reader.TryReadInt8()
@@ -31,8 +32,8 @@ func ParseMessage(reader *bitreader.ReaderType) (status int) {
 			OutSequence: int32(reader.TryReadInt32()),
 			Size:        int32(reader.TryReadInt32()),
 		}
-		reader.SkipBytes(int(packet.Size))
-		//fmt.Printf("[%d] (%d) Packet: %v\n", messageTick, messageType, packet)
+		packet.Data = messages.ParseMessage(reader.TryReadBytesToSlice(int(packet.Size)))
+		fmt.Printf("[%d] (%d) Packet: %v\n", messageTick, messageType, packet)
 		return 2
 	case 0x03:
 		syncTick := SyncTick{}

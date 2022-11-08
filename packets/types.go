@@ -1,6 +1,9 @@
 package packets
 
-import "github.com/pektezol/demoparser/packets/classes"
+import (
+	"github.com/pektezol/demoparser/packets/classes"
+	"github.com/pektezol/demoparser/packets/messages"
+)
 
 type Header struct {
 	DemoFileStamp   string
@@ -21,7 +24,7 @@ type SignOn struct {
 	InSequence  int32
 	OutSequence int32
 	Size        int32
-	Data        []byte
+	Data        []messages.Message
 }
 
 type Packet struct {
@@ -29,7 +32,7 @@ type Packet struct {
 	InSequence  int32
 	OutSequence int32
 	Size        int32
-	Data        []byte
+	Data        []messages.Message
 }
 
 type SyncTick struct{}

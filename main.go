@@ -23,7 +23,7 @@ func main() {
 		reader := bitreader.Reader(file, true)
 		packets.ParseHeader(reader)
 		for {
-			code := packets.ParseMessage(reader)
+			code := packets.ParsePacket(reader)
 			if code == 7 {
 				break
 			}
