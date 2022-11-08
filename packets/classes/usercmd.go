@@ -6,6 +6,23 @@ import (
 	"github.com/pektezol/bitreader"
 )
 
+type UserCmdInfo struct {
+	CommandNumber int32
+	TickCount     int32
+	ViewAnglesX   float32
+	ViewAnglesY   float32
+	ViewAnglesZ   float32
+	ForwardMove   float32
+	SideMove      float32
+	UpMove        float32
+	Buttons       int32
+	Impulse       byte
+	WeaponSelect  int
+	WeaponSubtype int
+	MouseDx       int16
+	MouseDy       int16
+}
+
 func ParseUserCmdInfo(data []byte) UserCmdInfo {
 	reader := bitreader.Reader(bytes.NewReader(data), true)
 	var userCmdInfo UserCmdInfo

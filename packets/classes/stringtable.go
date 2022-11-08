@@ -6,6 +6,18 @@ import (
 	"github.com/pektezol/bitreader"
 )
 
+type StringTable struct {
+	TableName          string
+	NumOfEntries       int16
+	EntryName          string
+	EntrySize          int16
+	EntryData          []byte
+	NumOfClientEntries int16
+	ClientEntryName    string
+	ClientEntrySize    int16
+	ClientEntryData    []byte
+}
+
 func ParseStringTable(data []byte) []StringTable {
 	reader := bitreader.Reader(bytes.NewReader(data), true)
 	var stringTables []StringTable
