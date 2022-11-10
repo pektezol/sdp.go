@@ -3,7 +3,6 @@ package types
 import "github.com/pektezol/bitreader"
 
 type NetSetConVar struct {
-	Length  uint8
 	ConVars []ConVar
 }
 
@@ -13,16 +12,15 @@ type ConVar struct {
 }
 
 func ParseNetSetConVar(reader *bitreader.ReaderType) NetSetConVar {
-	var convars []ConVar
-	netsetconvar := NetSetConVar{
-		Length: reader.TryReadInt8(),
-	}
-	for i := 0; i < int(netsetconvar.Length); i++ {
-		convars = append(convars, ConVar{
+	length := reader.TryReadInt8()
+	convars := make([]ConVar, length)
+	for i := 0; i < int(length); i++ {
+		convars[i] = ConVar{
 			Name:  reader.TryReadString(),
 			Value: reader.TryReadString(),
-		})
+		}
 	}
-	netsetconvar.ConVars = convars
-	return netsetconvar
+	return NetSetConVar{
+		ConVars: convars,
+	}
 }
