@@ -1,6 +1,8 @@
 package types
 
-import "github.com/pektezol/bitreader"
+import (
+	"github.com/pektezol/bitreader"
+)
 
 type SvcTempEntities struct {
 	NumEntries uint8

@@ -2,6 +2,7 @@ package messages
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/pektezol/bitreader"
 	"github.com/pektezol/demoparser/packets/messages/types"
@@ -15,76 +16,78 @@ func ParseMessage(data []byte) []Message {
 		if err != nil {
 			break
 		}
+		fmt.Printf("Reading message type: %d\n", messageType)
 		switch messageType {
-		case 0x00:
+		case 0:
 			messages = append(messages, Message{Data: types.NetNop{}})
-		case 0x01:
+		case 1:
 			messages = append(messages, Message{Data: types.ParseNetDisconnect(reader)})
-		case 0x02:
+		case 2:
 			messages = append(messages, Message{Data: types.ParseNetFile(reader)})
-		case 0x03:
+		case 3:
 			messages = append(messages, Message{Data: types.ParseNetSplitScreenUser(reader)})
-		case 0x04:
+		case 4:
 			messages = append(messages, Message{Data: types.ParseNetTick(reader)})
-		case 0x05:
+		case 5:
 			messages = append(messages, Message{Data: types.ParseNetStringCmd(reader)})
-		case 0x06:
+		case 6:
 			messages = append(messages, Message{Data: types.ParseNetSetConVar(reader)})
-		case 0x07:
+		case 7:
 			messages = append(messages, Message{Data: types.ParseNetSignOnState(reader)})
-		case 0x08:
+		case 8:
 			messages = append(messages, Message{Data: types.ParseSvcServerInfo(reader)})
-		case 0x09:
+		case 9:
 			messages = append(messages, Message{Data: types.ParseSvcSendTable(reader)})
-		case 0x10:
+		case 10:
 			messages = append(messages, Message{Data: types.ParseSvcClassInfo(reader)})
-		case 0x11:
+		case 11:
 			messages = append(messages, Message{Data: types.ParseSvcSetPause(reader)})
-		case 0x12:
+		case 12:
 			messages = append(messages, Message{Data: types.ParseSvcCreateStringTable(reader)})
-		case 0x13:
+		case 13:
 			messages = append(messages, Message{Data: types.ParseSvcUpdateStringTable(reader)})
-		case 0x14:
+		case 14:
 			messages = append(messages, Message{Data: types.ParseSvcVoiceInit(reader)})
-		case 0x15:
+		case 15:
 			messages = append(messages, Message{Data: types.ParseSvcVoiceData(reader)})
-		case 0x16:
+		case 16:
 			messages = append(messages, Message{Data: types.ParseSvcPrint(reader)})
-		case 0x17:
+		case 17:
 			messages = append(messages, Message{Data: types.ParseSvcSounds(reader)})
-		case 0x18:
+		case 18:
 			messages = append(messages, Message{Data: types.ParseSvcSetView(reader)})
-		case 0x19:
+		case 19:
 			messages = append(messages, Message{Data: types.ParseSvcFixAngle(reader)})
-		case 0x20:
+		case 20:
 			messages = append(messages, Message{Data: types.ParseSvcCrosshairAngle(reader)})
-		case 0x21:
+		case 21:
 			// TODO: SvcBspDecal
-		case 0x22:
+		case 22:
 			messages = append(messages, Message{Data: types.ParseSvcSplitScreen(reader)})
-		case 0x23:
+		case 23:
 			messages = append(messages, Message{Data: types.ParseSvcUserMessage(reader)})
-		case 0x24:
+		case 24:
 			messages = append(messages, Message{Data: types.ParseSvcEntityMessage(reader)})
-		case 0x25:
+		case 25:
 			// TODO: SvcGameEvent
-		case 0x26:
+		case 26:
 			messages = append(messages, Message{Data: types.ParseSvcPacketEntities(reader)})
-		case 0x27:
+		case 27:
 			messages = append(messages, Message{Data: types.ParseSvcTempEntities(reader)})
-		case 0x28:
+		case 28:
 			messages = append(messages, Message{Data: types.ParseSvcPrefetch(reader)})
-		case 0x29:
+		case 29:
 			messages = append(messages, Message{Data: types.ParseSvcMenu(reader)})
-		case 0x30:
+		case 30:
 			messages = append(messages, Message{Data: types.ParseSvcGameEventList(reader)})
-		case 0x31:
+		case 31:
 			messages = append(messages, Message{Data: types.ParseSvcGetCvarValue(reader)})
-		case 0x32:
+		case 32:
 			messages = append(messages, Message{Data: types.ParseSvcCmdKeyValues(reader)})
-		case 0x33:
+		case 33:
 			messages = append(messages, Message{Data: types.ParseSvcPaintmapData(reader)})
 		}
+		//fmt.Println(messages)
 	}
 	return messages
 }

@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	"github.com/pektezol/bitreader"
 )
 
@@ -26,7 +24,6 @@ func ParseSvcPacketEntities(reader *bitreader.ReaderType) SvcPacketEntities {
 	baseline := reader.TryReadBool()
 	updatedentries := reader.TryReadBits(11)
 	length := reader.TryReadBits(20)
-	fmt.Println(length)
 	return SvcPacketEntities{
 		MaxEntries:     uint16(maxentries),
 		IsDelta:        isdelta,
