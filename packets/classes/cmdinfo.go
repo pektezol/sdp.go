@@ -15,7 +15,7 @@ type CmdInfo struct {
 func ParseCmdInfo(reader *bitreader.ReaderType, MSSC int) []CmdInfo {
 	var out []CmdInfo
 	for i := 0; i < MSSC; i++ {
-		flags := reader.TryReadInt32()
+		flags := int32(reader.TryReadInt32())
 		viewOrigin := []float32{
 			reader.TryReadFloat32(),
 			reader.TryReadFloat32(),
@@ -47,7 +47,7 @@ func ParseCmdInfo(reader *bitreader.ReaderType, MSSC int) []CmdInfo {
 			reader.TryReadFloat32(),
 		}
 		cmdInfo := CmdInfo{
-			Flags:            int32(flags),
+			Flags:            flags,
 			ViewOrigin:       viewOrigin,
 			ViewAngles:       viewAngles,
 			LocalViewAngles:  localViewAngles,

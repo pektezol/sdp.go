@@ -12,8 +12,9 @@ type SvcUserMessage struct {
 func ParseSvcUserMessage(reader *bitreader.ReaderType) SvcUserMessage {
 	msgtype := reader.TryReadInt8()
 	length := reader.TryReadBits(12)
+	reader.SkipBits(int(length)) // TODO: Read data properly
 	return SvcUserMessage{
 		MsgType: msgtype,
-		Data:    reader.TryReadBytesToSlice(int(length / 8)),
+		//Data:    reader.TryReadBytesToSlice(int(length / 8)),
 	}
 }

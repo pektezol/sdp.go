@@ -2,11 +2,19 @@ package messages
 
 import (
 	"bytes"
-	"fmt"
 
 	"github.com/pektezol/bitreader"
 	"github.com/pektezol/demoparser/packets/messages/types"
 )
+
+// TODO: Read data properly in:
+// SvcCreateStringTable
+// SvcGameEventList
+// SvcPacketEntities
+// SvcSounds
+// SvcTempEntities
+// SvcUpdateStringTable
+// SvcUserMessage
 
 func ParseMessage(data []byte) []Message {
 	reader := bitreader.Reader(bytes.NewReader(data), true)
@@ -16,7 +24,7 @@ func ParseMessage(data []byte) []Message {
 		if err != nil {
 			break
 		}
-		fmt.Printf("Reading message type: %d\n", messageType)
+		// fmt.Printf("Reading message type: %d\n", messageType)
 		switch messageType {
 		case 0:
 			messages = append(messages, Message{Data: types.NetNop{}})
@@ -87,7 +95,6 @@ func ParseMessage(data []byte) []Message {
 		case 33:
 			messages = append(messages, Message{Data: types.ParseSvcPaintmapData(reader)})
 		}
-		//fmt.Println(messages)
 	}
 	return messages
 }

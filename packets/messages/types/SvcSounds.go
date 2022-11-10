@@ -22,10 +22,11 @@ func ParseSvcSounds(reader *bitreader.ReaderType) SvcSounds {
 	} else {
 		length = int16(reader.TryReadInt16())
 	}
-	data := reader.TryReadBytesToSlice(int(length / 8))
+	reader.SkipBits(int(length)) // TODO: Read data properly
+	//data := reader.TryReadBytesToSlice(int(length / 8))
 	return SvcSounds{
 		ReliableSound: reliablesound,
 		Size:          size,
-		Data:          data,
+		//Data:          data,
 	}
 }

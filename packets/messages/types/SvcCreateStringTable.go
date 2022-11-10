@@ -26,7 +26,8 @@ func ParseSvcCreateStringTable(reader *bitreader.ReaderType) SvcCreateStringTabl
 		svccreatestringtable.UserDataSizeBits = uint8(reader.TryReadBits(4))
 	}
 	svccreatestringtable.Flags = uint8(reader.TryReadBits(2))
-	svccreatestringtable.StringData = int(reader.TryReadBits(int(length / 8)))
+	reader.SkipBits(int(length)) // TODO: Read data properly
+	// svccreatestringtable.StringData = int(reader.TryReadBits(int(length / 8)))
 	return svccreatestringtable
 
 }
