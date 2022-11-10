@@ -44,7 +44,7 @@ func ParsePacket(reader *bitreader.ReaderType) (status int) {
 			Size: int32(reader.TryReadInt32()),
 		}
 		consoleCmd.Data = reader.TryReadStringLen(int(consoleCmd.Size))
-		//fmt.Printf("[%d] (%d) ConsoleCmd: %s\n", messageTick, messageType, consoleCmd.Data)
+		fmt.Printf("[%d] (%d) ConsoleCmd: %s\n", messageTick, messageType, consoleCmd.Data)
 		return 4
 	case 0x05: // TODO: UserCmd - Buttons
 		userCmd := UserCmd{
