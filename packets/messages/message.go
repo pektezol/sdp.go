@@ -40,6 +40,50 @@ func ParseMessage(data []byte) []Message {
 			messages = append(messages, Message{Data: types.ParseSvcClassInfo(reader)})
 		case 0x11:
 			messages = append(messages, Message{Data: types.ParseSvcSetPause(reader)})
+		case 0x12:
+			messages = append(messages, Message{Data: types.ParseSvcCreateStringTable(reader)})
+		case 0x13:
+			messages = append(messages, Message{Data: types.ParseSvcUpdateStringTable(reader)})
+		case 0x14:
+			messages = append(messages, Message{Data: types.ParseSvcVoiceInit(reader)})
+		case 0x15:
+			messages = append(messages, Message{Data: types.ParseSvcVoiceData(reader)})
+		case 0x16:
+			messages = append(messages, Message{Data: types.ParseSvcPrint(reader)})
+		case 0x17:
+			messages = append(messages, Message{Data: types.ParseSvcSounds(reader)})
+		case 0x18:
+			messages = append(messages, Message{Data: types.ParseSvcSetView(reader)})
+		case 0x19:
+			messages = append(messages, Message{Data: types.ParseSvcFixAngle(reader)})
+		case 0x20:
+			messages = append(messages, Message{Data: types.ParseSvcCrosshairAngle(reader)})
+		case 0x21:
+			// TODO: SvcBspDecal
+		case 0x22:
+			messages = append(messages, Message{Data: types.ParseSvcSplitScreen(reader)})
+		case 0x23:
+			messages = append(messages, Message{Data: types.ParseSvcUserMessage(reader)})
+		case 0x24:
+			messages = append(messages, Message{Data: types.ParseSvcEntityMessage(reader)})
+		case 0x25:
+			// TODO: SvcGameEvent
+		case 0x26:
+			messages = append(messages, Message{Data: types.ParseSvcPacketEntities(reader)})
+		case 0x27:
+			messages = append(messages, Message{Data: types.ParseSvcTempEntities(reader)})
+		case 0x28:
+			messages = append(messages, Message{Data: types.ParseSvcPrefetch(reader)})
+		case 0x29:
+			messages = append(messages, Message{Data: types.ParseSvcMenu(reader)})
+		case 0x30:
+			messages = append(messages, Message{Data: types.ParseSvcGameEventList(reader)})
+		case 0x31:
+			messages = append(messages, Message{Data: types.ParseSvcGetCvarValue(reader)})
+		case 0x32:
+			messages = append(messages, Message{Data: types.ParseSvcCmdKeyValues(reader)})
+		case 0x33:
+			messages = append(messages, Message{Data: types.ParseSvcPaintmapData(reader)})
 		}
 	}
 	return messages
