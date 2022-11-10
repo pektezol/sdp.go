@@ -1,6 +1,8 @@
 package types
 
-import "github.com/pektezol/bitreader"
+import (
+	"github.com/pektezol/bitreader"
+)
 
 type SvcSetPause struct {
 	Paused bool
