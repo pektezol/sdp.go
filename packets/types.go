@@ -50,7 +50,7 @@ type UserCmd struct {
 
 type DataTables struct {
 	Size int32
-	Data []byte
+	Data classes.DataTable
 }
 
 type Stop struct {

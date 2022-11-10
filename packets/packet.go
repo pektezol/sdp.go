@@ -22,7 +22,7 @@ func ParsePacket(reader *bitreader.ReaderType) (status int) {
 			OutSequence: int32(reader.TryReadInt32()),
 			Size:        int32(reader.TryReadInt32()),
 		}
-		reader.SkipBytes(int(signOn.Size))
+		signOn.Data = messages.ParseMessage(reader.TryReadBytesToSlice(int(signOn.Size)))
 		fmt.Printf("[%d] (%d) {%d} SignOn: %v\n", messageTick, messageType, messageSlot, signOn)
 		return 1
 	case 2: // TODO: Packet - Data
@@ -33,7 +33,7 @@ func ParsePacket(reader *bitreader.ReaderType) (status int) {
 			Size:        int32(reader.TryReadInt32()),
 		}
 		packet.Data = messages.ParseMessage(reader.TryReadBytesToSlice(int(packet.Size)))
-		fmt.Printf("[%d] (%d) Packet: %v\n", messageTick, messageType, packet)
+		// fmt.Printf("[%d] (%d) Packet: %v\n", messageTick, messageType, packet)
 		return 2
 	case 3:
 		syncTick := SyncTick{}
@@ -55,9 +55,13 @@ func ParsePacket(reader *bitreader.ReaderType) (status int) {
 		// fmt.Printf("[%d] (%d) UserCmd: %v\n", messageTick, messageType, userCmd)
 		return 5
 	case 6: // TODO: DataTables
+		// datatables := DataTables{
+		//  	Size: int32(reader.TryReadInt32()),
+		// }
 		val := reader.TryReadInt32()
 		reader.SkipBytes(int(val))
-		// fmt.Printf("[%d] (%d) DataTables: \n", messageTick, messageType)
+		// datatables.Data = classes.ParseDataTable(reader.TryReadBytesToSlice(int(datatables.Size)))
+		// fmt.Printf("[%d] (%d) DataTables: %v\n", messageTick, messageType, datatables)
 		return 6
 	case 7:
 		stop := Stop{

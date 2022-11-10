@@ -19,7 +19,7 @@ func ParseSvcClassInfo(reader *bitreader.ReaderType) SvcClassInfo {
 	length := reader.TryReadInt16()
 	createonclient := reader.TryReadBool()
 	var serverclasses []ServerClass
-	if createonclient {
+	if !createonclient {
 		serverclasses := make([]ServerClass, length)
 		for i := 0; i < int(length); i++ {
 			id, err := reader.ReadBits(HighestBitIndex(uint(length)) + 1)
