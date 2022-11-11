@@ -16,7 +16,6 @@ func ParseSvcUpdateStringTable(reader *bitreader.ReaderType) SvcUpdateStringTabl
 		svcupdatestringtable.NumChangedEntries = int16(reader.TryReadInt16())
 	}
 	length := reader.TryReadBits(20)
-	reader.SkipBits(int(length)) // TODO: Read data properly
-	//svcupdatestringtable.Data = reader.TryReadBytesToSlice(int(length / 8))
+	svcupdatestringtable.Data = reader.TryReadBitsToSlice(int(length))
 	return svcupdatestringtable
 }

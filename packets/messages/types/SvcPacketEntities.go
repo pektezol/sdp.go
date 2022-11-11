@@ -20,12 +20,13 @@ func ParseSvcPacketEntities(reader *bitreader.ReaderType) SvcPacketEntities {
 	var deltafrom int32
 	if isdelta {
 		deltafrom = int32(reader.TryReadInt32())
+	} else {
+		deltafrom = -1
 	}
 	baseline := reader.TryReadBool()
 	updatedentries := reader.TryReadBits(11)
 	length := reader.TryReadBits(20)
 	updatebaseline := reader.TryReadBool()
-	reader.SkipBits(int(length)) // TODO: Read data properly
 	return SvcPacketEntities{
 		MaxEntries:     uint16(maxentries),
 		IsDelta:        isdelta,
@@ -33,6 +34,6 @@ func ParseSvcPacketEntities(reader *bitreader.ReaderType) SvcPacketEntities {
 		BaseLine:       baseline,
 		UpdatedEntries: uint16(updatedentries),
 		UpdateBaseline: updatebaseline,
-		// Data:           reader.TryReadBytesToSlice(int(length / 8)),
+		Data:           reader.TryReadBitsToSlice(int(length)),
 	}
 }

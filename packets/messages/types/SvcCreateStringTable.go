@@ -1,6 +1,8 @@
 package types
 
-import "github.com/pektezol/bitreader"
+import (
+	"github.com/pektezol/bitreader"
+)
 
 type SvcCreateStringTable struct {
 	Name              string
@@ -10,7 +12,7 @@ type SvcCreateStringTable struct {
 	UserDataSize      uint16
 	UserDataSizeBits  uint8
 	Flags             uint8
-	StringData        int
+	StringData        []byte
 }
 
 func ParseSvcCreateStringTable(reader *bitreader.ReaderType) SvcCreateStringTable {
@@ -26,8 +28,7 @@ func ParseSvcCreateStringTable(reader *bitreader.ReaderType) SvcCreateStringTabl
 		svccreatestringtable.UserDataSizeBits = uint8(reader.TryReadBits(4))
 	}
 	svccreatestringtable.Flags = uint8(reader.TryReadBits(2))
-	reader.SkipBits(int(length)) // TODO: Read data properly
-	// svccreatestringtable.StringData = int(reader.TryReadBits(int(length / 8)))
+	svccreatestringtable.StringData = reader.TryReadBitsToSlice(int(length))
 	return svccreatestringtable
 
 }
