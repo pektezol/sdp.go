@@ -30,8 +30,6 @@ type ServerClassInfo struct {
 func ParseDataTable(data []byte) DataTable {
 	reader := bitreader.Reader(bytes.NewReader(data), true)
 	sendtable := parseSendTable(reader)
-	fmt.Println("AAA")
-	fmt.Println(reader.TryReadBits(8))
 	serverclassinfo := parseServerClassInfo(reader)
 	return DataTable{
 		SendTable:       sendtable,

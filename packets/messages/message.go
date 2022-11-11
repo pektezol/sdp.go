@@ -7,15 +7,6 @@ import (
 	"github.com/pektezol/demoparser/packets/messages/types"
 )
 
-// TODO: Read data properly in:
-// SvcCreateStringTable
-// SvcGameEventList
-// SvcPacketEntities
-// SvcSounds
-// SvcTempEntities
-// SvcUpdateStringTable
-// SvcUserMessage
-
 func ParseMessage(data []byte) []Message {
 	reader := bitreader.Reader(bytes.NewReader(data), true)
 	var messages []Message
@@ -24,7 +15,6 @@ func ParseMessage(data []byte) []Message {
 		if err != nil {
 			break
 		}
-		// fmt.Printf("Reading message type: %d\n", messageType)
 		switch messageType {
 		case 0:
 			messages = append(messages, Message{Data: types.NetNop{}})
@@ -77,7 +67,7 @@ func ParseMessage(data []byte) []Message {
 		case 24:
 			messages = append(messages, Message{Data: types.ParseSvcEntityMessage(reader)})
 		case 25:
-			// TODO: SvcGameEvent
+			messages = append(messages, Message{Data: types.ParseSvcGameEvent(reader)})
 		case 26:
 			messages = append(messages, Message{Data: types.ParseSvcPacketEntities(reader)})
 		case 27:
