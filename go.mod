@@ -1,5 +1,5 @@
 module github.com/pektezol/demoparser
 
-go 1.19
+go 1.21.0
 
-require github.com/pektezol/bitreader v1.2.9
+require github.com/pektezol/bitreader v1.3.0
