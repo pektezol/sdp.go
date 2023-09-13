@@ -32,7 +32,6 @@ func main() {
 		demoParserHandler(reader)
 		defer file.Close()
 	}
-	// fmt.Scanln()
 }
 
 func demoParserHandler(reader *bitreader.ReaderType) {
@@ -42,9 +41,6 @@ func demoParserHandler(reader *bitreader.ReaderType) {
 		if packet.PacketType == 7 {
 			break
 		}
-		// if packet.PacketType != 5 {
-		// 	continue
-		// }
 		fmt.Printf("[%d] %s (%d):\n\t%+v\n", packet.TickNumber, reflect.ValueOf(packet.Data).Type(), packet.PacketType, packet.Data)
 	}
 }
