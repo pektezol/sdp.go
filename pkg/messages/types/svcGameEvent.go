@@ -7,10 +7,10 @@ type SvcGameEvent struct {
 	Data   []byte // TODO: GameEvent[]
 }
 
-func ParseSvcGameEvent(reader *bitreader.ReaderType) SvcGameEvent {
+func ParseSvcGameEvent(reader *bitreader.Reader) SvcGameEvent {
 	svcGameEvent := SvcGameEvent{
 		Length: int16(reader.TryReadBits(11)),
 	}
-	svcGameEvent.Data = reader.TryReadBitsToSlice(int(svcGameEvent.Length))
+	svcGameEvent.Data = reader.TryReadBitsToSlice(uint64(svcGameEvent.Length))
 	return svcGameEvent
 }

@@ -6,7 +6,7 @@ type NetSplitScreenUser struct {
 	Unknown bool
 }
 
-func ParseNetSplitScreenUser(reader *bitreader.ReaderType) NetSplitScreenUser {
+func ParseNetSplitScreenUser(reader *bitreader.Reader) NetSplitScreenUser {
 	return NetSplitScreenUser{
 		Unknown: reader.TryReadBool(),
 	}

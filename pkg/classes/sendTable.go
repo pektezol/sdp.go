@@ -59,7 +59,7 @@ const (
 	DataTable
 )
 
-func ParseSendTable(reader *bitreader.ReaderType) SendTable {
+func ParseSendTable(reader *bitreader.Reader) SendTable {
 	sendTable := SendTable{
 		NeedsDecoder: reader.TryReadBool(),
 		NetTableName: reader.TryReadString(),

@@ -1,8 +1,6 @@
 package classes
 
 import (
-	"bytes"
-
 	"github.com/pektezol/bitreader"
 )
 
@@ -26,7 +24,7 @@ type StringTableClass struct {
 	Data string
 }
 
-func ParseStringTables(reader *bitreader.ReaderType) []StringTable {
+func ParseStringTables(reader *bitreader.Reader) []StringTable {
 	tableCount := reader.TryReadBits(8)
 	stringTables := make([]StringTable, tableCount)
 	for i := 0; i < int(tableCount); i++ {
@@ -37,7 +35,7 @@ func ParseStringTables(reader *bitreader.ReaderType) []StringTable {
 	return stringTables
 }
 
-func (stringTable *StringTable) ParseStream(reader *bitreader.ReaderType) {
+func (stringTable *StringTable) ParseStream(reader *bitreader.Reader) {
 	stringTable.Name = reader.TryReadString()
 	entryCount := reader.TryReadBits(16)
 	stringTable.TableEntries = make([]StringTableEntry, entryCount)
@@ -60,23 +58,23 @@ func (stringTable *StringTable) ParseStream(reader *bitreader.ReaderType) {
 	}
 }
 
-func (stringTableEntry *StringTableEntry) Parse(reader *bitreader.ReaderType) {
+func (stringTableEntry *StringTableEntry) Parse(reader *bitreader.Reader) {
 	stringTableEntry.Name = reader.TryReadString()
 	if reader.TryReadBool() {
 		byteLen, err := reader.ReadBits(16)
 		if err != nil {
 			return
 		}
-		dataBsr := reader.TryReadBytesToSlice(int(byteLen))
-		_ = bitreader.Reader(bytes.NewReader(dataBsr), true) // TODO: Parse StringTableEntry
+		dataBsr := reader.TryReadBytesToSlice(byteLen)
+		_ = bitreader.NewReaderFromBytes(dataBsr, true) // TODO: Parse StringTableEntry
 		// stringTableEntry.EntryData.ParseStream(entryReader)
 	}
 }
 
-func (stringTableClass *StringTableClass) Parse(reader *bitreader.ReaderType) {
+func (stringTableClass *StringTableClass) Parse(reader *bitreader.Reader) {
 	stringTableClass.Name = reader.TryReadString()
 	if reader.TryReadBool() {
 		dataLen := reader.TryReadBits(16)
-		stringTableClass.Data = reader.TryReadStringLen(int(dataLen))
+		stringTableClass.Data = reader.TryReadStringLength(dataLen)
 	}
 }

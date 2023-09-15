@@ -21,7 +21,7 @@ type SvcServerInfo struct {
 	HostName     string
 }
 
-func ParseSvcServerInfo(reader *bitreader.ReaderType) SvcServerInfo {
+func ParseSvcServerInfo(reader *bitreader.Reader) SvcServerInfo {
 	return SvcServerInfo{
 		Protocol:     int16(reader.TryReadBits(16)),
 		ServerCount:  int32(reader.TryReadBits(32)),

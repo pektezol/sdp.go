@@ -8,11 +8,11 @@ type SvcSplitScreen struct {
 	Data   []byte
 }
 
-func ParseSvcSplitScreen(reader *bitreader.ReaderType) SvcSplitScreen {
+func ParseSvcSplitScreen(reader *bitreader.Reader) SvcSplitScreen {
 	svcSplitScreen := SvcSplitScreen{
 		Unk:    reader.TryReadBool(),
 		Length: int16(reader.TryReadBits(11)),
 	}
-	svcSplitScreen.Data = reader.TryReadBitsToSlice(int(svcSplitScreen.Length))
+	svcSplitScreen.Data = reader.TryReadBitsToSlice(uint64(svcSplitScreen.Length))
 	return svcSplitScreen
 }
