@@ -8,7 +8,7 @@ type SvcSendTable struct {
 	Props        int32
 }
 
-func ParseSvcSendTable(reader *bitreader.ReaderType) SvcSendTable {
+func ParseSvcSendTable(reader *bitreader.Reader) SvcSendTable {
 	return SvcSendTable{
 		NeedsDecoder: int8(reader.TryReadBits(8)),
 		Length:       int8(reader.TryReadBits(8)),

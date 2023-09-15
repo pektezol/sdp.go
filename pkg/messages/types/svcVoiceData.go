@@ -9,12 +9,12 @@ type SvcVoiceData struct {
 	Data      []byte
 }
 
-func ParseSvcVoiceData(reader *bitreader.ReaderType) SvcVoiceData {
+func ParseSvcVoiceData(reader *bitreader.Reader) SvcVoiceData {
 	svcVoiceData := SvcVoiceData{
 		Client:    int8(reader.TryReadBits(8)),
 		Proximity: int8(reader.TryReadBits(8)),
 		Length:    int16(reader.TryReadBits(16)),
 	}
-	svcVoiceData.Data = reader.TryReadBitsToSlice(int(svcVoiceData.Length))
+	svcVoiceData.Data = reader.TryReadBitsToSlice(uint64(svcVoiceData.Length))
 	return svcVoiceData
 }

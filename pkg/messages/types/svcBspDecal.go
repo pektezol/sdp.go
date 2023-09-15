@@ -17,7 +17,7 @@ type vectorCoord struct {
 	Valid bool
 }
 
-func ParseSvcBspDecal(reader *bitreader.ReaderType) SvcBspDecal {
+func ParseSvcBspDecal(reader *bitreader.Reader) SvcBspDecal {
 	svcBspDecal := SvcBspDecal{
 		Pos:               readVectorCoords(reader),
 		DecalTextureIndex: int16(reader.TryReadBits(9)),
@@ -30,7 +30,7 @@ func ParseSvcBspDecal(reader *bitreader.ReaderType) SvcBspDecal {
 	return svcBspDecal
 }
 
-func readVectorCoords(reader *bitreader.ReaderType) []vectorCoord {
+func readVectorCoords(reader *bitreader.Reader) []vectorCoord {
 	const COORD_INTEGER_BITS uint8 = 14
 	const COORD_FRACTIONAL_BITS uint8 = 5
 	const COORD_DENOMINATOR uint8 = 1 << COORD_FRACTIONAL_BITS
@@ -42,10 +42,10 @@ func readVectorCoords(reader *bitreader.ReaderType) []vectorCoord {
 		if integer != 0 || fraction != 0 {
 			sign := reader.TryReadBits(1)
 			if integer != 0 {
-				integer = reader.TryReadBits(int(COORD_INTEGER_BITS)) + 1
+				integer = reader.TryReadBits(uint64(COORD_INTEGER_BITS)) + 1
 			}
 			if fraction != 0 {
-				fraction = reader.TryReadBits(int(COORD_FRACTIONAL_BITS))
+				fraction = reader.TryReadBits(uint64(COORD_FRACTIONAL_BITS))
 			}
 			value = float32(integer) + float32(fraction)*COORD_RESOLUTION
 			if sign != 0 {

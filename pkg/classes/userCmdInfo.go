@@ -24,7 +24,7 @@ type UserCmdInfo struct {
 }
 
 func ParseUserCmdInfo(data []byte) UserCmdInfo {
-	reader := bitreader.Reader(bytes.NewReader(data), true)
+	reader := bitreader.NewReader(bytes.NewReader(data), true)
 	userCmdInfo := UserCmdInfo{}
 	if reader.TryReadBool() {
 		userCmdInfo.CommandNumber = int32(reader.TryReadBits(32))

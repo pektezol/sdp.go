@@ -4,6 +4,6 @@ import "github.com/pektezol/bitreader"
 
 type NetNop struct{}
 
-func ParseNetNop(reader *bitreader.ReaderType) NetNop {
+func ParseNetNop(reader *bitreader.Reader) NetNop {
 	return NetNop{}
 }

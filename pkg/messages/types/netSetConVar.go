@@ -12,7 +12,7 @@ type conVar struct {
 	Value string
 }
 
-func ParseNetSetConVar(reader *bitreader.ReaderType) NetSetConVar {
+func ParseNetSetConVar(reader *bitreader.Reader) NetSetConVar {
 	length := reader.TryReadBits(8)
 	convars := []conVar{}
 	for count := 0; count < int(length); count++ {

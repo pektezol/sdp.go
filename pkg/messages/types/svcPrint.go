@@ -6,7 +6,7 @@ type SvcPrint struct {
 	Message string
 }
 
-func ParseSvcPrint(reader *bitreader.ReaderType) SvcPrint {
+func ParseSvcPrint(reader *bitreader.Reader) SvcPrint {
 	return SvcPrint{
 		Message: reader.TryReadString(),
 	}

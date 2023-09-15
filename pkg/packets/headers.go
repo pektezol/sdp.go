@@ -20,19 +20,19 @@ type Headers struct {
 	SignOnLength    int32
 }
 
-func ParseHeaders(reader *bitreader.ReaderType) Headers {
+func ParseHeaders(reader *bitreader.Reader) Headers {
 	headers := Headers{
 		DemoFileStamp:   reader.TryReadString(),
-		DemoProtocol:    int32(reader.TryReadInt32()),
-		NetworkProtocol: int32(reader.TryReadInt32()),
-		ServerName:      reader.TryReadStringLen(260),
-		ClientName:      reader.TryReadStringLen(260),
-		MapName:         reader.TryReadStringLen(260),
-		GameDirectory:   reader.TryReadStringLen(260),
+		DemoProtocol:    int32(reader.TryReadSInt32()),
+		NetworkProtocol: int32(reader.TryReadSInt32()),
+		ServerName:      reader.TryReadStringLength(260),
+		ClientName:      reader.TryReadStringLength(260),
+		MapName:         reader.TryReadStringLength(260),
+		GameDirectory:   reader.TryReadStringLength(260),
 		PlaybackTime:    reader.TryReadFloat32(),
-		PlaybackTicks:   int32(reader.TryReadInt32()),
-		PlaybackFrames:  int32(reader.TryReadInt32()),
-		SignOnLength:    int32(reader.TryReadInt32()),
+		PlaybackTicks:   int32(reader.TryReadSInt32()),
+		PlaybackFrames:  int32(reader.TryReadSInt32()),
+		SignOnLength:    int32(reader.TryReadSInt32()),
 	}
 	if headers.DemoFileStamp != "HL2DEMO" {
 		panic("invalid demo file stamp")

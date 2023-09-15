@@ -9,7 +9,7 @@ type SvcUpdateStringTable struct {
 	Data              []byte
 }
 
-func ParseSvcUpdateStringTable(reader *bitreader.ReaderType) SvcUpdateStringTable {
+func ParseSvcUpdateStringTable(reader *bitreader.Reader) SvcUpdateStringTable {
 	svcUpdateStringTable := SvcUpdateStringTable{
 		TableId: int8(reader.TryReadBits(5)),
 	}
@@ -17,6 +17,6 @@ func ParseSvcUpdateStringTable(reader *bitreader.ReaderType) SvcUpdateStringTabl
 		svcUpdateStringTable.NumChangedEntries = int16(reader.TryReadBits(16))
 	}
 	svcUpdateStringTable.Length = int32(reader.TryReadBits(20))
-	svcUpdateStringTable.Data = reader.TryReadBitsToSlice(int(svcUpdateStringTable.Length))
+	svcUpdateStringTable.Data = reader.TryReadBitsToSlice(uint64(svcUpdateStringTable.Length))
 	return svcUpdateStringTable
 }
