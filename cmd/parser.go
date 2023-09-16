@@ -41,9 +41,6 @@ func demoParserHandler(reader *bitreader.Reader) {
 	packets.ParseHeaders(reader)
 	for {
 		packet := packets.ParsePackets(reader)
-		if packet.PacketType != 8 && packet.PacketType != 7 {
-			continue
-		}
 		fmt.Printf("[%d] %s (%d):\n\t%+v\n", packet.TickNumber, reflect.ValueOf(packet.Data).Type(), packet.PacketType, packet.Data)
 		if packet.PacketType == 7 {
 			break
