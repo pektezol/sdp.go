@@ -100,8 +100,18 @@ func ParsePackets(reader *bitreader.Reader) PacketMessageInfo {
 			Unknown: int32(reader.TryReadBits(32)),
 			Size:    int32(reader.TryReadBits(32)),
 		}
-		customData.Data = string(reader.TryReadBytesToSlice(uint64(customData.Size)))
-		packetData = customData
+		if customData.Unknown != 0 || customData.Size == 8 {
+			// Not SAR data
+			customData.Data = string(reader.TryReadBytesToSlice(uint64(customData.Size)))
+			packetData = customData
+			break
+		}
+		// SAR data
+		sarData := classes.SarData{}
+		data := reader.TryReadBytesToSlice(uint64(customData.Size))
+		sarReader := bitreader.NewReaderFromBytes(data, true)
+		sarData.ParseSarData(sarReader)
+		packetData = sarData
 	case 9: // StringTables
 		stringTables := StringTables{
 			Size: int32(reader.TryReadSInt32()),
