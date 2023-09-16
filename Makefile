@@ -2,7 +2,7 @@ APP_NAME := parser
 
 GO := go
 
-PLATFORMS := linux/amd64 linux/arm windows/amd64
+PLATFORMS := linux/amd64 linux/arm64 windows/amd64
 
 all: build
 
