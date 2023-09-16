@@ -8,7 +8,7 @@ type NetFile struct {
 	FileRequested bool
 }
 
-func ParseNetFile(reader *bitreader.ReaderType) NetFile {
+func ParseNetFile(reader *bitreader.Reader) NetFile {
 	return NetFile{
 		TransferId:    int32(reader.TryReadBits(32)),
 		FileName:      reader.TryReadString(),

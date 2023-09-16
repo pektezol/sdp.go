@@ -8,7 +8,7 @@ import (
 	messages "github.com/pektezol/demoparser/pkg/messages/types"
 )
 
-func ParseMessages(messageType int, reader *bitreader.ReaderType) any {
+func ParseMessages(messageType int, reader *bitreader.Reader) any {
 	var messageData any
 	switch messageType {
 	case 0:

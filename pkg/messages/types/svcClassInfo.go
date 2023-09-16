@@ -19,7 +19,7 @@ type serverClass struct {
 	DataTableName string
 }
 
-func ParseSvcClassInfo(reader *bitreader.ReaderType) SvcClassInfo {
+func ParseSvcClassInfo(reader *bitreader.Reader) SvcClassInfo {
 	svcClassInfo := SvcClassInfo{
 		Length:         int16(reader.TryReadBits(16)),
 		CreateOnClient: reader.TryReadBool(),
@@ -29,7 +29,7 @@ func ParseSvcClassInfo(reader *bitreader.ReaderType) SvcClassInfo {
 		for count := 0; count < int(svcClassInfo.Length); count++ {
 			fmt.Println(classes)
 			classes = append(classes, serverClass{
-				ClassId:       int16(reader.TryReadBits(int(math.Log2(float64(svcClassInfo.Length)) + 1))),
+				ClassId:       int16(reader.TryReadBits(uint64(math.Log2(float64(svcClassInfo.Length)) + 1))),
 				ClassName:     reader.TryReadString(),
 				DataTableName: reader.TryReadString(),
 			})

@@ -8,11 +8,11 @@ type SvcUserMessage struct {
 	Data    []byte
 }
 
-func ParseSvcUserMessage(reader *bitreader.ReaderType) SvcUserMessage {
+func ParseSvcUserMessage(reader *bitreader.Reader) SvcUserMessage {
 	svcUserMessage := SvcUserMessage{
 		MsgType: int8(reader.TryReadBits(8)),
 		Length:  int16(reader.TryReadBits(12)),
 	}
-	svcUserMessage.Data = reader.TryReadBitsToSlice(int(svcUserMessage.Length))
+	svcUserMessage.Data = reader.TryReadBitsToSlice(uint64(svcUserMessage.Length))
 	return svcUserMessage
 }

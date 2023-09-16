@@ -8,11 +8,11 @@ type SvcTempEntities struct {
 	Data       []byte
 }
 
-func ParseSvcTempEntities(reader *bitreader.ReaderType) SvcTempEntities {
+func ParseSvcTempEntities(reader *bitreader.Reader) SvcTempEntities {
 	svcTempEntities := SvcTempEntities{
 		NumEntries: int8(reader.TryReadBits(8)),
 		Length:     int32(reader.TryReadBits(17)),
 	}
-	svcTempEntities.Data = reader.TryReadBitsToSlice(int(svcTempEntities.Length))
+	svcTempEntities.Data = reader.TryReadBitsToSlice(uint64(svcTempEntities.Length))
 	return svcTempEntities
 }

@@ -14,7 +14,7 @@ type CmdInfo struct {
 	LocalViewAngles2 []float32
 }
 
-func ParseCmdInfo(reader *bitreader.ReaderType) CmdInfo {
+func ParseCmdInfo(reader *bitreader.Reader) CmdInfo {
 	return CmdInfo{
 		Flags:            int32(reader.TryReadBits(32)),
 		ViewOrigin:       []float32{reader.TryReadFloat32(), reader.TryReadFloat32(), reader.TryReadFloat32()},

@@ -7,7 +7,7 @@ type SvcFixAngle struct {
 	Angle    []int16
 }
 
-func ParseSvcFixAngle(reader *bitreader.ReaderType) SvcFixAngle {
+func ParseSvcFixAngle(reader *bitreader.Reader) SvcFixAngle {
 	return SvcFixAngle{
 		Relative: reader.TryReadBool(),
 		Angle:    []int16{int16(reader.TryReadBits(16)), int16(reader.TryReadBits(16)), int16(reader.TryReadBits(16))},

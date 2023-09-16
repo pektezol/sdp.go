@@ -9,6 +9,8 @@ import (
 	"github.com/pektezol/demoparser/pkg/packets"
 )
 
+const littleEndian bool = true
+
 func main() {
 	if len(os.Args) != 2 {
 		panic("specify file in command line arguments")
@@ -19,32 +21,29 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		reader := bitreader.Reader(file, true)
+		reader := bitreader.NewReader(file, littleEndian)
 		demoParserHandler(reader)
 		defer file.Close()
+		return
 	}
 	for _, fileinfo := range files { // If it is a directory
 		file, err := os.Open(os.Args[1] + fileinfo.Name())
 		if err != nil {
 			panic(err)
 		}
-		reader := bitreader.Reader(file, true)
+		reader := bitreader.NewReader(file, littleEndian)
 		demoParserHandler(reader)
 		defer file.Close()
 	}
-	// fmt.Scanln()
 }
 
-func demoParserHandler(reader *bitreader.ReaderType) {
+func demoParserHandler(reader *bitreader.Reader) {
 	packets.ParseHeaders(reader)
 	for {
 		packet := packets.ParsePackets(reader)
+		fmt.Printf("[%d] %s (%d):\n\t%+v\n", packet.TickNumber, reflect.ValueOf(packet.Data).Type(), packet.PacketType, packet.Data)
 		if packet.PacketType == 7 {
 			break
 		}
-		// if packet.PacketType != 5 {
-		// 	continue
-		// }
-		fmt.Printf("[%d] %s (%d):\n\t%+v\n", packet.TickNumber, reflect.ValueOf(packet.Data).Type(), packet.PacketType, packet.Data)
 	}
 }

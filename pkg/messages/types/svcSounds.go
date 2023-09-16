@@ -9,7 +9,7 @@ type SvcSounds struct {
 	Data          []byte
 }
 
-func ParseSvcSounds(reader *bitreader.ReaderType) SvcSounds {
+func ParseSvcSounds(reader *bitreader.Reader) SvcSounds {
 	svcSounds := SvcSounds{
 		ReliableSound: reader.TryReadBool(),
 	}
@@ -20,6 +20,6 @@ func ParseSvcSounds(reader *bitreader.ReaderType) SvcSounds {
 		svcSounds.Size = int8(reader.TryReadBits(8))
 		svcSounds.Length = int16(reader.TryReadBits(16))
 	}
-	svcSounds.Data = reader.TryReadBitsToSlice(int(svcSounds.Length))
+	svcSounds.Data = reader.TryReadBitsToSlice(uint64(svcSounds.Length))
 	return svcSounds
 }

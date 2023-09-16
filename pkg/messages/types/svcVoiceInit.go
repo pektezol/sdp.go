@@ -8,7 +8,7 @@ type SvcVoiceInit struct {
 	Unk     float32
 }
 
-func ParseSvcVoiceInit(reader *bitreader.ReaderType) SvcVoiceInit {
+func ParseSvcVoiceInit(reader *bitreader.Reader) SvcVoiceInit {
 	svcVoiceInit := SvcVoiceInit{
 		Codec:   reader.TryReadString(),
 		Quality: uint8(reader.TryReadBits(8)),

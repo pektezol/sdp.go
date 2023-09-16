@@ -10,7 +10,7 @@ type ServerClassInfo struct {
 	DataTableName string
 }
 
-func ParseServerClassInfo(reader *bitreader.ReaderType, count int, numOfClasses int) ServerClassInfo {
+func ParseServerClassInfo(reader *bitreader.Reader, count int, numOfClasses int) ServerClassInfo {
 	return ServerClassInfo{
 		ClassId:       int16(reader.TryReadBits(16)),
 		ClassName:     reader.TryReadString(),

@@ -18,12 +18,12 @@ type SvcCreateStringTable struct {
 	StringData        int
 }
 
-func ParseSvcCreateStringTable(reader *bitreader.ReaderType) SvcCreateStringTable {
+func ParseSvcCreateStringTable(reader *bitreader.Reader) SvcCreateStringTable {
 	svcCreateStringTable := SvcCreateStringTable{
 		Name:       reader.TryReadString(),
 		MaxEntries: int16(reader.TryReadBits(16)),
 	}
-	svcCreateStringTable.NumEntries = int8(reader.TryReadBits(int(math.Log2(float64(svcCreateStringTable.MaxEntries))) + 1))
+	svcCreateStringTable.NumEntries = int8(reader.TryReadBits(uint64(math.Log2(float64(svcCreateStringTable.MaxEntries))) + 1))
 	svcCreateStringTable.Length = int32(reader.TryReadBits(20))
 	svcCreateStringTable.UserDataFixedSize = reader.TryReadBool()
 	if svcCreateStringTable.UserDataFixedSize {
@@ -31,6 +31,6 @@ func ParseSvcCreateStringTable(reader *bitreader.ReaderType) SvcCreateStringTabl
 		svcCreateStringTable.UserDataSizeBits = int8(reader.TryReadBits(4))
 	}
 	svcCreateStringTable.Flags = int8(reader.TryReadBits(2))
-	reader.SkipBits(int(svcCreateStringTable.Length)) // TODO: StringTable parsing
+	reader.SkipBits(uint64(svcCreateStringTable.Length)) // TODO: StringTable parsing
 	return svcCreateStringTable
 }

@@ -1,8 +1,6 @@
 package packets
 
 import (
-	"bytes"
-
 	"github.com/pektezol/bitreader"
 	"github.com/pektezol/demoparser/pkg/classes"
 	"github.com/pektezol/demoparser/pkg/messages"
@@ -15,9 +13,9 @@ type PacketMessageInfo struct {
 	Data       any
 }
 
-const MSSC = 2
+const MSSC int = 2
 
-func ParsePackets(reader *bitreader.ReaderType) PacketMessageInfo {
+func ParsePackets(reader *bitreader.Reader) PacketMessageInfo {
 	packetType := reader.TryReadBits(8)
 	tickNumber := reader.TryReadBits(32)
 	slotNumber := reader.TryReadBits(8)
@@ -30,9 +28,9 @@ func ParsePackets(reader *bitreader.ReaderType) PacketMessageInfo {
 		}
 		signOn.InSequence = int32(reader.TryReadBits(32))
 		signOn.OutSequence = int32(reader.TryReadBits(32))
-		signOn.Size = int32(reader.TryReadInt32())
-		data := reader.TryReadBytesToSlice(int(signOn.Size))
-		packetReader := bitreader.Reader(bytes.NewReader(data), true)
+		signOn.Size = int32(reader.TryReadSInt32())
+		data := reader.TryReadBytesToSlice(uint64(signOn.Size))
+		packetReader := bitreader.NewReaderFromBytes(data, true)
 		for {
 			messageType, err := packetReader.ReadBits(6)
 			if err != nil {
@@ -48,9 +46,9 @@ func ParsePackets(reader *bitreader.ReaderType) PacketMessageInfo {
 		}
 		packet.InSequence = int32(reader.TryReadBits(32))
 		packet.OutSequence = int32(reader.TryReadBits(32))
-		packet.Size = int32(reader.TryReadInt32())
-		data := reader.TryReadBytesToSlice(int(packet.Size))
-		packetReader := bitreader.Reader(bytes.NewReader(data), true)
+		packet.Size = int32(reader.TryReadSInt32())
+		data := reader.TryReadBytesToSlice(uint64(packet.Size))
+		packetReader := bitreader.NewReaderFromBytes(data, true)
 		for {
 			messageType, err := packetReader.ReadBits(6)
 			if err != nil {
@@ -63,24 +61,24 @@ func ParsePackets(reader *bitreader.ReaderType) PacketMessageInfo {
 		syncTick := SyncTick{}
 		packetData = syncTick
 	case 4: // ConsoleCmd
-		size := reader.TryReadInt32()
+		size := reader.TryReadSInt32()
 		consoleCmd := ConsoleCmd{
 			Size: int32(size),
-			Data: reader.TryReadStringLen(int(size)),
+			Data: reader.TryReadStringLength(uint64(size)),
 		}
 		packetData = consoleCmd
 	case 5: // UserCmd
 		userCmd := UserCmd{}
-		userCmd.Cmd = int32(reader.TryReadInt32())
-		userCmd.Size = int32(reader.TryReadInt32())
-		data := reader.TryReadBytesToSlice(int(userCmd.Size))
+		userCmd.Cmd = int32(reader.TryReadSInt32())
+		userCmd.Size = int32(reader.TryReadSInt32())
+		data := reader.TryReadBytesToSlice(uint64(userCmd.Size))
 		userCmd.Data = classes.ParseUserCmdInfo(data)
 		packetData = userCmd
 	case 6: // DataTables
 		dataTables := DataTables{}
-		dataTables.Size = int32(reader.TryReadInt32())
-		data := reader.TryReadBytesToSlice(int(dataTables.Size))
-		dataTableReader := bitreader.Reader(bytes.NewReader(data), true)
+		dataTables.Size = int32(reader.TryReadSInt32())
+		data := reader.TryReadBytesToSlice(uint64(dataTables.Size))
+		dataTableReader := bitreader.NewReaderFromBytes(data, true)
 		count := 0
 		for dataTableReader.TryReadBool() {
 			count++
@@ -94,8 +92,7 @@ func ParsePackets(reader *bitreader.ReaderType) PacketMessageInfo {
 	case 7: // Stop
 		stop := Stop{}
 		if reader.TryReadBool() {
-			// read remaining data
-			stop.RemainingData = []byte{}
+			stop.RemainingData = reader.TryReadBitsToSlice(uint64(reader.TryReadRemainingBits()))
 		}
 		packetData = stop
 	case 8: // CustomData
@@ -103,14 +100,24 @@ func ParsePackets(reader *bitreader.ReaderType) PacketMessageInfo {
 			Unknown: int32(reader.TryReadBits(32)),
 			Size:    int32(reader.TryReadBits(32)),
 		}
-		customData.Data = string(reader.TryReadBytesToSlice(int(customData.Size)))
-		packetData = customData
+		if customData.Unknown != 0 || customData.Size == 8 {
+			// Not SAR data
+			customData.Data = string(reader.TryReadBytesToSlice(uint64(customData.Size)))
+			packetData = customData
+			break
+		}
+		// SAR data
+		sarData := classes.SarData{}
+		data := reader.TryReadBytesToSlice(uint64(customData.Size))
+		sarReader := bitreader.NewReaderFromBytes(data, true)
+		sarData.ParseSarData(sarReader)
+		packetData = sarData
 	case 9: // StringTables
 		stringTables := StringTables{
-			Size: int32(reader.TryReadInt32()),
+			Size: int32(reader.TryReadSInt32()),
 		}
-		data := reader.TryReadBytesToSlice(int(stringTables.Size))
-		stringTableReader := bitreader.Reader(bytes.NewReader(data), true)
+		data := reader.TryReadBytesToSlice(uint64(stringTables.Size))
+		stringTableReader := bitreader.NewReaderFromBytes(data, true)
 		stringTables.Data = classes.ParseStringTables(stringTableReader)
 		packetData = stringTables
 	default: // invalid

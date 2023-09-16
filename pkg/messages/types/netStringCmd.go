@@ -6,7 +6,7 @@ type NetStringCmd struct {
 	Command string
 }
 
-func ParseNetStringCmd(reader *bitreader.ReaderType) NetStringCmd {
+func ParseNetStringCmd(reader *bitreader.Reader) NetStringCmd {
 	return NetStringCmd{
 		Command: reader.TryReadString(),
 	}

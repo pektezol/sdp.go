@@ -8,7 +8,7 @@ type NetTick struct {
 	HostFrameTimeStdDeviation int16
 }
 
-func ParseNetTick(reader *bitreader.ReaderType) NetTick {
+func ParseNetTick(reader *bitreader.Reader) NetTick {
 	return NetTick{
 		Tick:                      int32(reader.TryReadBits(32)),
 		HostFrameTime:             int16(reader.TryReadBits(16) / 10e5),
