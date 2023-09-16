@@ -358,7 +358,7 @@ func parseTimestampData(reader *bitreader.Reader, length uint64) (SarDataTimesta
 	}
 	timestamp := reader.TryReadBytesToSlice(7)
 	return SarDataTimestamp{
-		Year: uint16(timestamp[0]) | uint16(timestamp[1]<<8),
+		Year: uint16(timestamp[0]) | uint16(timestamp[1])<<8,
 		Mon:  timestamp[2] + 1,
 		Day:  timestamp[3],
 		Hour: timestamp[4],
