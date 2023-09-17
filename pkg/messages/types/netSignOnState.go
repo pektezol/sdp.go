@@ -19,33 +19,33 @@ type NetSignOnState struct {
 type SignOnState int
 
 const (
-	None        SignOnState = iota // no state yet, about to connect
-	Challenge                      // client challenging server, all OOB packets
-	Connected                      // client is connected to server, netchans ready
-	New                            // just got server info and string tables
-	PreSpawn                       // received signon buggers
-	Spawn                          // ready to receive entity packets
-	Full                           // we are fully connected, first non-delta packet received
-	ChangeLevel                    // server is changing level, please wait
+	ESignOnStateNone        SignOnState = iota // no state yet, about to connect
+	ESignOnStateChallenge                      // client challenging server, all OOB packets
+	ESignOnStateConnected                      // client is connected to server, netchans ready
+	ESignOnStateNew                            // just got server info and string tables
+	ESignOnStatePreSpawn                       // received signon buggers
+	ESignOnStateSpawn                          // ready to receive entity packets
+	ESignOnStateFull                           // we are fully connected, first non-delta packet received
+	ESignOnStateChangeLevel                    // server is changing level, please wait
 )
 
 func (signOnState SignOnState) String() string {
 	switch signOnState {
-	case None:
+	case ESignOnStateNone:
 		return "None"
-	case Challenge:
+	case ESignOnStateChallenge:
 		return "Challenge"
-	case Connected:
+	case ESignOnStateConnected:
 		return "Connected"
-	case New:
+	case ESignOnStateNew:
 		return "New"
-	case PreSpawn:
+	case ESignOnStatePreSpawn:
 		return "PreSpawn"
-	case Spawn:
+	case ESignOnStateSpawn:
 		return "Spawn"
-	case Full:
+	case ESignOnStateFull:
 		return "Full"
-	case ChangeLevel:
+	case ESignOnStateChangeLevel:
 		return "ChangeLevel"
 	default:
 		return fmt.Sprintf("%d", int(signOnState))
