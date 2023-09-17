@@ -1,17 +1,42 @@
 package messages
 
-import "github.com/pektezol/bitreader"
+import (
+	"fmt"
+
+	"github.com/pektezol/bitreader"
+)
 
 type NetFile struct {
-	TransferId    int32
-	FileName      string
-	FileRequested bool
+	TransferId uint32
+	FileName   string
+	FileFlags  string
+}
+
+type NetFileFlags int
+
+const (
+	ENetFileFlagsNone          NetFileFlags = 0
+	ENetFileFlagsFileRequested NetFileFlags = 1
+	ENetFileFlagsUnknown       NetFileFlags = 1 << 1
+)
+
+func (netFileFlags NetFileFlags) String() string {
+	switch netFileFlags {
+	case ENetFileFlagsNone:
+		return "None"
+	case ENetFileFlagsFileRequested:
+		return "FileRequested"
+	case ENetFileFlagsUnknown:
+		return "Unknown"
+	default:
+		return fmt.Sprintf("%d", int(netFileFlags))
+	}
 }
 
 func ParseNetFile(reader *bitreader.Reader) NetFile {
 	return NetFile{
-		TransferId:    int32(reader.TryReadBits(32)),
-		FileName:      reader.TryReadString(),
-		FileRequested: reader.TryReadBool(),
+		TransferId: reader.TryReadUInt32(),
+		FileName:   reader.TryReadString(),
+		FileFlags:  NetFileFlags(reader.TryReadBits(2)).String(),
 	}
 }
