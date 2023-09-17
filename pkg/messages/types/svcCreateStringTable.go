@@ -21,7 +21,7 @@ type SvcCreateStringTable struct {
 func ParseSvcCreateStringTable(reader *bitreader.Reader) SvcCreateStringTable {
 	svcCreateStringTable := SvcCreateStringTable{
 		Name:       reader.TryReadString(),
-		MaxEntries: int16(reader.TryReadBits(16)),
+		MaxEntries: reader.TryReadSInt16(),
 	}
 	svcCreateStringTable.NumEntries = int8(reader.TryReadBits(uint64(math.Log2(float64(svcCreateStringTable.MaxEntries))) + 1))
 	svcCreateStringTable.Length = int32(reader.TryReadBits(20))

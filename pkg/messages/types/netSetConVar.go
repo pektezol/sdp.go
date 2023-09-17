@@ -3,7 +3,7 @@ package messages
 import "github.com/pektezol/bitreader"
 
 type NetSetConVar struct {
-	Length  int8
+	Length  uint8
 	ConVars []conVar
 }
 
@@ -13,7 +13,7 @@ type conVar struct {
 }
 
 func ParseNetSetConVar(reader *bitreader.Reader) NetSetConVar {
-	length := reader.TryReadBits(8)
+	length := reader.TryReadUInt8()
 	convars := []conVar{}
 	for count := 0; count < int(length); count++ {
 		convar := conVar{
@@ -23,7 +23,7 @@ func ParseNetSetConVar(reader *bitreader.Reader) NetSetConVar {
 		convars = append(convars, convar)
 	}
 	return NetSetConVar{
-		Length:  int8(length),
+		Length:  length,
 		ConVars: convars,
 	}
 }

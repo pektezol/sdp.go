@@ -4,8 +4,8 @@ import "github.com/pektezol/bitreader"
 
 type SvcSounds struct {
 	ReliableSound bool
-	Size          int8
-	Length        int16
+	SoundCount    uint8
+	Length        uint16
 	Data          []byte
 }
 
@@ -14,11 +14,11 @@ func ParseSvcSounds(reader *bitreader.Reader) SvcSounds {
 		ReliableSound: reader.TryReadBool(),
 	}
 	if svcSounds.ReliableSound {
-		svcSounds.Size = 1
-		svcSounds.Length = int16(reader.TryReadBits(8))
+		svcSounds.SoundCount = 1
+		svcSounds.Length = uint16(reader.TryReadUInt8())
 	} else {
-		svcSounds.Size = int8(reader.TryReadBits(8))
-		svcSounds.Length = int16(reader.TryReadBits(16))
+		svcSounds.SoundCount = reader.TryReadUInt8()
+		svcSounds.Length = reader.TryReadUInt16()
 	}
 	svcSounds.Data = reader.TryReadBitsToSlice(uint64(svcSounds.Length))
 	return svcSounds

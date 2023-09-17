@@ -3,11 +3,21 @@ package messages
 import "github.com/pektezol/bitreader"
 
 type SvcCrosshairAngle struct {
-	Angle []int16
+	Angle crosshairAngles
+}
+
+type crosshairAngles struct {
+	X float32
+	Y float32
+	Z float32
 }
 
 func ParseSvcCrosshairAngle(reader *bitreader.Reader) SvcCrosshairAngle {
 	return SvcCrosshairAngle{
-		Angle: []int16{int16(reader.TryReadBits(16)), int16(reader.TryReadBits(16)), int16(reader.TryReadBits(16))},
+		Angle: crosshairAngles{
+			X: float32(reader.TryReadBits(16)),
+			Y: float32(reader.TryReadBits(16)),
+			Z: float32(reader.TryReadBits(16)),
+		},
 	}
 }
