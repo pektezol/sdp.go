@@ -36,9 +36,9 @@ func ParseMessages(messageType int, reader *bitreader.Reader) any {
 	case 11:
 		messageData = messages.ParseSvcSetPause(reader)
 	case 12:
-		messageData = messages.ParseSvcCreateStringTable(reader)
+		messageData = messages.ParseSvcCreateStringTable(reader) // TODO:
 	case 13:
-		messageData = messages.ParseSvcUpdateStringTable(reader)
+		messageData = messages.ParseSvcUpdateStringTable(reader) // TODO:
 	case 14:
 		messageData = messages.ParseSvcVoiceInit(reader)
 	case 15:
@@ -46,7 +46,7 @@ func ParseMessages(messageType int, reader *bitreader.Reader) any {
 	case 16:
 		messageData = messages.ParseSvcPrint(reader)
 	case 17:
-		messageData = messages.ParseSvcSounds(reader)
+		messageData = messages.ParseSvcSounds(reader) // TODO:
 	case 18:
 		messageData = messages.ParseSvcSetView(reader)
 	case 19:
@@ -54,25 +54,25 @@ func ParseMessages(messageType int, reader *bitreader.Reader) any {
 	case 20:
 		messageData = messages.ParseSvcCrosshairAngle(reader)
 	case 21:
-		messageData = messages.ParseSvcBspDecal(reader)
+		messageData = messages.ParseSvcBspDecal(reader) // untested
 	case 22:
-		messageData = messages.ParseSvcSplitScreen(reader)
+		messageData = messages.ParseSvcSplitScreen(reader) // skipped
 	case 23:
-		messageData = messages.ParseSvcUserMessage(reader)
+		messageData = messages.ParseSvcUserMessage(reader) // TODO:
 	case 24:
-		messageData = messages.ParseSvcEntityMessage(reader)
+		messageData = messages.ParseSvcEntityMessage(reader) // skipped
 	case 25:
-		messageData = messages.ParseSvcGameEvent(reader)
+		messageData = messages.ParseSvcGameEvent(reader) // TODO:
 	case 26:
-		messageData = messages.ParseSvcPacketEntities(reader)
+		messageData = messages.ParseSvcPacketEntities(reader) // TODO:
 	case 27:
-		messageData = messages.ParseSvcTempEntities(reader)
+		messageData = messages.ParseSvcTempEntities(reader) // skipped
 	case 28:
 		messageData = messages.ParseSvcPrefetch(reader)
 	case 29:
-		messageData = messages.ParseSvcMenu(reader)
+		messageData = messages.ParseSvcMenu(reader) // skipped
 	case 30:
-		messageData = messages.ParseSvcGameEventList(reader)
+		messageData = messages.ParseSvcGameEventList(reader) // TODO:
 	case 31:
 		messageData = messages.ParseSvcGetCvarValue(reader)
 	case 32:

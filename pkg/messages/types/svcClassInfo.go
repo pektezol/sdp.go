@@ -1,14 +1,13 @@
 package messages
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/pektezol/bitreader"
 )
 
 type SvcClassInfo struct {
-	Length         int16
+	ClassCount     uint16
 	CreateOnClient bool
 	ServerClasses  []serverClass
 }
@@ -21,15 +20,14 @@ type serverClass struct {
 
 func ParseSvcClassInfo(reader *bitreader.Reader) SvcClassInfo {
 	svcClassInfo := SvcClassInfo{
-		Length:         int16(reader.TryReadBits(16)),
+		ClassCount:     reader.TryReadUInt16(),
 		CreateOnClient: reader.TryReadBool(),
 	}
 	classes := []serverClass{}
 	if !svcClassInfo.CreateOnClient {
-		for count := 0; count < int(svcClassInfo.Length); count++ {
-			fmt.Println(classes)
+		for count := 0; count < int(svcClassInfo.ClassCount); count++ {
 			classes = append(classes, serverClass{
-				ClassId:       int16(reader.TryReadBits(uint64(math.Log2(float64(svcClassInfo.Length)) + 1))),
+				ClassId:       int16(reader.TryReadBits(uint64(math.Log2(float64(svcClassInfo.ClassCount)) + 1))),
 				ClassName:     reader.TryReadString(),
 				DataTableName: reader.TryReadString(),
 			})

@@ -3,17 +3,19 @@ package messages
 import "github.com/pektezol/bitreader"
 
 type SvcVoiceData struct {
-	Client    int8
-	Proximity int8
-	Length    int16
-	Data      []byte
+	FromClient uint8
+	Proximity  bool
+	Length     int16
+	Data       []byte
 }
 
 func ParseSvcVoiceData(reader *bitreader.Reader) SvcVoiceData {
 	svcVoiceData := SvcVoiceData{
-		Client:    int8(reader.TryReadBits(8)),
-		Proximity: int8(reader.TryReadBits(8)),
-		Length:    int16(reader.TryReadBits(16)),
+		FromClient: reader.TryReadUInt8(),
+	}
+	proximity := reader.TryReadUInt8()
+	if proximity != 0 {
+		svcVoiceData.Proximity = true
 	}
 	svcVoiceData.Data = reader.TryReadBitsToSlice(uint64(svcVoiceData.Length))
 	return svcVoiceData

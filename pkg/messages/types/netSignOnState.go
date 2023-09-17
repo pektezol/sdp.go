@@ -9,10 +9,10 @@ import (
 type NetSignOnState struct {
 	SignOnState        string
 	SpawnCount         int32
-	NumServerPlayers   int32
-	IdsLength          int32
+	NumServerPlayers   uint32
+	IdsLength          uint32
 	PlayersNetworksIds []byte
-	MapNameLength      int32
+	MapNameLength      uint32
 	MapName            string
 }
 
@@ -54,13 +54,17 @@ func (signOnState SignOnState) String() string {
 
 func ParseNetSignOnState(reader *bitreader.Reader) NetSignOnState {
 	netSignOnState := NetSignOnState{
-		SignOnState:      SignOnState(reader.TryReadBits(8)).String(),
-		SpawnCount:       int32(reader.TryReadBits(32)),
-		NumServerPlayers: int32(reader.TryReadBits(32)),
-		IdsLength:        int32(reader.TryReadBits(32)),
+		SignOnState:      SignOnState(reader.TryReadUInt8()).String(),
+		SpawnCount:       reader.TryReadSInt32(),
+		NumServerPlayers: reader.TryReadUInt32(),
+		IdsLength:        reader.TryReadUInt32(),
 	}
-	netSignOnState.PlayersNetworksIds = reader.TryReadBytesToSlice(uint64(netSignOnState.IdsLength))
-	netSignOnState.MapNameLength = int32(reader.TryReadBits(32))
-	netSignOnState.MapName = reader.TryReadStringLength(uint64(netSignOnState.MapNameLength))
+	if netSignOnState.IdsLength > 0 {
+		netSignOnState.PlayersNetworksIds = reader.TryReadBytesToSlice(uint64(netSignOnState.IdsLength))
+	}
+	netSignOnState.MapNameLength = reader.TryReadUInt32()
+	if netSignOnState.MapNameLength > 0 {
+		netSignOnState.MapName = reader.TryReadStringLength(uint64(netSignOnState.MapNameLength))
+	}
 	return netSignOnState
 }

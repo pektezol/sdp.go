@@ -7,9 +7,9 @@ import (
 type SvcBspDecal struct {
 	Pos               []vectorCoord
 	DecalTextureIndex int16
-	EntityIndex       int16
-	ModelIndex        int16
-	LowPriority       int8
+	EntityIndex       uint16
+	ModelIndex        uint16
+	LowPriority       bool
 }
 
 type vectorCoord struct {
@@ -23,10 +23,10 @@ func ParseSvcBspDecal(reader *bitreader.Reader) SvcBspDecal {
 		DecalTextureIndex: int16(reader.TryReadBits(9)),
 	}
 	if reader.TryReadBool() {
-		svcBspDecal.EntityIndex = int16(reader.TryReadBits(11))
-		svcBspDecal.ModelIndex = int16(reader.TryReadBits(11))
+		svcBspDecal.EntityIndex = uint16(reader.TryReadBits(11))
+		svcBspDecal.ModelIndex = uint16(reader.TryReadBits(11))
 	}
-	svcBspDecal.LowPriority = int8(reader.TryReadBits(1))
+	svcBspDecal.LowPriority = reader.TryReadBool()
 	return svcBspDecal
 }
 

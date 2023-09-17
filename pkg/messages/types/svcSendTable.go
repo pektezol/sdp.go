@@ -3,15 +3,16 @@ package messages
 import "github.com/pektezol/bitreader"
 
 type SvcSendTable struct {
-	NeedsDecoder int8
-	Length       int8
-	Props        int32
+	NeedsDecoder bool
+	Length       uint8
+	Props        uint32
 }
 
 func ParseSvcSendTable(reader *bitreader.Reader) SvcSendTable {
-	return SvcSendTable{
-		NeedsDecoder: int8(reader.TryReadBits(8)),
-		Length:       int8(reader.TryReadBits(8)),
-		Props:        int32(reader.TryReadBits(32)),
+	svcSendTable := SvcSendTable{
+		NeedsDecoder: reader.TryReadBool(),
+		Length:       reader.TryReadUInt8(),
 	}
+	svcSendTable.Props = uint32(reader.TryReadBits(uint64(svcSendTable.Length)))
+	return svcSendTable
 }
