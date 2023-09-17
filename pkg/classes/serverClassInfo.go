@@ -5,14 +5,14 @@ import (
 )
 
 type ServerClassInfo struct {
-	ClassId       int16
+	ClassId       uint16
 	ClassName     string
 	DataTableName string
 }
 
 func ParseServerClassInfo(reader *bitreader.Reader, count int, numOfClasses int) ServerClassInfo {
 	return ServerClassInfo{
-		ClassId:       int16(reader.TryReadBits(16)),
+		ClassId:       reader.TryReadUInt16(),
 		ClassName:     reader.TryReadString(),
 		DataTableName: reader.TryReadString(),
 	}

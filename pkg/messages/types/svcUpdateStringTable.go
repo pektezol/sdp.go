@@ -11,7 +11,7 @@ type SvcUpdateStringTable struct {
 
 func ParseSvcUpdateStringTable(reader *bitreader.Reader) SvcUpdateStringTable {
 	svcUpdateStringTable := SvcUpdateStringTable{
-		TableId: reader.TryReadUInt8(),
+		TableId: uint8(reader.TryReadBits(5)),
 	}
 	if reader.TryReadBool() {
 		svcUpdateStringTable.NumChangedEntries = reader.TryReadUInt16()
