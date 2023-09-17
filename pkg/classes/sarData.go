@@ -28,8 +28,8 @@ const (
 	ESarDataInvalid         SarDataType = iota
 )
 
-func (t SarDataType) String() string {
-	switch t {
+func (sarDataType SarDataType) String() string {
+	switch sarDataType {
 	case ESarDataTimescaleCheat:
 		return "SarDataTimescaleCheat"
 	case ESarDataInitialCVar:
@@ -63,7 +63,7 @@ func (t SarDataType) String() string {
 	case ESarDataInvalid:
 		return "SarDataInvalid"
 	default:
-		return fmt.Sprintf("%d", int(t))
+		return fmt.Sprintf("%d", int(sarDataType))
 	}
 }
 
