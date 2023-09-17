@@ -3,41 +3,41 @@ package messages
 import "github.com/pektezol/bitreader"
 
 type SvcServerInfo struct {
-	Protocol     int16
-	ServerCount  int32
-	IsHltv       bool
-	IsDedicated  bool
-	ClientCrc    int32
-	MaxClasses   int16
-	MapCrc       int32
-	PlayerSlot   int8
-	MaxClients   int8
-	Unk          int32
-	TickInterval int32
-	COs          int8
-	GameDir      string
-	MapName      string
-	SkyName      string
-	HostName     string
+	Protocol         uint16
+	ServerCount      uint32
+	IsHltv           bool
+	IsDedicated      bool
+	ClientCrc        int32
+	StringTableCrc   uint32
+	MaxServerClasses uint16
+	MapCrc           uint32
+	PlayerCount      uint8
+	MaxClients       uint8
+	TickInterval     float32
+	Platform         string
+	GameDir          string
+	MapName          string
+	SkyName          string
+	HostName         string
 }
 
 func ParseSvcServerInfo(reader *bitreader.Reader) SvcServerInfo {
 	return SvcServerInfo{
-		Protocol:     int16(reader.TryReadBits(16)),
-		ServerCount:  int32(reader.TryReadBits(32)),
-		IsHltv:       reader.TryReadBool(),
-		IsDedicated:  reader.TryReadBool(),
-		ClientCrc:    int32(reader.TryReadBits(32)),
-		MaxClasses:   int16(reader.TryReadBits(16)),
-		MapCrc:       int32(reader.TryReadBits(32)),
-		PlayerSlot:   int8(reader.TryReadBits(8)),
-		MaxClients:   int8(reader.TryReadBits(8)),
-		Unk:          int32(reader.TryReadBits(32)),
-		TickInterval: int32(reader.TryReadBits(32)),
-		COs:          int8(reader.TryReadBits(8)),
-		GameDir:      reader.TryReadString(),
-		MapName:      reader.TryReadString(),
-		SkyName:      reader.TryReadString(),
-		HostName:     reader.TryReadString(),
+		Protocol:         reader.TryReadUInt16(),
+		ServerCount:      reader.TryReadUInt32(),
+		IsHltv:           reader.TryReadBool(),
+		IsDedicated:      reader.TryReadBool(),
+		ClientCrc:        reader.TryReadSInt32(),
+		StringTableCrc:   reader.TryReadUInt32(),
+		MaxServerClasses: reader.TryReadUInt16(),
+		MapCrc:           reader.TryReadUInt32(),
+		PlayerCount:      reader.TryReadUInt8(),
+		MaxClients:       reader.TryReadUInt8(),
+		TickInterval:     reader.TryReadFloat32(),
+		Platform:         reader.TryReadStringLength(1),
+		GameDir:          reader.TryReadString(),
+		MapName:          reader.TryReadString(),
+		SkyName:          reader.TryReadString(),
+		HostName:         reader.TryReadString(),
 	}
 }
