@@ -42,9 +42,9 @@ type Stop struct {
 }
 
 type CustomData struct {
-	Unknown int32
-	Size    int32
-	Data    string
+	Type int32
+	Size int32
+	Data string
 }
 
 type StringTables struct {

@@ -1,13 +1,21 @@
 package messages
 
-import "github.com/pektezol/bitreader"
+import (
+	"strings"
+
+	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
+)
 
 type SvcPrint struct {
 	Message string
 }
 
 func ParseSvcPrint(reader *bitreader.Reader) SvcPrint {
-	return SvcPrint{
+	svcPrint := SvcPrint{
 		Message: reader.TryReadString(),
 	}
+	// common psycopath behaviour
+	writer.TempAppendLine("\t\t%s", strings.Replace(strings.ReplaceAll(strings.ReplaceAll(svcPrint.Message, "\n", "\n\t\t"), "\n\t\t\n\t\t", ""), "\n\t\t", "", 1))
+	return svcPrint
 }

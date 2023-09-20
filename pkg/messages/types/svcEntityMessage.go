@@ -1,6 +1,9 @@
 package messages
 
-import "github.com/pektezol/bitreader"
+import (
+	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
+)
 
 type SvcEntityMessage struct {
 	EntityIndex uint16
@@ -16,5 +19,8 @@ func ParseSvcEntityMessage(reader *bitreader.Reader) SvcEntityMessage {
 		Length:      uint16(reader.TryReadBits(11)),
 	}
 	svcEntityMessage.Data = reader.TryReadBitsToSlice(uint64(svcEntityMessage.Length))
+	writer.TempAppendLine("\t\tEntity Index: %d", svcEntityMessage.EntityIndex)
+	writer.TempAppendLine("\t\tClass ID: %d", svcEntityMessage.ClassId)
+	writer.TempAppendLine("\t\tData: %v", svcEntityMessage.Data)
 	return svcEntityMessage
 }

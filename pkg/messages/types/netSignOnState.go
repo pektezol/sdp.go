@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type NetSignOnState struct {
@@ -59,12 +60,17 @@ func ParseNetSignOnState(reader *bitreader.Reader) NetSignOnState {
 		NumServerPlayers: reader.TryReadUInt32(),
 		IdsLength:        reader.TryReadUInt32(),
 	}
+	writer.TempAppendLine("\t\tSign On State: %s", netSignOnState.SignOnState)
+	writer.TempAppendLine("\t\tSpawn Count: %d", netSignOnState.SpawnCount)
+	writer.TempAppendLine("\t\tNumber Of Server Players: %d", netSignOnState.NumServerPlayers)
 	if netSignOnState.IdsLength > 0 {
 		netSignOnState.PlayersNetworksIds = reader.TryReadBytesToSlice(uint64(netSignOnState.IdsLength))
+		writer.TempAppendLine("\t\tPlayer Network IDs: %v", netSignOnState.PlayersNetworksIds)
 	}
 	netSignOnState.MapNameLength = reader.TryReadUInt32()
 	if netSignOnState.MapNameLength > 0 {
 		netSignOnState.MapName = reader.TryReadStringLength(uint64(netSignOnState.MapNameLength))
+		writer.TempAppendLine("\t\tMap Name: %s", netSignOnState.MapName)
 	}
 	return netSignOnState
 }

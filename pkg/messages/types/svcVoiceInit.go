@@ -1,6 +1,9 @@
 package messages
 
-import "github.com/pektezol/bitreader"
+import (
+	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
+)
 
 type SvcVoiceInit struct {
 	Codec      string
@@ -22,5 +25,8 @@ func ParseSvcVoiceInit(reader *bitreader.Reader) SvcVoiceInit {
 			svcVoiceInit.SampleRate = 11025
 		}
 	}
+	writer.TempAppendLine("\t\tCodec: %s", svcVoiceInit.Codec)
+	writer.TempAppendLine("\t\tQuality: %d", svcVoiceInit.Quality)
+	writer.TempAppendLine("\t\tSample Rate: %d", svcVoiceInit.SampleRate)
 	return svcVoiceInit
 }

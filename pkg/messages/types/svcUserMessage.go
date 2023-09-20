@@ -1,6 +1,9 @@
 package messages
 
-import "github.com/pektezol/bitreader"
+import (
+	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
+)
 
 type SvcUserMessage struct {
 	Type   int8
@@ -86,6 +89,8 @@ func ParseSvcUserMessage(reader *bitreader.Reader) SvcUserMessage {
 		Length: int16(reader.TryReadBits(12)),
 	}
 	svcUserMessage.Data = reader.TryReadBitsToSlice(uint64(svcUserMessage.Length))
+	writer.TempAppendLine("\t\tType: %d", svcUserMessage.Type)
+	writer.TempAppendLine("\t\tData: %v", svcUserMessage.Data)
 	return svcUserMessage
 }
 

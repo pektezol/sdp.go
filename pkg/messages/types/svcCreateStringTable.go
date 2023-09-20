@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type SvcCreateStringTable struct {
@@ -31,6 +32,13 @@ func ParseSvcCreateStringTable(reader *bitreader.Reader) SvcCreateStringTable {
 		svcCreateStringTable.UserDataSizeBits = int8(reader.TryReadBits(4))
 	}
 	svcCreateStringTable.Flags = int8(reader.TryReadBits(2))
+	writer.TempAppendLine("\t\tName: %s", svcCreateStringTable.Name)
+	writer.TempAppendLine("\t\tMax Enties: %d", svcCreateStringTable.MaxEntries)
+	writer.TempAppendLine("\t\tNumber Of Entiries: %d", svcCreateStringTable.NumEntries)
+	writer.TempAppendLine("\t\tUser Data Fixed Size: %t", svcCreateStringTable.UserDataFixedSize)
+	writer.TempAppendLine("\t\tUser Data Size: %d", svcCreateStringTable.UserDataSize)
+	writer.TempAppendLine("\t\tUser Data Size In Bits: %d", svcCreateStringTable.UserDataSizeBits)
+	writer.TempAppendLine("\t\tFlags: %d", svcCreateStringTable.Flags)
 	reader.SkipBits(uint64(svcCreateStringTable.Length)) // TODO: StringTable parsing
 	return svcCreateStringTable
 }
