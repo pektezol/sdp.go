@@ -1,6 +1,9 @@
 package messages
 
-import "github.com/pektezol/bitreader"
+import (
+	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
+)
 
 type SvcServerInfo struct {
 	Protocol         uint16
@@ -22,7 +25,7 @@ type SvcServerInfo struct {
 }
 
 func ParseSvcServerInfo(reader *bitreader.Reader) SvcServerInfo {
-	return SvcServerInfo{
+	svcServerInfo := SvcServerInfo{
 		Protocol:         reader.TryReadUInt16(),
 		ServerCount:      reader.TryReadUInt32(),
 		IsHltv:           reader.TryReadBool(),
@@ -40,4 +43,21 @@ func ParseSvcServerInfo(reader *bitreader.Reader) SvcServerInfo {
 		SkyName:          reader.TryReadString(),
 		HostName:         reader.TryReadString(),
 	}
+	writer.TempAppendLine("\t\tNetwork Protocol: %d", svcServerInfo.Protocol)
+	writer.TempAppendLine("\t\tServer Count: %d", svcServerInfo.ServerCount)
+	writer.TempAppendLine("\t\tIs Hltv: %t", svcServerInfo.IsHltv)
+	writer.TempAppendLine("\t\tIs Dedicated: %t", svcServerInfo.IsDedicated)
+	writer.TempAppendLine("\t\tServer Client CRC: %d", svcServerInfo.ClientCrc)
+	writer.TempAppendLine("\t\tString Table CRC: %d", svcServerInfo.StringTableCrc)
+	writer.TempAppendLine("\t\tMax Server Classes: %d", svcServerInfo.MaxServerClasses)
+	writer.TempAppendLine("\t\tServer Map CRC: %d", svcServerInfo.MapCrc)
+	writer.TempAppendLine("\t\tCurrent Player Count: %d", svcServerInfo.PlayerCount)
+	writer.TempAppendLine("\t\tMax Player Count: %d", svcServerInfo.MaxClients)
+	writer.TempAppendLine("\t\tInterval Per Tick: %f", svcServerInfo.TickInterval)
+	writer.TempAppendLine("\t\tPlatform: %s", svcServerInfo.Platform)
+	writer.TempAppendLine("\t\tGame Directory: %s", svcServerInfo.GameDir)
+	writer.TempAppendLine("\t\tMap Name: %s", svcServerInfo.MapName)
+	writer.TempAppendLine("\t\tSky Name: %s", svcServerInfo.SkyName)
+	writer.TempAppendLine("\t\tHost Name: %s", svcServerInfo.HostName)
+	return svcServerInfo
 }

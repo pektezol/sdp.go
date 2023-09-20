@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type UserCmdInfo struct {
@@ -68,5 +69,19 @@ func ParseUserCmdInfo(data []byte) UserCmdInfo {
 	if reader.TryReadBool() {
 		userCmdInfo.MouseDy = int16(reader.TryReadBits(16))
 	}
+	writer.AppendLine("\tCommand Number: %v", userCmdInfo.CommandNumber)
+	writer.AppendLine("\tTick Count: %v", userCmdInfo.TickCount)
+	writer.AppendLine("\tView Angles X: %v", userCmdInfo.ViewAnglesX)
+	writer.AppendLine("\tView Angles Y: %v", userCmdInfo.ViewAnglesY)
+	writer.AppendLine("\tView Angles Z: %v", userCmdInfo.ViewAnglesZ)
+	writer.AppendLine("\tForward Move: %v", userCmdInfo.ForwardMove)
+	writer.AppendLine("\tSide Move: %v", userCmdInfo.SideMove)
+	writer.AppendLine("\tUp Move: %v", userCmdInfo.UpMove)
+	writer.AppendLine("\tButtons: %v", userCmdInfo.Buttons)
+	writer.AppendLine("\tImpulse: %v", userCmdInfo.Impulse)
+	writer.AppendLine("\tWeapon Select: %v", userCmdInfo.WeaponSelect)
+	writer.AppendLine("\tWeapon Sub Type: %v", userCmdInfo.WeaponSubType)
+	writer.AppendLine("\tMouse Dx: %v", userCmdInfo.MouseDx)
+	writer.AppendLine("\tMouse Dy: %v", userCmdInfo.MouseDy)
 	return userCmdInfo
 }

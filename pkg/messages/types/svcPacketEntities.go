@@ -2,6 +2,7 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type SvcPacketEntities struct {
@@ -30,5 +31,12 @@ func ParseSvcPacketEntities(reader *bitreader.Reader) SvcPacketEntities {
 	svcPacketEntities.Length = uint32(reader.TryReadBits(20))
 	svcPacketEntities.UpdatedBaseline = reader.TryReadBool()
 	svcPacketEntities.Data = reader.TryReadBitsToSlice(uint64(svcPacketEntities.Length))
+	writer.TempAppendLine("\t\tMax Entries: %d", svcPacketEntities.MaxEntries)
+	writer.TempAppendLine("\t\tIs Delta: %t", svcPacketEntities.IsDelta)
+	writer.TempAppendLine("\t\tDelta From: %d", svcPacketEntities.DeltaFrom)
+	writer.TempAppendLine("\t\tBaseline: %t", svcPacketEntities.BaseLine)
+	writer.TempAppendLine("\t\tUpdated Baseline: %t", svcPacketEntities.UpdatedBaseline)
+	writer.TempAppendLine("\t\t%d Updated Entries:", svcPacketEntities.UpdatedEntries)
+	writer.TempAppendLine("\t\tData: %v", svcPacketEntities.Data)
 	return svcPacketEntities
 }

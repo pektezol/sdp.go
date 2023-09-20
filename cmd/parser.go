@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
-	"reflect"
 
 	"github.com/pektezol/bitreader"
 	"github.com/pektezol/demoparser/pkg/packets"
+	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 const littleEndian bool = true
@@ -24,6 +24,7 @@ func main() {
 		reader := bitreader.NewReader(file, littleEndian)
 		demoParserHandler(reader)
 		defer file.Close()
+		defer fmt.Println(writer.GetString())
 		return
 	}
 	for _, fileinfo := range files { // If it is a directory
@@ -34,6 +35,7 @@ func main() {
 		reader := bitreader.NewReader(file, littleEndian)
 		demoParserHandler(reader)
 		defer file.Close()
+		defer fmt.Println(writer.GetString())
 	}
 }
 
@@ -41,7 +43,6 @@ func demoParserHandler(reader *bitreader.Reader) {
 	packets.ParseHeaders(reader)
 	for {
 		packet := packets.ParsePackets(reader)
-		fmt.Printf("[%d] %s (%d):\n\t%+v\n", packet.TickNumber, reflect.ValueOf(packet.Data).Type(), packet.PacketType, packet.Data)
 		if packet.PacketType == 7 {
 			break
 		}

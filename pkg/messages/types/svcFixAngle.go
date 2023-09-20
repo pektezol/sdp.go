@@ -1,6 +1,9 @@
 package messages
 
-import "github.com/pektezol/bitreader"
+import (
+	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
+)
 
 type SvcFixAngle struct {
 	Relative bool
@@ -14,7 +17,7 @@ type fixAngles struct {
 }
 
 func ParseSvcFixAngle(reader *bitreader.Reader) SvcFixAngle {
-	return SvcFixAngle{
+	svcFixAngle := SvcFixAngle{
 		Relative: reader.TryReadBool(),
 		Angle: fixAngles{
 			X: float32(reader.TryReadBits(16)),
@@ -22,4 +25,9 @@ func ParseSvcFixAngle(reader *bitreader.Reader) SvcFixAngle {
 			Z: float32(reader.TryReadBits(16)),
 		},
 	}
+	writer.TempAppendLine("\t\tRelative: %t", svcFixAngle.Relative)
+	writer.TempAppendLine("\t\tX: %f", svcFixAngle.Angle.X)
+	writer.TempAppendLine("\t\tY: %f", svcFixAngle.Angle.Y)
+	writer.TempAppendLine("\t\tZ: %f", svcFixAngle.Angle.Z)
+	return svcFixAngle
 }

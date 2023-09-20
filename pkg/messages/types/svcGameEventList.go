@@ -1,6 +1,9 @@
 package messages
 
-import "github.com/pektezol/bitreader"
+import (
+	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
+)
 
 type SvcGameEventList struct {
 	Events              int16
@@ -17,5 +20,6 @@ func ParseSvcGameEventList(reader *bitreader.Reader) SvcGameEventList {
 		Length: int32(reader.TryReadBits(20)),
 	}
 	reader.TryReadBitsToSlice(uint64(svcGameEventList.Length))
+	writer.TempAppendLine("\t\tEvents: %d", svcGameEventList.Events)
 	return svcGameEventList
 }

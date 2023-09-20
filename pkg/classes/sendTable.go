@@ -1,7 +1,10 @@
 package classes
 
 import (
+	"fmt"
+
 	"github.com/pektezol/bitreader"
+	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type SendTable struct {
@@ -12,10 +15,10 @@ type SendTable struct {
 }
 
 type prop struct {
-	SendPropType  int8
+	SendPropType  sendPropType
 	SendPropName  string
-	SendPropFlags int32
-	Priority      int8
+	SendPropFlags uint32
+	Priority      uint8
 	ExcludeDtName string
 	LowValue      float32
 	HighValue     float32
@@ -23,84 +26,169 @@ type prop struct {
 	NumElements   int32
 }
 
-type sendPropFlag int
-
-const (
-	Unsigned sendPropFlag = iota
-	Coord
-	NoScale
-	RoundDown
-	RoundUp
-	Normal
-	Exclude
-	Xyze
-	InsideArray
-	ProxyAlwaysYes
-	IsVectorElem
-	Collapsible
-	CoordMp
-	CoordMpLp // low precision
-	CoordMpInt
-	CellCoord
-	CellCoordLp
-	CellCoordInt
-	ChangesOften
-)
-
 type sendPropType int
 
 const (
-	Int sendPropType = iota
-	Float
-	Vector3
-	Vector2
-	String
-	Array
-	DataTable
+	ESendPropTypeInt sendPropType = iota
+	ESendPropTypeFloat
+	ESendPropTypeVector3
+	ESendPropTypeVector2
+	ESendPropTypeString
+	ESendPropTypeArray
+	ESendPropTypeDataTable
 )
+
+const (
+	ESendPropFlagUnsigned       string = "Unsigned"
+	ESendPropFlagCoord          string = "Coord"
+	ESendPropFlagNoScale        string = "NoScale"
+	ESendPropFlagRoundDown      string = "RoundDown"
+	ESendPropFlagRoundUp        string = "RoundUp"
+	ESendPropFlagNormal         string = "Normal"
+	ESendPropFlagExclude        string = "Exclude"
+	ESendPropFlagXyze           string = "Xyze"
+	ESendPropFlagInsideArray    string = "InsideArray"
+	ESendPropFlagProxyAlwaysYes string = "ProxyAlwaysYes"
+	ESendPropFlagIsVectorElem   string = "IsVectorElem"
+	ESendPropFlagCollapsible    string = "Collapsible"
+	ESendPropFlagCoordMp        string = "CoordMp"
+	ESendPropFlagCoordMpLp      string = "CoordMpLp"
+	ESendPropFlagCoordMpInt     string = "CoordMpInt"
+	ESendPropFlagCellCoord      string = "CellCoord"
+	ESendPropFlagCellCoordLp    string = "CellCoordLp"
+	ESendPropFlagCellCoordInt   string = "CellCoordInt"
+	ESendPropFlagChangesOften   string = "ChangesOften"
+)
+
+func (prop prop) GetFlags() []string {
+	flags := []string{}
+	if checkBit(prop.SendPropFlags, 0) {
+		flags = append(flags, ESendPropFlagUnsigned)
+	}
+	if checkBit(prop.SendPropFlags, 1) {
+		flags = append(flags, ESendPropFlagCoord)
+	}
+	if checkBit(prop.SendPropFlags, 2) {
+		flags = append(flags, ESendPropFlagNoScale)
+	}
+	if checkBit(prop.SendPropFlags, 3) {
+		flags = append(flags, ESendPropFlagRoundDown)
+	}
+	if checkBit(prop.SendPropFlags, 4) {
+		flags = append(flags, ESendPropFlagRoundUp)
+	}
+	if checkBit(prop.SendPropFlags, 5) {
+		flags = append(flags, ESendPropFlagNormal)
+	}
+	if checkBit(prop.SendPropFlags, 6) {
+		flags = append(flags, ESendPropFlagExclude)
+	}
+	if checkBit(prop.SendPropFlags, 7) {
+		flags = append(flags, ESendPropFlagXyze)
+	}
+	if checkBit(prop.SendPropFlags, 8) {
+		flags = append(flags, ESendPropFlagInsideArray)
+	}
+	if checkBit(prop.SendPropFlags, 9) {
+		flags = append(flags, ESendPropFlagProxyAlwaysYes)
+	}
+	if checkBit(prop.SendPropFlags, 10) {
+		flags = append(flags, ESendPropFlagIsVectorElem)
+	}
+	if checkBit(prop.SendPropFlags, 11) {
+		flags = append(flags, ESendPropFlagCollapsible)
+	}
+	if checkBit(prop.SendPropFlags, 12) {
+		flags = append(flags, ESendPropFlagCoordMp)
+	}
+	if checkBit(prop.SendPropFlags, 13) {
+		flags = append(flags, ESendPropFlagCoordMpLp)
+	}
+	if checkBit(prop.SendPropFlags, 14) {
+		flags = append(flags, ESendPropFlagCoordMpInt)
+	}
+	if checkBit(prop.SendPropFlags, 15) {
+		flags = append(flags, ESendPropFlagCellCoord)
+	}
+	if checkBit(prop.SendPropFlags, 16) {
+		flags = append(flags, ESendPropFlagCellCoordLp)
+	}
+	if checkBit(prop.SendPropFlags, 17) {
+		flags = append(flags, ESendPropFlagCellCoordInt)
+	}
+	if checkBit(prop.SendPropFlags, 18) {
+		flags = append(flags, ESendPropFlagChangesOften)
+	}
+	return flags
+}
+
+func (sendPropType sendPropType) String() string {
+	switch sendPropType {
+	case ESendPropTypeInt:
+		return "Int"
+	case ESendPropTypeFloat:
+		return "Float"
+	case ESendPropTypeVector3:
+		return "Vector3"
+	case ESendPropTypeVector2:
+		return "Vector2"
+	case ESendPropTypeString:
+		return "String"
+	case ESendPropTypeArray:
+		return "Array"
+	case ESendPropTypeDataTable:
+		return "DataTable"
+	default:
+		return fmt.Sprintf("%d", int(sendPropType))
+	}
+}
 
 func ParseSendTable(reader *bitreader.Reader) SendTable {
 	sendTable := SendTable{
 		NeedsDecoder: reader.TryReadBool(),
 		NetTableName: reader.TryReadString(),
 		NumOfProps:   int16(reader.TryReadBits(10)),
-		// SendPropType:  int8(reader.TryReadBits(5)),
-		// SendPropName:  reader.TryReadString(),
-		// SendPropFlags: int16(reader.TryReadBits(16)),
 	}
 	if sendTable.NumOfProps < 0 {
 		return sendTable
 	}
+	writer.TempAppendLine("\t\t%s (%d Props):", sendTable.NetTableName, sendTable.NumOfProps)
 	for count := 0; count < int(sendTable.NumOfProps); count++ {
 		propType := int8(reader.TryReadBits(5))
 		if propType >= int8(7) {
 			return sendTable
 		}
 		prop := prop{
-			SendPropType:  propType,
+			SendPropType:  sendPropType(propType),
 			SendPropName:  reader.TryReadString(),
-			SendPropFlags: int32(reader.TryReadBits(19)),
-			Priority:      int8(reader.TryReadBits(8)),
+			SendPropFlags: uint32(reader.TryReadBits(19)),
+			Priority:      reader.TryReadUInt8(),
 		}
-		if propType == int8(DataTable) || CheckBit(int64(prop.SendPropFlags), int(Exclude)) {
+		writer.TempAppend("\t\t\t%s\t", prop.SendPropType)
+		if propType == int8(ESendPropTypeDataTable) || checkBit(prop.SendPropFlags, 6) {
 			prop.ExcludeDtName = reader.TryReadString()
+			writer.TempAppend(":\t%s\t", prop.ExcludeDtName)
 		} else {
 			switch propType {
-			case int8(String), int8(Int), int8(Float), int8(Vector3), int8(Vector2):
+			case int8(ESendPropTypeString), int8(ESendPropTypeInt), int8(ESendPropTypeFloat), int8(ESendPropTypeVector3), int8(ESendPropTypeVector2):
 				prop.LowValue = reader.TryReadFloat32()
 				prop.HighValue = reader.TryReadFloat32()
 				prop.NumBits = int32(reader.TryReadBits(7))
-			case int8(Array):
+				writer.TempAppend("Low: %f\tHigh: %f\t%d bits\t", prop.LowValue, prop.HighValue, prop.NumBits)
+			case int8(ESendPropTypeArray):
 				prop.NumElements = int32(reader.TryReadBits(10))
+				writer.TempAppend("Elements: %d\t", prop.NumElements)
 			default:
+				writer.TempAppend("Unknown Prop Type: %v\t", propType)
 				return sendTable
 			}
 		}
+		writer.TempAppend("Flags: %v\tPriority: %d\n", prop.GetFlags(), prop.Priority)
 		sendTable.Props = append(sendTable.Props, prop)
 	}
 	return sendTable
 }
 
-func CheckBit(val int64, bit int) bool {
-	return (val & (int64(1) << bit)) != 0
+func checkBit(val uint32, bit int) bool {
+	return (val & (uint32(1) << bit)) != 0
 }
