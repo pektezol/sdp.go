@@ -7,18 +7,18 @@ import (
 )
 
 type PacketMessageInfo struct {
-	PacketType int8
+	PacketType uint8
 	TickNumber int32
-	SlotNumber int8
+	SlotNumber uint8
 	Data       any
 }
 
 const MSSC int = 2
 
 func ParsePackets(reader *bitreader.Reader) PacketMessageInfo {
-	packetType := reader.TryReadBits(8)
-	tickNumber := reader.TryReadBits(32)
-	slotNumber := reader.TryReadBits(8)
+	packetType := reader.TryReadUInt8()
+	tickNumber := reader.TryReadSInt32()
+	slotNumber := reader.TryReadUInt8()
 	var packetData any
 	switch packetType {
 	case 1: // SignOn
@@ -67,14 +67,14 @@ func ParsePackets(reader *bitreader.Reader) PacketMessageInfo {
 			Data: reader.TryReadStringLength(uint64(size)),
 		}
 		packetData = consoleCmd
-	case 5: // UserCmd
+	case 5: // UserCmd TODO: usercmdinfo refactor
 		userCmd := UserCmd{}
 		userCmd.Cmd = int32(reader.TryReadSInt32())
 		userCmd.Size = int32(reader.TryReadSInt32())
 		data := reader.TryReadBytesToSlice(uint64(userCmd.Size))
 		userCmd.Data = classes.ParseUserCmdInfo(data)
 		packetData = userCmd
-	case 6: // DataTables
+	case 6: // DataTables TODO: prop stuff
 		dataTables := DataTables{}
 		dataTables.Size = int32(reader.TryReadSInt32())
 		data := reader.TryReadBytesToSlice(uint64(dataTables.Size))
@@ -112,7 +112,7 @@ func ParsePackets(reader *bitreader.Reader) PacketMessageInfo {
 		sarReader := bitreader.NewReaderFromBytes(data, true)
 		sarData.ParseSarData(sarReader)
 		packetData = sarData
-	case 9: // StringTables
+	case 9: // StringTables TODO: parsing string table data
 		stringTables := StringTables{
 			Size: int32(reader.TryReadSInt32()),
 		}
@@ -124,9 +124,9 @@ func ParsePackets(reader *bitreader.Reader) PacketMessageInfo {
 		panic("invalid packet type")
 	}
 	return PacketMessageInfo{
-		PacketType: int8(packetType),
-		TickNumber: int32(tickNumber),
-		SlotNumber: int8(slotNumber),
+		PacketType: packetType,
+		TickNumber: tickNumber,
+		SlotNumber: slotNumber,
 		Data:       packetData,
 	}
 }
