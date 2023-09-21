@@ -5,6 +5,11 @@ import (
 	"github.com/pektezol/demoparser/pkg/writer"
 )
 
+type StringTables struct {
+	Size int32
+	Data []StringTable
+}
+
 type StringTable struct {
 	Name         string
 	TableEntries []StringTableEntry
@@ -25,15 +30,17 @@ type StringTableClass struct {
 	Data string
 }
 
-func ParseStringTables(reader *bitreader.Reader) []StringTable {
-	tableCount := reader.TryReadBits(8)
-	stringTables := make([]StringTable, tableCount)
+func (stringTables *StringTables) ParseStringTables(reader *bitreader.Reader) {
+	stringTables.Size = reader.TryReadSInt32()
+	stringTableReader := bitreader.NewReaderFromBytes(reader.TryReadBytesToSlice(uint64(stringTables.Size)), true)
+	tableCount := stringTableReader.TryReadBits(8)
+	tables := make([]StringTable, tableCount)
 	for i := 0; i < int(tableCount); i++ {
 		var table StringTable
-		table.ParseStream(reader)
-		stringTables[i] = table
+		table.ParseStream(stringTableReader)
+		tables[i] = table
 	}
-	return stringTables
+	stringTables.Data = tables
 }
 
 func (stringTable *StringTable) ParseStream(reader *bitreader.Reader) {

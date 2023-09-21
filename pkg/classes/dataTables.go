@@ -7,11 +7,23 @@ import (
 	"github.com/pektezol/demoparser/pkg/writer"
 )
 
+type DataTables struct {
+	Size            int32
+	SendTable       []SendTable
+	ServerClassInfo []ServerClassInfo
+}
+
 type SendTable struct {
 	NeedsDecoder bool
 	NetTableName string
 	NumOfProps   int16
 	Props        []prop
+}
+
+type ServerClassInfo struct {
+	ClassId       uint16
+	ClassName     string
+	DataTableName string
 }
 
 type prop struct {
@@ -24,6 +36,95 @@ type prop struct {
 	HighValue     float32
 	NumBits       int32
 	NumElements   int32
+}
+
+func (dataTables *DataTables) ParseDataTables(reader *bitreader.Reader) {
+	dataTables.Size = int32(reader.TryReadSInt32())
+	dataTableReader := bitreader.NewReaderFromBytes(reader.TryReadBytesToSlice(uint64(dataTables.Size)), true)
+	count := 0
+	for dataTableReader.TryReadBool() {
+		count++
+		dataTables.SendTable = append(dataTables.SendTable, ParseSendTable(dataTableReader))
+	}
+	writer.AppendLine("\t%d Send Tables:", count)
+	writer.AppendOutputFromTemp()
+	numOfClasses := dataTableReader.TryReadBits(16)
+	for count = 0; count < int(numOfClasses); count++ {
+		dataTables.ServerClassInfo = append(dataTables.ServerClassInfo, ParseServerClassInfo(dataTableReader, count, int(numOfClasses)))
+	}
+	writer.AppendLine("\t%d Classes:", count)
+	writer.AppendOutputFromTemp()
+}
+
+func ParseSendTable(reader *bitreader.Reader) SendTable {
+	sendTable := SendTable{
+		NeedsDecoder: reader.TryReadBool(),
+		NetTableName: reader.TryReadString(),
+		NumOfProps:   int16(reader.TryReadBits(10)),
+	}
+	if sendTable.NumOfProps < 0 {
+		return sendTable
+	}
+	writer.TempAppendLine("\t\t%s (%d Props):", sendTable.NetTableName, sendTable.NumOfProps)
+	for count := 0; count < int(sendTable.NumOfProps); count++ {
+		propType := int8(reader.TryReadBits(5))
+		if propType >= int8(7) {
+			return sendTable
+		}
+		prop := prop{
+			SendPropType:  sendPropType(propType),
+			SendPropName:  reader.TryReadString(),
+			SendPropFlags: uint32(reader.TryReadBits(19)),
+			Priority:      reader.TryReadUInt8(),
+		}
+		writer.TempAppend("\t\t\t%s\t", prop.SendPropType)
+		if propType == int8(ESendPropTypeDataTable) || checkBit(prop.SendPropFlags, 6) {
+			prop.ExcludeDtName = reader.TryReadString()
+			writer.TempAppend(":\t%s\t", prop.ExcludeDtName)
+		} else {
+			switch propType {
+			case int8(ESendPropTypeString), int8(ESendPropTypeInt), int8(ESendPropTypeFloat), int8(ESendPropTypeVector3), int8(ESendPropTypeVector2):
+				prop.LowValue = reader.TryReadFloat32()
+				prop.HighValue = reader.TryReadFloat32()
+				prop.NumBits = int32(reader.TryReadBits(7))
+				writer.TempAppend("Low: %f\tHigh: %f\t%d bits\t", prop.LowValue, prop.HighValue, prop.NumBits)
+			case int8(ESendPropTypeArray):
+				prop.NumElements = int32(reader.TryReadBits(10))
+				writer.TempAppend("Elements: %d\t", prop.NumElements)
+			default:
+				writer.TempAppend("Unknown Prop Type: %v\t", propType)
+				return sendTable
+			}
+		}
+		writer.TempAppend("Flags: %v\tPriority: %d\n", prop.GetFlags(), prop.Priority)
+		sendTable.Props = append(sendTable.Props, prop)
+	}
+	return sendTable
+}
+
+func ParseServerClassInfo(reader *bitreader.Reader, count int, numOfClasses int) ServerClassInfo {
+	serverClassInfo := ServerClassInfo{
+		ClassId:       reader.TryReadUInt16(),
+		ClassName:     reader.TryReadString(),
+		DataTableName: reader.TryReadString(),
+	}
+	writer.TempAppendLine("\t\t\t[%d] %s (%s)", serverClassInfo.ClassId, serverClassInfo.ClassName, serverClassInfo.DataTableName)
+	return serverClassInfo
+}
+
+// func serverClassBits(numOfClasses int) int {
+// 	return highestBitIndex(uint(numOfClasses)) + 1
+// }
+
+// func highestBitIndex(i uint) int {
+// 	var j int
+// 	for j = 31; j >= 0 && (i&(1<<j)) == 0; j-- {
+// 	}
+// 	return j
+// }
+
+func checkBit(val uint32, bit int) bool {
+	return (val & (uint32(1) << bit)) != 0
 }
 
 type sendPropType int
@@ -141,54 +242,4 @@ func (sendPropType sendPropType) String() string {
 	default:
 		return fmt.Sprintf("%d", int(sendPropType))
 	}
-}
-
-func ParseSendTable(reader *bitreader.Reader) SendTable {
-	sendTable := SendTable{
-		NeedsDecoder: reader.TryReadBool(),
-		NetTableName: reader.TryReadString(),
-		NumOfProps:   int16(reader.TryReadBits(10)),
-	}
-	if sendTable.NumOfProps < 0 {
-		return sendTable
-	}
-	writer.TempAppendLine("\t\t%s (%d Props):", sendTable.NetTableName, sendTable.NumOfProps)
-	for count := 0; count < int(sendTable.NumOfProps); count++ {
-		propType := int8(reader.TryReadBits(5))
-		if propType >= int8(7) {
-			return sendTable
-		}
-		prop := prop{
-			SendPropType:  sendPropType(propType),
-			SendPropName:  reader.TryReadString(),
-			SendPropFlags: uint32(reader.TryReadBits(19)),
-			Priority:      reader.TryReadUInt8(),
-		}
-		writer.TempAppend("\t\t\t%s\t", prop.SendPropType)
-		if propType == int8(ESendPropTypeDataTable) || checkBit(prop.SendPropFlags, 6) {
-			prop.ExcludeDtName = reader.TryReadString()
-			writer.TempAppend(":\t%s\t", prop.ExcludeDtName)
-		} else {
-			switch propType {
-			case int8(ESendPropTypeString), int8(ESendPropTypeInt), int8(ESendPropTypeFloat), int8(ESendPropTypeVector3), int8(ESendPropTypeVector2):
-				prop.LowValue = reader.TryReadFloat32()
-				prop.HighValue = reader.TryReadFloat32()
-				prop.NumBits = int32(reader.TryReadBits(7))
-				writer.TempAppend("Low: %f\tHigh: %f\t%d bits\t", prop.LowValue, prop.HighValue, prop.NumBits)
-			case int8(ESendPropTypeArray):
-				prop.NumElements = int32(reader.TryReadBits(10))
-				writer.TempAppend("Elements: %d\t", prop.NumElements)
-			default:
-				writer.TempAppend("Unknown Prop Type: %v\t", propType)
-				return sendTable
-			}
-		}
-		writer.TempAppend("Flags: %v\tPriority: %d\n", prop.GetFlags(), prop.Priority)
-		sendTable.Props = append(sendTable.Props, prop)
-	}
-	return sendTable
-}
-
-func checkBit(val uint32, bit int) bool {
-	return (val & (uint32(1) << bit)) != 0
 }
