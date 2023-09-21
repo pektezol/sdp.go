@@ -8,7 +8,7 @@ import (
 	"github.com/pektezol/demoparser/pkg/writer"
 )
 
-func ParseMessages(messageType int, reader *bitreader.Reader) any {
+func ParseMessages(messageType uint64, reader *bitreader.Reader) any {
 	var messageData any
 	switch messageType {
 	case 0:
