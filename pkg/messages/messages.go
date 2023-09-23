@@ -58,7 +58,7 @@ func ParseMessages(messageType uint64, reader *bitreader.Reader) any {
 	case 22:
 		messageData = messages.ParseSvcSplitScreen(reader) // skipped
 	case 23:
-		messageData = messages.ParseSvcUserMessage(reader) // TODO:
+		messageData = messages.ParseSvcUserMessage(reader)
 	case 24:
 		messageData = messages.ParseSvcEntityMessage(reader) // skipped
 	case 25:
