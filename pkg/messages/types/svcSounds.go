@@ -2,7 +2,6 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type SvcSounds struct {
@@ -24,8 +23,6 @@ func ParseSvcSounds(reader *bitreader.Reader) SvcSounds {
 		svcSounds.Length = reader.TryReadUInt16()
 	}
 	svcSounds.Data = reader.TryReadBitsToSlice(uint64(svcSounds.Length))
-	writer.TempAppendLine("\t\tReliable Sound: %t", svcSounds.ReliableSound)
-	writer.TempAppendLine("\t\tSound Count: %d", svcSounds.SoundCount)
-	writer.TempAppendLine("\t\tData: %v", svcSounds.Data)
+
 	return svcSounds
 }

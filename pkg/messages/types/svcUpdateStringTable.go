@@ -2,7 +2,6 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type SvcUpdateStringTable struct {
@@ -21,7 +20,6 @@ func ParseSvcUpdateStringTable(reader *bitreader.Reader) SvcUpdateStringTable {
 	}
 	svcUpdateStringTable.Length = int32(reader.TryReadBits(20))
 	svcUpdateStringTable.Data = reader.TryReadBitsToSlice(uint64(svcUpdateStringTable.Length))
-	writer.TempAppendLine("\t\tTable ID: %d", svcUpdateStringTable.TableId)
-	writer.TempAppendLine("\t\tNumber Of Changed Entries: %d", svcUpdateStringTable.NumChangedEntries)
+
 	return svcUpdateStringTable
 }

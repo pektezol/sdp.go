@@ -2,7 +2,6 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type SvcTempEntities struct {
@@ -17,7 +16,6 @@ func ParseSvcTempEntities(reader *bitreader.Reader) SvcTempEntities {
 		Length:     uint32(reader.TryReadBits(17)),
 	}
 	svcTempEntities.Data = reader.TryReadBitsToSlice(uint64(svcTempEntities.Length))
-	writer.TempAppendLine("\t\tNumber Of Entries: %d", svcTempEntities.NumEntries)
-	writer.TempAppendLine("\t\tData: %v", svcTempEntities.Data)
+
 	return svcTempEntities
 }

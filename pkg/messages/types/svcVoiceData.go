@@ -2,7 +2,6 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type SvcVoiceData struct {
@@ -21,8 +20,6 @@ func ParseSvcVoiceData(reader *bitreader.Reader) SvcVoiceData {
 		svcVoiceData.Proximity = true
 	}
 	svcVoiceData.Data = reader.TryReadBitsToSlice(uint64(svcVoiceData.Length))
-	writer.TempAppendLine("\t\tFrom Client: %d", svcVoiceData.FromClient)
-	writer.TempAppendLine("\t\tProximity: %t", svcVoiceData.Proximity)
-	writer.TempAppendLine("\t\tData: %v", svcVoiceData.Data)
+
 	return svcVoiceData
 }

@@ -2,7 +2,6 @@ package classes
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type UserCmd struct {
@@ -78,14 +77,7 @@ func (userCmd *UserCmd) ParseUserCmdInfo(reader *bitreader.Reader) {
 	if reader.TryReadBool() {
 		userCmd.Data.MouseDy = reader.TryReadUInt16()
 	}
-	writer.AppendLine("\tCommand Number: %v", userCmd.Data.CommandNumber)
-	writer.AppendLine("\tTick Count: %v", userCmd.Data.TickCount)
-	writer.AppendLine("\tView Angles: %v", []float32{userCmd.Data.ViewAnglesX, userCmd.Data.ViewAnglesY, userCmd.Data.ViewAnglesZ})
-	writer.AppendLine("\tMovement: %v", []float32{userCmd.Data.ForwardMove, userCmd.Data.SideMove, userCmd.Data.UpMove})
-	writer.AppendLine("\tButtons: %v", Buttons(userCmd.Data.Buttons).GetButtons())
-	writer.AppendLine("\tImpulse: %v", userCmd.Data.Impulse)
-	writer.AppendLine("\tWeapon, Subtype: %v, %v", userCmd.Data.WeaponSelect, userCmd.Data.WeaponSubType)
-	writer.AppendLine("\tMouse Dx, Mouse Dy: %v, %v", userCmd.Data.MouseDx, userCmd.Data.MouseDy)
+
 }
 
 func (button Buttons) GetButtons() []string {

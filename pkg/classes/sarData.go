@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
+	"github.com/pektezol/demoparser/pkg/verification"
 )
 
 type SarDataType uint8
@@ -164,26 +164,31 @@ func (sarData *SarData) ParseSarData(reader *bitreader.Reader) (err error) {
 		len = 9
 	}
 	dataReader := bitreader.NewReaderFromBytes(reader.TryReadBytesToSlice(len-1), true)
-	writer.AppendLine("\tMessage: %s (%d):", sarData.Type.String(), sarData.Type)
 	switch sarData.Type {
 	case ESarDataTimescaleCheat:
+		fmt.Printf("\tMessage: %s (%d):\n", sarData.Type.String(), sarData.Type)
+
 		sarData.Data, err = parseTimescaleCheatData(dataReader, len)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataInitialCVar:
+
 		sarData.Data = parseInitialCVarData(dataReader)
 	case ESarDataEntityInputSlot:
 		sarData.Slot = int(dataReader.TryReadBytes(1))
-		writer.AppendLine("\t\tSlot: %d", sarData.Slot)
 	case ESarDataEntityInput:
 		sarData.Data = parseEntityInputData(dataReader)
 	case ESarDataChecksum:
+		// fmt.Printf("\tMessage: %s (%d):\n", sarData.Type.String(), sarData.Type)
+
 		sarData.Data, err = parseChecksumData(dataReader, len)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataChecksumV2:
+		// fmt.Printf("\tMessage: %s (%d):\n", sarData.Type.String(), sarData.Type)
+
 		sarData.Data, err = parseChecksumV2Data(dataReader, len)
 		if err != nil {
 			sarData.Data = nil
@@ -197,37 +202,50 @@ func (sarData *SarData) ParseSarData(reader *bitreader.Reader) (err error) {
 			sarData.Slot = slot
 		}
 	case ESarDataChallengeFlags, ESarDataCrouchFly:
+		// fmt.Printf("\tMessage: %s (%d):\n", sarData.Type.String(), sarData.Type)
+
 		sarData.Slot, err = parseChallengeFlagsCrouchFlyData(dataReader, len)
 		if err != nil {
 			sarData.Data = nil
 		}
-		writer.AppendLine("\t\tSlot: %d", sarData.Slot)
+		// fmt.Printf("\t\tSlot: %d\n", sarData.Slot)
 	case ESarDataPause:
+		fmt.Printf("\tMessage: %s (%d):\n", sarData.Type.String(), sarData.Type)
+
 		sarData.Data, err = parsePauseData(dataReader, len)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataWaitRun:
+		fmt.Printf("\tMessage: %s (%d):\n", sarData.Type.String(), sarData.Type)
+
 		sarData.Data, err = parseWaitRunData(dataReader, len)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataHWaitRun:
+		fmt.Printf("\tMessage: %s (%d):\n", sarData.Type.String(), sarData.Type)
+
 		sarData.Data, err = parseHWaitRunData(dataReader, len)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataSpeedrunTime:
+		fmt.Printf("\tMessage: %s (%d):\n", sarData.Type.String(), sarData.Type)
+
 		sarData.Data, err = parseSpeedrunTimeData(dataReader, len)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataTimestamp:
+		// fmt.Printf("\tMessage: %s (%d):\n", sarData.Type.String(), sarData.Type)
+
 		sarData.Data, err = parseTimestampData(dataReader, len)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataFileChecksum:
+
 		sarData.Data, err = parseFileChecksumData(dataReader, len)
 		if err != nil {
 			sarData.Data = nil
@@ -246,7 +264,7 @@ func parseTimescaleCheatData(reader *bitreader.Reader, length uint64) (SarDataTi
 	sarDataTimescaleCheat := SarDataTimescaleCheat{
 		Timescale: reader.TryReadFloat32(),
 	}
-	writer.AppendLine("\t\tTimescale: %f", sarDataTimescaleCheat.Timescale)
+	fmt.Printf("\t\tTimescale: %f\n", sarDataTimescaleCheat.Timescale)
 	return sarDataTimescaleCheat, nil
 }
 
@@ -255,7 +273,7 @@ func parseInitialCVarData(reader *bitreader.Reader) SarDataInitialCVar {
 		CVar: reader.TryReadString(),
 		Val:  reader.TryReadString(),
 	}
-	writer.AppendLine("\t\tCvar: \"%s\" = \"%s\"", sarDataInitialCvar.CVar, sarDataInitialCvar.Val)
+	// fmt.Printf("\t\tCvar: \"%s\" = \"%s\"\n", sarDataInitialCvar.CVar, sarDataInitialCvar.Val)
 	return sarDataInitialCvar
 }
 
@@ -266,10 +284,10 @@ func parseEntityInputData(reader *bitreader.Reader) SarDataEntityInput {
 		InputName:  reader.TryReadString(),
 		Parameter:  reader.TryReadString(),
 	}
-	writer.AppendLine("\t\tTarget: %s", sarDataEntityInput.TargetName)
-	writer.AppendLine("\t\tClass: %s", sarDataEntityInput.ClassName)
-	writer.AppendLine("\t\tInput: %s", sarDataEntityInput.InputName)
-	writer.AppendLine("\t\tParameter: %s", sarDataEntityInput.Parameter)
+	// fmt.Printf("\t\tTarget: %s\n", sarDataEntityInput.TargetName)
+	// fmt.Printf("\t\tClass: %s\n", sarDataEntityInput.ClassName)
+	// fmt.Printf("\t\tInput: %s\n", sarDataEntityInput.InputName)
+	// fmt.Printf("\t\tParameter: %s\n", sarDataEntityInput.Parameter)
 	return sarDataEntityInput
 }
 
@@ -281,8 +299,8 @@ func parseChecksumData(reader *bitreader.Reader, length uint64) (SarDataChecksum
 		DemoSum: reader.TryReadUInt32(),
 		SarSum:  reader.TryReadUInt32(),
 	}
-	writer.AppendLine("\t\tDemo Checksum: %d", sarDataChecksum.DemoSum)
-	writer.AppendLine("\t\tSAR Checksum: %d", sarDataChecksum.SarSum)
+	// fmt.Printf("\t\tDemo Checksum: %d\n", sarDataChecksum.DemoSum)
+	// fmt.Printf("\t\tSAR Checksum: %d\n", sarDataChecksum.SarSum)
 	return sarDataChecksum, nil
 }
 
@@ -294,8 +312,8 @@ func parseChecksumV2Data(reader *bitreader.Reader, length uint64) (SarDataChecks
 		SarSum:    reader.TryReadUInt32(),
 		Signature: [64]byte(reader.TryReadBytesToSlice(60)),
 	}
-	writer.AppendLine("\t\tSAR Checksum: %d", sarDataChecksumV2.SarSum)
-	writer.AppendLine("\t\tSignature: %v", sarDataChecksumV2.Signature)
+	// fmt.Printf("\t\tSAR Checksum: %d\n", sarDataChecksumV2.SarSum)
+	// fmt.Printf("\t\tSignature: %v\n", sarDataChecksumV2.Signature)
 	return sarDataChecksumV2, nil
 }
 
@@ -312,10 +330,10 @@ func parsePortalPlacementData(reader *bitreader.Reader, length uint64) (SarDataP
 		Y:      reader.TryReadFloat32(),
 		Z:      reader.TryReadFloat32(),
 	}
-	writer.AppendLine("\t\tOrange: %t", orange)
-	writer.AppendLine("\t\tX: %f", sarDataPortalPlacement.X)
-	writer.AppendLine("\t\tY: %f", sarDataPortalPlacement.Y)
-	writer.AppendLine("\t\tZ: %f", sarDataPortalPlacement.Z)
+	// fmt.Printf("\t\tOrange: %t\n", orange)
+	// fmt.Printf("\t\tX: %f\n", sarDataPortalPlacement.X)
+	// fmt.Printf("\t\tY: %f\n", sarDataPortalPlacement.Y)
+	// fmt.Printf("\t\tZ: %f\n", sarDataPortalPlacement.Z)
 	return sarDataPortalPlacement, slot, nil
 }
 
@@ -333,7 +351,7 @@ func parsePauseData(reader *bitreader.Reader, length uint64) (SarDataPause, erro
 	sarDataPause := SarDataPause{
 		PauseTicks: reader.TryReadUInt32(),
 	}
-	writer.AppendLine("\t\tPause Ticks: %d", sarDataPause.PauseTicks)
+	fmt.Printf("\t\tPause Ticks: %d\n", sarDataPause.PauseTicks)
 	return sarDataPause, nil
 }
 
@@ -345,8 +363,8 @@ func parseWaitRunData(reader *bitreader.Reader, length uint64) (SarDataWaitRun, 
 		Ticks: int(reader.TryReadUInt32()),
 		Cmd:   reader.TryReadString(),
 	}
-	writer.AppendLine("\t\tTicks: %d", sarDataWaitRun.Ticks)
-	writer.AppendLine("\t\tCmd: \"%s\"", sarDataWaitRun.Cmd)
+	fmt.Printf("\t\tTicks: %d\n", sarDataWaitRun.Ticks)
+	fmt.Printf("\t\tCmd: \"%s\"\n", sarDataWaitRun.Cmd)
 	return sarDataWaitRun, nil
 }
 
@@ -358,8 +376,8 @@ func parseHWaitRunData(reader *bitreader.Reader, length uint64) (SarDataHWaitRun
 		Ticks: int(reader.TryReadUInt32()),
 		Cmd:   reader.TryReadString(),
 	}
-	writer.AppendLine("\t\tTicks: %d", sarDataHWaitRun.Ticks)
-	writer.AppendLine("\t\tCmd: \"%s\"", sarDataHWaitRun.Cmd)
+	fmt.Printf("\t\tTicks: %d\n", sarDataHWaitRun.Ticks)
+	fmt.Printf("\t\tCmd: \"%s\"\n", sarDataHWaitRun.Cmd)
 	return sarDataHWaitRun, nil
 }
 
@@ -372,14 +390,15 @@ func parseSpeedrunTimeData(reader *bitreader.Reader, length uint64) (SarDataSpee
 	for splitCount := 0; splitCount < int(numberOfSplits); splitCount++ {
 		splits[splitCount].Name = reader.TryReadString()
 		splits[splitCount].NSegs = reader.TryReadUInt32()
-		writer.AppendLine("\t\t[%d] Split Name: \"%s\"", splitCount, splits[splitCount].Name)
-		writer.AppendLine("\t\t[%d] Number of Segments: %d", splitCount, splits[splitCount].NSegs)
+		fmt.Printf("\t\t[%d] Split Name: \"%s\"\n", splitCount, splits[splitCount].Name)
+		fmt.Printf("\t\t[%d] Number of Segments: %d\n", splitCount, splits[splitCount].NSegs)
 		splits[splitCount].Segs = make([]SarDataSpeedrunTimeSegs, splits[splitCount].NSegs)
 		for segCount := 0; segCount < int(splits[splitCount].NSegs); segCount++ {
 			splits[splitCount].Segs[segCount].Name = reader.TryReadString()
 			splits[splitCount].Segs[segCount].Ticks = reader.TryReadUInt32()
-			writer.AppendLine("\t\t\t[%d] Segment Name: \"%s\"", segCount, splits[splitCount].Segs[segCount].Name)
-			writer.AppendLine("\t\t\t[%d] Segment Ticks: %d", segCount, splits[splitCount].Segs[segCount].Ticks)
+			verification.Ticks += splits[splitCount].Segs[segCount].Ticks
+			fmt.Printf("\t\t\t[%d] Segment Name: \"%s\"\n", segCount, splits[splitCount].Segs[segCount].Name)
+			fmt.Printf("\t\t\t[%d] Segment Ticks: %d\n", segCount, splits[splitCount].Segs[segCount].Ticks)
 		}
 	}
 	return SarDataSpeedrunTime{
@@ -401,12 +420,12 @@ func parseTimestampData(reader *bitreader.Reader, length uint64) (SarDataTimesta
 		Minute: timestamp[5],
 		Second: timestamp[6],
 	}
-	writer.AppendLine("\t\tYear: %d", sarDataTimeStamp.Year)
-	writer.AppendLine("\t\tMonth: %d", sarDataTimeStamp.Month)
-	writer.AppendLine("\t\tDay: %d", sarDataTimeStamp.Day)
-	writer.AppendLine("\t\tHour: %d", sarDataTimeStamp.Hour)
-	writer.AppendLine("\t\tMinute: %d", sarDataTimeStamp.Minute)
-	writer.AppendLine("\t\tSecond: %d", sarDataTimeStamp.Second)
+	// fmt.Printf("\t\tYear: %d\n", sarDataTimeStamp.Year)
+	// fmt.Printf("\t\tMonth: %d\n", sarDataTimeStamp.Month)
+	// fmt.Printf("\t\tDay: %d\n", sarDataTimeStamp.Day)
+	// fmt.Printf("\t\tHour: %d\n", sarDataTimeStamp.Hour)
+	// fmt.Printf("\t\tMinute: %d\n", sarDataTimeStamp.Minute)
+	// fmt.Printf("\t\tSecond: %d\n", sarDataTimeStamp.Second)
 	return sarDataTimeStamp, nil
 }
 
@@ -418,7 +437,7 @@ func parseFileChecksumData(reader *bitreader.Reader, length uint64) (SarDataFile
 		Sum:  reader.TryReadUInt32(),
 		Path: reader.TryReadString(),
 	}
-	writer.AppendLine("\t\tChecksum: %d", sarDataFileChecksum.Sum)
-	writer.AppendLine("\t\tPath: \"%s\"", sarDataFileChecksum.Path)
+	// fmt.Printf("\t\tChecksum: %d\n", sarDataFileChecksum.Sum)
+	// fmt.Printf("\t\tPath: \"%s\"\n", sarDataFileChecksum.Path)
 	return sarDataFileChecksum, nil
 }

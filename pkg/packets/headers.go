@@ -2,7 +2,6 @@ package packets
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type Headers struct {
@@ -42,6 +41,6 @@ func ParseHeaders(reader *bitreader.Reader) Headers {
 	if headers.NetworkProtocol != 2001 {
 		panic("this parser only supports demos from portal 2")
 	}
-	writer.AppendLine("Headers: %+v", headers)
+
 	return headers
 }

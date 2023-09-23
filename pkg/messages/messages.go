@@ -1,11 +1,8 @@
 package messages
 
 import (
-	"reflect"
-
 	"github.com/pektezol/bitreader"
 	messages "github.com/pektezol/demoparser/pkg/messages/types"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 func ParseMessages(messageType uint64, reader *bitreader.Reader) any {
@@ -82,7 +79,6 @@ func ParseMessages(messageType uint64, reader *bitreader.Reader) any {
 	default:
 		return nil
 	}
-	writer.AppendLine("\tMessage: %s (%d):", reflect.ValueOf(messageData).Type(), messageType)
-	writer.AppendOutputFromTemp()
+
 	return messageData
 }

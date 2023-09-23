@@ -3,7 +3,7 @@ package packets
 import (
 	"github.com/pektezol/bitreader"
 	"github.com/pektezol/demoparser/pkg/classes"
-	"github.com/pektezol/demoparser/pkg/writer"
+	"github.com/pektezol/demoparser/pkg/messages"
 )
 
 type PacketMessageInfo struct {
@@ -18,42 +18,46 @@ func ParsePackets(reader *bitreader.Reader) PacketMessageInfo {
 	slotNumber := reader.TryReadUInt8()
 	switch packetType {
 	case 1: // SignOn
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "SIGNON", packetType)
-		signOn := classes.SignOn{}
-		signOn.ParseSignOn(reader)
+		for count := 0; count < 2; count++ {
+			reader.SkipBytes(76)
+		}
+		reader.SkipBytes(8)
+		packetReader := bitreader.NewReaderFromBytes(reader.TryReadBytesToSlice(uint64(reader.TryReadUInt32())), true)
+		for {
+			messageType, err := packetReader.ReadBits(6)
+			if err != nil {
+				break
+			}
+			messages.ParseMessages(messageType, packetReader)
+		}
 	case 2: // Packet
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "PACKET", packetType)
-		packet := classes.Packet{}
-		packet.ParsePacket(reader)
+		for count := 0; count < 2; count++ {
+			reader.SkipBytes(76)
+		}
+		reader.SkipBytes(8)
+		reader.TryReadBytesToSlice(uint64(reader.TryReadUInt32()))
 	case 3: // SyncTick
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "SYNCTICK", packetType)
-		syncTick := classes.SyncTick{}
-		syncTick.ParseSyncTick()
 	case 4: // ConsoleCmd
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "CONSOLECMD", packetType)
+
 		consoleCmd := classes.ConsoleCmd{}
 		consoleCmd.ParseConsoleCmd(reader)
 	case 5: // UserCmd
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "USERCMD", packetType)
+
 		userCmd := classes.UserCmd{}
 		userCmd.ParseUserCmd(reader)
 	case 6: // DataTables
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "DATATABLES", packetType)
-		dataTables := classes.DataTables{}
-		dataTables.ParseDataTables(reader)
+		reader.SkipBytes(uint64(reader.TryReadUInt32()))
 	case 7: // Stop
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "STOP", packetType)
-		stop := classes.Stop{}
-		stop.ParseStop(reader)
+		if reader.TryReadBool() {
+			reader.TryReadBitsToSlice(uint64(reader.TryReadRemainingBits()))
+		}
 	case 8: // CustomData TODO: not sar data
 		customData := classes.CustomData{}
 		customData.ParseCustomData(reader, tickNumber, packetType)
 	case 9: // StringTables TODO: parsing string table data
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "STRINGTABLES", packetType)
-		stringTables := classes.StringTables{}
-		stringTables.ParseStringTables(reader)
+		reader.SkipBytes(uint64(reader.TryReadUInt32()))
 	default: // Invalid
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "INVALID", packetType)
+
 		panic("invalid packet type")
 	}
 	return PacketMessageInfo{

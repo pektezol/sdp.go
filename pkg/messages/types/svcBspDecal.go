@@ -2,7 +2,6 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type SvcBspDecal struct {
@@ -28,11 +27,7 @@ func ParseSvcBspDecal(reader *bitreader.Reader) SvcBspDecal {
 		svcBspDecal.ModelIndex = uint16(reader.TryReadBits(11))
 	}
 	svcBspDecal.LowPriority = reader.TryReadBool()
-	writer.TempAppendLine("\t\tPosition: %v", svcBspDecal.Pos)
-	writer.TempAppendLine("\t\tDecal Texture Index: %d", svcBspDecal.DecalTextureIndex)
-	writer.TempAppendLine("\t\tEntity Index: %d", svcBspDecal.EntityIndex)
-	writer.TempAppendLine("\t\tModel Index: %d", svcBspDecal.ModelIndex)
-	writer.TempAppendLine("\t\tLow Priority: %t", svcBspDecal.LowPriority)
+
 	return svcBspDecal
 }
 
