@@ -26,7 +26,7 @@ func main() {
 		reader := bitreader.NewReader(file, littleEndian)
 		demoParserHandler(reader)
 		defer file.Close()
-		defer fmt.Println(writer.GetString())
+		fmt.Println(writer.GetString())
 		return
 	}
 	for _, fileinfo := range files { // If it is a directory
@@ -38,8 +38,8 @@ func main() {
 		reader := bitreader.NewReader(file, littleEndian)
 		demoParserHandler(reader)
 		defer file.Close()
-		defer fmt.Println(writer.GetString())
 	}
+	fmt.Println(writer.GetString())
 }
 
 func demoParserHandler(reader *bitreader.Reader) {
