@@ -2,7 +2,6 @@ package classes
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type StringTables struct {
@@ -46,19 +45,12 @@ func (stringTables *StringTables) ParseStringTables(reader *bitreader.Reader) {
 func (stringTable *StringTable) ParseStream(reader *bitreader.Reader) {
 	stringTable.Name = reader.TryReadString()
 	entryCount := reader.TryReadBits(16)
-	writer.AppendLine("\tTable Name: %s", stringTable.Name)
 	stringTable.TableEntries = make([]StringTableEntry, entryCount)
 
 	for i := 0; i < int(entryCount); i++ {
 		var entry StringTableEntry
 		entry.Parse(reader)
 		stringTable.TableEntries[i] = entry
-	}
-	if entryCount != 0 {
-		writer.AppendLine("\t\t%d Table Entries:", entryCount)
-		writer.AppendOutputFromTemp()
-	} else {
-		writer.AppendLine("\t\tNo Table Entries")
 	}
 	if reader.TryReadBool() {
 		classCount := reader.TryReadBits(16)
@@ -69,10 +61,6 @@ func (stringTable *StringTable) ParseStream(reader *bitreader.Reader) {
 			class.Parse(reader)
 			stringTable.Classes[i] = class
 		}
-		writer.AppendLine("\t\t%d Classes:", classCount)
-		writer.AppendOutputFromTemp()
-	} else {
-		writer.AppendLine("\t\tNo Class Entries")
 	}
 }
 
@@ -91,10 +79,8 @@ func (stringTableEntry *StringTableEntry) Parse(reader *bitreader.Reader) {
 
 func (stringTableClass *StringTableClass) Parse(reader *bitreader.Reader) {
 	stringTableClass.Name = reader.TryReadString()
-	writer.TempAppendLine("\t\t\tName: %s", stringTableClass.Name)
 	if reader.TryReadBool() {
 		dataLen := reader.TryReadBits(16)
 		stringTableClass.Data = reader.TryReadStringLength(dataLen)
-		writer.TempAppendLine("\t\t\tData: %s", stringTableClass.Data)
 	}
 }

@@ -2,7 +2,6 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type NetSetConVar struct {
@@ -18,13 +17,13 @@ type conVar struct {
 func ParseNetSetConVar(reader *bitreader.Reader) NetSetConVar {
 	length := reader.TryReadUInt8()
 	convars := []conVar{}
-	writer.TempAppendLine("\t\tLength: %d", length)
+
 	for count := 0; count < int(length); count++ {
 		convar := conVar{
 			Name:  reader.TryReadString(),
 			Value: reader.TryReadString(),
 		}
-		writer.TempAppendLine("\t\t[%d] %s: %s", count, convar.Name, convar.Value)
+
 		convars = append(convars, convar)
 	}
 	return NetSetConVar{

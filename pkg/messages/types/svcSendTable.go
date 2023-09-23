@@ -2,7 +2,6 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type SvcSendTable struct {
@@ -17,8 +16,6 @@ func ParseSvcSendTable(reader *bitreader.Reader) SvcSendTable {
 		Length:       reader.TryReadUInt8(),
 	}
 	svcSendTable.Props = uint32(reader.TryReadBits(uint64(svcSendTable.Length)))
-	writer.TempAppendLine("\t\tNeeds Decoder: %t", svcSendTable.NeedsDecoder)
-	writer.TempAppendLine("\t\tLength: %d", svcSendTable.Length)
-	writer.TempAppendLine("\t\tProps: %d", svcSendTable.Props)
+
 	return svcSendTable
 }

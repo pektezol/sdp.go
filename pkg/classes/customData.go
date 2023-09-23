@@ -2,7 +2,6 @@ package classes
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 type CustomData struct {
@@ -16,13 +15,10 @@ func (customData *CustomData) ParseCustomData(reader *bitreader.Reader, tickNumb
 	customData.Size = reader.TryReadSInt32()
 	if customData.Type != 0 || customData.Size == 8 {
 		// Not SAR data
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "CUSTOMDATA", packetType)
 		customData.Data = string(reader.TryReadBytesToSlice(uint64(customData.Size)))
-		writer.AppendLine("\t%s", customData.Data)
 		return
 	}
 	// SAR data
-	writer.AppendLine("[%d] %s (%d):", tickNumber, "SARDATA", packetType)
 	sarData := SarData{}
 	data := reader.TryReadBytesToSlice(uint64(customData.Size))
 	sarReader := bitreader.NewReaderFromBytes(data, true)

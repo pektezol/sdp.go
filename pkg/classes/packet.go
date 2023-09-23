@@ -5,7 +5,6 @@ import (
 
 	"github.com/pektezol/bitreader"
 	"github.com/pektezol/demoparser/pkg/messages"
-	"github.com/pektezol/demoparser/pkg/writer"
 )
 
 const MSSC int = 2
@@ -55,14 +54,6 @@ func (packet *Packet) ParseCmdInfo(reader *bitreader.Reader) {
 		ViewAngles2:      []float32{reader.TryReadFloat32(), reader.TryReadFloat32(), reader.TryReadFloat32()},
 		LocalViewAngles2: []float32{reader.TryReadFloat32(), reader.TryReadFloat32(), reader.TryReadFloat32()},
 	})
-	writer.AppendLine("\tFlags: %s", CmdInfoFlags(packet.PacketInfo[len(packet.PacketInfo)-1].Flags).String())
-	writer.AppendLine("\tView Origin: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewOrigin)
-	writer.AppendLine("\tView Angles: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewAngles)
-	writer.AppendLine("\tLocal View Angles: %v", packet.PacketInfo[len(packet.PacketInfo)-1].LocalViewAngles)
-	writer.AppendLine("\tView Origin 2: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewOrigin2)
-	writer.AppendLine("\tView Angles 2: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewAngles2)
-	writer.AppendLine("\tLocal View Angles 2: %v", packet.PacketInfo[len(packet.PacketInfo)-1].LocalViewAngles2)
-	writer.AppendLine("")
 }
 
 type CmdInfoFlags int
