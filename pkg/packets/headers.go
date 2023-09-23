@@ -42,6 +42,16 @@ func ParseHeaders(reader *bitreader.Reader) Headers {
 	if headers.NetworkProtocol != 2001 {
 		panic("this parser only supports demos from portal 2")
 	}
-	writer.AppendLine("Headers: %+v", headers)
+	writer.AppendLine("\nDemo File Stamp: %s", headers.DemoFileStamp)
+	writer.AppendLine("Demo Protocol: %d", headers.DemoProtocol)
+	writer.AppendLine("Network Protocol: %d", headers.NetworkProtocol)
+	writer.AppendLine("Server Name: %s", headers.ServerName)
+	writer.AppendLine("Client Name: %s", headers.ClientName)
+	writer.AppendLine("Map Name: %s", headers.MapName)
+	writer.AppendLine("Game Directory: %s", headers.GameDirectory)
+	writer.AppendLine("Playback Time: %f", headers.PlaybackTime)
+	writer.AppendLine("Playback Ticks: %d", headers.PlaybackTicks)
+	writer.AppendLine("Playback Frames: %d", headers.PlaybackFrames)
+	writer.AppendLine("Sign On Length: %d\n", headers.SignOnLength)
 	return headers
 }
