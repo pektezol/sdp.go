@@ -78,7 +78,7 @@ func ParseMessages(messageType uint64, reader *bitreader.Reader) any {
 	case 32:
 		messageData = messages.ParseSvcCmdKeyValues(reader)
 	case 33:
-		messageData = messages.ParseSvcPaintmapData(reader)
+		messageData = messages.ParseSvcPaintmapData(reader) // skipped
 	default:
 		return nil
 	}
