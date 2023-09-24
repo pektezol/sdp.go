@@ -60,6 +60,10 @@ func ParseSvcUserMessage(reader *bitreader.Reader) SvcUserMessage {
 		svcUserMessage.parseLogoTimeMsg(userMessageReader)
 	case EUserMessageTypeAchievementEvent:
 		svcUserMessage.parseAchivementEvent(userMessageReader)
+	case EUserMessageTypeCurrentTimescale:
+		svcUserMessage.parseCurrentTimescale(userMessageReader)
+	case EUserMessageTypeDesiredTimescale:
+		svcUserMessage.parseDesiredTimescale(userMessageReader)
 	case EUserMessageTypeMPMapCompleted:
 		svcUserMessage.parseMpMapCompleted(userMessageReader)
 	case EUserMessageTypeMPMapIncomplete:
@@ -70,6 +74,10 @@ func ParseSvcUserMessage(reader *bitreader.Reader) SvcUserMessage {
 		svcUserMessage.parseMpTauntLocked(userMessageReader)
 	case EUserMessageTypePortalFX_Surface:
 		svcUserMessage.parsePortalFxSurface(userMessageReader)
+	case EUserMessageTypePaintWorld:
+		svcUserMessage.parsePaintWorld(userMessageReader)
+	case EUserMessageTypeTransitionFade:
+		svcUserMessage.parseTransitionFade(userMessageReader)
 	case EUserMessageTypeScoreboardTempUpdate:
 		svcUserMessage.parseScoreboardTempUpdate(userMessageReader)
 	default:
@@ -272,10 +280,10 @@ func (svcUserMessage *SvcUserMessage) parseShake(reader *bitreader.Reader) {
 		}
 	}
 	svcUserMessage.Data = shake
-	writer.TempAppendLine("\t\t\tCommand: %v", shakeCommandToString(ShakeCommand(shake.Command)))
-	writer.TempAppendLine("\t\t\tAmplitude: %v", shake.Amplitude)
-	writer.TempAppendLine("\t\t\tFrequency: %v", shake.Frequency)
-	writer.TempAppendLine("\t\t\tDuration: %v", shake.Duration)
+	writer.TempAppendLine("\t\t\tCommand: %s", shakeCommandToString(ShakeCommand(shake.Command)))
+	writer.TempAppendLine("\t\t\tAmplitude: %f", shake.Amplitude)
+	writer.TempAppendLine("\t\t\tFrequency: %f", shake.Frequency)
+	writer.TempAppendLine("\t\t\tDuration: %f", shake.Duration)
 }
 
 func (svcUserMessage *SvcUserMessage) parseFade(reader *bitreader.Reader) {
@@ -574,7 +582,34 @@ func (svcUserMessage *SvcUserMessage) parseAchivementEvent(reader *bitreader.Rea
 		AchivementID: reader.TryReadSInt32(),
 	}
 	svcUserMessage.Data = achivementEvent
-	writer.TempAppendLine("\t\t\tPortal Count: %v", achivementEvent.AchivementID)
+	writer.TempAppendLine("\t\t\tAchivement ID: %d", achivementEvent.AchivementID)
+}
+
+func (svcUserMessage *SvcUserMessage) parseCurrentTimescale(reader *bitreader.Reader) {
+	currentTimescale := struct{ Timescale float32 }{
+		Timescale: reader.TryReadFloat32(),
+	}
+	svcUserMessage.Data = currentTimescale
+	writer.TempAppendLine("\t\t\tTimescale: %f", currentTimescale.Timescale)
+}
+
+func (svcUserMessage *SvcUserMessage) parseDesiredTimescale(reader *bitreader.Reader) {
+	desiredTimescale := struct {
+		Unk1 float32
+		Unk2 float32
+		Unk3 uint8
+		Unk4 float32
+	}{
+		Unk1: reader.TryReadFloat32(),
+		Unk2: reader.TryReadFloat32(),
+		Unk3: reader.TryReadUInt8(),
+		Unk4: reader.TryReadFloat32(),
+	}
+	svcUserMessage.Data = desiredTimescale
+	writer.TempAppendLine("\t\t\tUnk1: %f", desiredTimescale.Unk1)
+	writer.TempAppendLine("\t\t\tUnk2: %f", desiredTimescale.Unk2)
+	writer.TempAppendLine("\t\t\tUnk3: %d", desiredTimescale.Unk3)
+	writer.TempAppendLine("\t\t\tUnk4: %f", desiredTimescale.Unk4)
 }
 
 func (svcUserMessage *SvcUserMessage) parseMpMapCompleted(reader *bitreader.Reader) {
@@ -716,6 +751,47 @@ func (svcUserMessage *SvcUserMessage) parsePortalFxSurface(reader *bitreader.Rea
 	writer.TempAppendLine("\t\t\tAngles: %v", portalFxSurface.Angles)
 }
 
+func (svcUserMessage *SvcUserMessage) parsePaintWorld(reader *bitreader.Reader) {
+	paintWorld := struct {
+		Type      uint8
+		EHandle   uint32
+		UnkHf1    float32
+		UnkHf2    float32
+		Center    []float32
+		Positions [][]float32
+	}{
+		Type:    reader.TryReadUInt8(),
+		EHandle: reader.TryReadUInt32(),
+		UnkHf1:  reader.TryReadFloat32(),
+		UnkHf2:  reader.TryReadFloat32(),
+		// Center:  []float32{reader.TryReadFloat32(), reader.TryReadFloat32(), reader.TryReadFloat32()},
+		// Positions: [][]float32{{},{}},
+	}
+	length := reader.TryReadUInt8()
+	paintWorld.Center = []float32{reader.TryReadFloat32(), reader.TryReadFloat32(), reader.TryReadFloat32()}
+	paintWorld.Positions = make([][]float32, length)
+	for i := 0; i < int(length); i++ {
+		paintWorld.Positions[i] = []float32{paintWorld.Center[0] + float32(reader.TryReadSInt16()), paintWorld.Center[1] + float32(reader.TryReadSInt16()), paintWorld.Center[2] + float32(reader.TryReadSInt16())}
+	}
+	svcUserMessage.Data = paintWorld
+	writer.TempAppendLine("\t\t\tType: %d", paintWorld.Type)
+	writer.TempAppendLine("\t\t\tEHandle: %d", paintWorld.EHandle)
+	writer.TempAppendLine("\t\t\tUnkHf1: %f", paintWorld.UnkHf1)
+	writer.TempAppendLine("\t\t\tUnkHf2: %f", paintWorld.UnkHf2)
+	writer.TempAppendLine("\t\t\tCenter: %v", paintWorld.Center)
+	writer.TempAppendLine("\t\t\tPositions: %v", paintWorld.Positions)
+}
+
+func (svcUserMessage *SvcUserMessage) parseTransitionFade(reader *bitreader.Reader) {
+	transitionFade := struct {
+		Seconds float32
+	}{
+		Seconds: reader.TryReadFloat32(),
+	}
+	svcUserMessage.Data = transitionFade
+	writer.TempAppendLine("\t\t\tSeconds: %f", transitionFade.Seconds)
+}
+
 func (svcUserMessage *SvcUserMessage) parseScoreboardTempUpdate(reader *bitreader.Reader) {
 	scoreboardTempUpdate := struct {
 		NumPortals int32
@@ -725,8 +801,8 @@ func (svcUserMessage *SvcUserMessage) parseScoreboardTempUpdate(reader *bitreade
 		TimeTaken:  reader.TryReadSInt32(),
 	}
 	svcUserMessage.Data = scoreboardTempUpdate
-	writer.TempAppendLine("\t\t\tPortal Count: %v", scoreboardTempUpdate.NumPortals)
-	writer.TempAppendLine("\t\t\tCM Ticks: %v", scoreboardTempUpdate.TimeTaken)
+	writer.TempAppendLine("\t\t\tPortal Count: %d", scoreboardTempUpdate.NumPortals)
+	writer.TempAppendLine("\t\t\tCM Ticks: %d", scoreboardTempUpdate.TimeTaken)
 }
 
 type UserMessageType uint8
@@ -762,7 +838,7 @@ const (
 	EUserMessageTypeLogoTimeMsg      // done
 	EUserMessageTypeAchievementEvent // done
 	EUserMessageTypeUpdateJalopyRadar
-	EUserMessageTypeCurrentTimescale // Send one float for the new timescale
+	EUserMessageTypeCurrentTimescale // done // Send one float for the new timescale
 	EUserMessageTypeDesiredTimescale // Send timescale and some blending vars
 	EUserMessageTypeCreditsPortalMsg // portal 1 end
 	EUserMessageTypeInventoryFlash   // portal 2 start
@@ -781,7 +857,7 @@ const (
 	EUserMessageTypeMPTauntLocked // done
 	EUserMessageTypeMPAllTauntsLocked
 	EUserMessageTypePortalFX_Surface // done
-	EUserMessageTypePaintWorld
+	EUserMessageTypePaintWorld       // d
 	EUserMessageTypePaintEntity
 	EUserMessageTypeChangePaintColor
 	EUserMessageTypePaintBombExplode
@@ -791,7 +867,7 @@ const (
 	EUserMessageTypeStartSurvey
 	EUserMessageTypeApplyHitBoxDamageEffect
 	EUserMessageTypeSetMixLayerTriggerFactor
-	EUserMessageTypeTransitionFade
+	EUserMessageTypeTransitionFade       // done
 	EUserMessageTypeScoreboardTempUpdate // done
 	EUserMessageTypeChallengeModCheatSession
 	EUserMessageTypeChallengeModCloseAllUI
