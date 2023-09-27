@@ -1,8 +1,6 @@
 package messages
 
 import (
-	"log"
-
 	"github.com/pektezol/bitreader"
 	"github.com/pektezol/demoparser/pkg/writer"
 )
@@ -30,7 +28,6 @@ func ParseSvcGameEvent(reader *bitreader.Reader) SvcGameEvent {
 
 func (svcGameEvent *SvcGameEvent) parseGameEvent(reader *bitreader.Reader) {
 	svcGameEvent.EventID = uint32(reader.TryReadBits(9))
-	log.Println(GameEventList.GameEventDescriptor)
 	svcGameEvent.EventDescription = GameEventList.GameEventDescriptor[svcGameEvent.EventID]
 	writer.TempAppendLine("\t\t%s (%d):", svcGameEvent.EventDescription.Name, svcGameEvent.EventID)
 	for _, descriptor := range svcGameEvent.EventDescription.Keys {
