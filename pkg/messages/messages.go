@@ -62,7 +62,7 @@ func ParseMessages(messageType uint64, reader *bitreader.Reader) any {
 	case 24:
 		messageData = messages.ParseSvcEntityMessage(reader) // skipped
 	case 25:
-		messageData = messages.ParseSvcGameEvent(reader) // TODO:
+		messageData = messages.ParseSvcGameEvent(reader)
 	case 26:
 		messageData = messages.ParseSvcPacketEntities(reader) // TODO:
 	case 27:
@@ -72,7 +72,7 @@ func ParseMessages(messageType uint64, reader *bitreader.Reader) any {
 	case 29:
 		messageData = messages.ParseSvcMenu(reader) // skipped
 	case 30:
-		messageData = messages.ParseSvcGameEventList(reader) // TODO:
+		messageData = messages.ParseSvcGameEventList(reader)
 	case 31:
 		messageData = messages.ParseSvcGetCvarValue(reader)
 	case 32:
