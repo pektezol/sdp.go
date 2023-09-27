@@ -7,6 +7,8 @@ import (
 	"github.com/pektezol/demoparser/pkg/writer"
 )
 
+var GameEventList *SvcGameEventList
+
 type SvcGameEventList struct {
 	Events              int16
 	Length              int32
@@ -16,10 +18,12 @@ type SvcGameEventList struct {
 type GameEventDescriptor struct {
 	EventID uint32
 	Name    string
-	Keys    []struct {
-		Name string
-		Type EventDescriptor
-	}
+	Keys    []GameEventDescriptorKey
+}
+
+type GameEventDescriptorKey struct {
+	Name string
+	Type EventDescriptor
 }
 
 type EventDescriptor uint8
@@ -32,60 +36,58 @@ func ParseSvcGameEventList(reader *bitreader.Reader) SvcGameEventList {
 	gameEventListReader := bitreader.NewReaderFromBytes(reader.TryReadBitsToSlice(uint64(svcGameEventList.Length)), true)
 	writer.TempAppendLine("\t\t%d Events:", svcGameEventList.Events)
 	svcGameEventList.parseGameEventDescriptor(gameEventListReader)
+	GameEventList = &svcGameEventList
 	return svcGameEventList
 }
 
 func (svcGameEventList *SvcGameEventList) parseGameEventDescriptor(reader *bitreader.Reader) {
 	svcGameEventList.GameEventDescriptor = make([]GameEventDescriptor, svcGameEventList.Events)
 	for event := 0; event < int(svcGameEventList.Events); event++ {
-		gameEventDescriptor := GameEventDescriptor{
+		svcGameEventList.GameEventDescriptor[event] = GameEventDescriptor{
 			EventID: uint32(reader.TryReadBits(9)),
 			Name:    reader.TryReadString(),
 		}
-		writer.TempAppendLine("\t\t\t%d: %s", gameEventDescriptor.EventID, gameEventDescriptor.Name)
+		writer.TempAppendLine("\t\t\t%d: %s", svcGameEventList.GameEventDescriptor[event].EventID, svcGameEventList.GameEventDescriptor[event].Name)
 		for {
 			descriptorType := reader.TryReadBits(3)
 			if descriptorType == 0 {
 				break
 			}
 			KeyName := reader.TryReadString()
-			gameEventDescriptor.Keys = append(gameEventDescriptor.Keys, struct {
-				Name string
-				Type EventDescriptor
-			}{
+			svcGameEventList.GameEventDescriptor[event].Keys = append(svcGameEventList.GameEventDescriptor[event].Keys, GameEventDescriptorKey{
 				Name: KeyName,
 				Type: EventDescriptor(descriptorType),
 			})
 		}
-		writer.TempAppendLine("\t\t\t\tKeys: %v", gameEventDescriptor.Keys)
+		writer.TempAppendLine("\t\t\t\tKeys: %v", svcGameEventList.GameEventDescriptor[event].Keys)
 	}
 }
 
 const (
-	String EventDescriptor = iota + 1
-	Float
-	Int32
-	Int16
-	Int8
-	Bool
-	UInt64
+	EventDescriptorString EventDescriptor = iota + 1
+	EventDescriptorFloat
+	EventDescriptorInt32
+	EventDescriptorInt16
+	EventDescriptorInt8
+	EventDescriptorBool
+	EventDescriptorUInt64
 )
 
 func (eventDescriptor EventDescriptor) String() string {
 	switch eventDescriptor {
-	case String:
+	case EventDescriptorString:
 		return "String"
-	case Float:
+	case EventDescriptorFloat:
 		return "Float"
-	case Int32:
+	case EventDescriptorInt32:
 		return "Int32"
-	case Int16:
+	case EventDescriptorInt16:
 		return "Int16"
-	case Int8:
+	case EventDescriptorInt8:
 		return "Int8"
-	case Bool:
+	case EventDescriptorBool:
 		return "Bool"
-	case UInt64:
+	case EventDescriptorUInt64:
 		return "UInt64"
 	default:
 		return fmt.Sprintf("%d", eventDescriptor)
