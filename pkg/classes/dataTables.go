@@ -17,17 +17,17 @@ type SendTable struct {
 	NeedsDecoder bool
 	NetTableName string
 	NumOfProps   int16
-	Props        []prop
+	Props        []SendTableProp
 }
 
 type ServerClassInfo struct {
-	ClassId       uint16
+	DataTableID   uint16
 	ClassName     string
 	DataTableName string
 }
 
-type prop struct {
-	SendPropType  sendPropType
+type SendTableProp struct {
+	SendPropType  SendPropType
 	SendPropName  string
 	SendPropFlags uint32
 	Priority      uint8
@@ -71,8 +71,8 @@ func ParseSendTable(reader *bitreader.Reader) SendTable {
 		if propType >= int8(7) {
 			return sendTable
 		}
-		prop := prop{
-			SendPropType:  sendPropType(propType),
+		prop := SendTableProp{
+			SendPropType:  SendPropType(propType),
 			SendPropName:  reader.TryReadString(),
 			SendPropFlags: uint32(reader.TryReadBits(19)),
 			Priority:      reader.TryReadUInt8(),
@@ -104,11 +104,11 @@ func ParseSendTable(reader *bitreader.Reader) SendTable {
 
 func ParseServerClassInfo(reader *bitreader.Reader, count int, numOfClasses int) ServerClassInfo {
 	serverClassInfo := ServerClassInfo{
-		ClassId:       reader.TryReadUInt16(),
+		DataTableID:   reader.TryReadUInt16(),
 		ClassName:     reader.TryReadString(),
 		DataTableName: reader.TryReadString(),
 	}
-	writer.TempAppendLine("\t\t\t[%d] %s (%s)", serverClassInfo.ClassId, serverClassInfo.ClassName, serverClassInfo.DataTableName)
+	writer.TempAppendLine("\t\t\t[%d] %s (%s)", serverClassInfo.DataTableID, serverClassInfo.ClassName, serverClassInfo.DataTableName)
 	return serverClassInfo
 }
 
@@ -127,10 +127,10 @@ func checkBit(val uint32, bit int) bool {
 	return (val & (uint32(1) << bit)) != 0
 }
 
-type sendPropType int
+type SendPropType int
 
 const (
-	ESendPropTypeInt sendPropType = iota
+	ESendPropTypeInt SendPropType = iota
 	ESendPropTypeFloat
 	ESendPropTypeVector3
 	ESendPropTypeVector2
@@ -161,7 +161,7 @@ const (
 	ESendPropFlagChangesOften   string = "ChangesOften"
 )
 
-func (prop prop) GetFlags() []string {
+func (prop SendTableProp) GetFlags() []string {
 	flags := []string{}
 	if checkBit(prop.SendPropFlags, 0) {
 		flags = append(flags, ESendPropFlagUnsigned)
@@ -223,7 +223,7 @@ func (prop prop) GetFlags() []string {
 	return flags
 }
 
-func (sendPropType sendPropType) String() string {
+func (sendPropType SendPropType) String() string {
 	switch sendPropType {
 	case ESendPropTypeInt:
 		return "Int"
