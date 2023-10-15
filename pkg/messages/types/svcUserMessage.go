@@ -54,8 +54,12 @@ func ParseSvcUserMessage(reader *bitreader.Reader) SvcUserMessage {
 		svcUserMessage.parseVoiceMask(userMessageReader)
 	case EUserMessageTypeCloseCaption:
 		svcUserMessage.parseCloseCaption(userMessageReader)
+	case EUserMessageTypeHintText:
+		svcUserMessage.parseHintText(userMessageReader)
 	case EUserMessageTypeKeyHintText:
 		svcUserMessage.parseKeyHintText(userMessageReader)
+	case EUserMessageTypeCreditsMsg:
+		svcUserMessage.parseCreditsMsg(userMessageReader)
 	case EUserMessageTypeLogoTimeMsg:
 		svcUserMessage.parseLogoTimeMsg(userMessageReader)
 	case EUserMessageTypeAchievementEvent:
@@ -64,6 +68,8 @@ func ParseSvcUserMessage(reader *bitreader.Reader) SvcUserMessage {
 		svcUserMessage.parseCurrentTimescale(userMessageReader)
 	case EUserMessageTypeDesiredTimescale:
 		svcUserMessage.parseDesiredTimescale(userMessageReader)
+	case EUserMessageTypeCreditsPortalMsg:
+		svcUserMessage.parseCreditsPortalMsg(userMessageReader)
 	case EUserMessageTypeMPMapCompleted:
 		svcUserMessage.parseMpMapCompleted(userMessageReader)
 	case EUserMessageTypeMPMapIncomplete:
@@ -76,6 +82,10 @@ func ParseSvcUserMessage(reader *bitreader.Reader) SvcUserMessage {
 		svcUserMessage.parsePortalFxSurface(userMessageReader)
 	case EUserMessageTypePaintWorld:
 		svcUserMessage.parsePaintWorld(userMessageReader)
+	case EUserMessageTypeRemovePaint:
+		svcUserMessage.parseRemovePaint(userMessageReader)
+	case EUserMessageTypeApplyHitBoxDamageEffect:
+		svcUserMessage.parseApplyHitBoxDamageEffect(userMessageReader)
 	case EUserMessageTypeTransitionFade:
 		svcUserMessage.parseTransitionFade(userMessageReader)
 	case EUserMessageTypeScoreboardTempUpdate:
@@ -517,43 +527,53 @@ func (svcUserMessage *SvcUserMessage) parseVoiceMask(reader *bitreader.Reader) {
 }
 
 func (svcUserMessage *SvcUserMessage) parseCloseCaption(reader *bitreader.Reader) {
-	type CloseCaptionFlag uint8
-	const (
-		None          CloseCaptionFlag = 0
-		WarnIfMissing CloseCaptionFlag = 1
-		FromPlayer    CloseCaptionFlag = 1 << 1
-		GenderMale    CloseCaptionFlag = 1 << 2
-		GenderFemale  CloseCaptionFlag = 1 << 3
-	)
+	// type CloseCaptionFlag uint8
+	// const (
+	// 	None          CloseCaptionFlag = 0
+	// 	WarnIfMissing CloseCaptionFlag = 1
+	// 	FromPlayer    CloseCaptionFlag = 1 << 1
+	// 	GenderMale    CloseCaptionFlag = 1 << 2
+	// 	GenderFemale  CloseCaptionFlag = 1 << 3
+	// )
 	closeCaption := struct {
-		TokenName string
-		Duration  float32
-		Flags     uint8
+		Hash     uint32
+		Duration float32
+		Flags    uint8
 	}{
-		TokenName: reader.TryReadString(),
-		Duration:  float32(reader.TryReadSInt16()) * 0.1,
-		Flags:     reader.TryReadUInt8(),
+		Hash:     reader.TryReadUInt32(),
+		Duration: float32(reader.TryReadSInt16()) * 0.1,
+		// Flags:    reader.TryReadUInt8(),
 	}
-	getFlags := func(flags CloseCaptionFlag) []string {
-		var flagStrings []string
-		if flags&WarnIfMissing != 0 {
-			flagStrings = append(flagStrings, "WarnIfMissing")
-		}
-		if flags&FromPlayer != 0 {
-			flagStrings = append(flagStrings, "FromPlayer")
-		}
-		if flags&GenderMale != 0 {
-			flagStrings = append(flagStrings, "GenderMale")
-		}
-		if flags&GenderFemale != 0 {
-			flagStrings = append(flagStrings, "GenderFemale")
-		}
-		return flagStrings
-	}
+	// getFlags := func(flags CloseCaptionFlag) []string {
+	// 	var flagStrings []string
+	// 	if flags&WarnIfMissing != 0 {
+	// 		flagStrings = append(flagStrings, "WarnIfMissing")
+	// 	}
+	// 	if flags&FromPlayer != 0 {
+	// 		flagStrings = append(flagStrings, "FromPlayer")
+	// 	}
+	// 	if flags&GenderMale != 0 {
+	// 		flagStrings = append(flagStrings, "GenderMale")
+	// 	}
+	// 	if flags&GenderFemale != 0 {
+	// 		flagStrings = append(flagStrings, "GenderFemale")
+	// 	}
+	// 	return flagStrings
+	// }
 	svcUserMessage.Data = closeCaption
-	writer.TempAppendLine("\t\t\tToken Name: %s", closeCaption.TokenName)
+	writer.TempAppendLine("\t\t\tHash: %v", closeCaption.Hash)
 	writer.TempAppendLine("\t\t\tDuration: %f", closeCaption.Duration)
-	writer.TempAppendLine("\t\t\tFlags: %v", getFlags(CloseCaptionFlag(closeCaption.Flags)))
+	// writer.TempAppendLine("\t\t\tFlags: %v", getFlags(CloseCaptionFlag(closeCaption.Flags)))
+}
+
+func (svcUserMessage *SvcUserMessage) parseHintText(reader *bitreader.Reader) {
+	hintText := struct {
+		Text string
+	}{
+		Text: reader.TryReadString(),
+	}
+	svcUserMessage.Data = hintText
+	writer.TempAppendLine("\t\t\tText: %s", hintText.Text)
 }
 
 func (svcUserMessage *SvcUserMessage) parseKeyHintText(reader *bitreader.Reader) {
@@ -567,6 +587,14 @@ func (svcUserMessage *SvcUserMessage) parseKeyHintText(reader *bitreader.Reader)
 	svcUserMessage.Data = keyHintText
 	writer.TempAppendLine("\t\t\tCount: %d", keyHintText.Count)
 	writer.TempAppendLine("\t\t\tString: %s", keyHintText.KeyString)
+}
+
+func (svcUserMessage *SvcUserMessage) parseCreditsMsg(reader *bitreader.Reader) {
+	creditsMsg := struct{ Byte uint8 }{
+		Byte: reader.TryReadUInt8(),
+	}
+	svcUserMessage.Data = creditsMsg
+	writer.TempAppendLine("\t\t\tByte: %v", creditsMsg.Byte)
 }
 
 func (svcUserMessage *SvcUserMessage) parseLogoTimeMsg(reader *bitreader.Reader) {
@@ -610,6 +638,14 @@ func (svcUserMessage *SvcUserMessage) parseDesiredTimescale(reader *bitreader.Re
 	writer.TempAppendLine("\t\t\tUnk2: %f", desiredTimescale.Unk2)
 	writer.TempAppendLine("\t\t\tUnk3: %d", desiredTimescale.Unk3)
 	writer.TempAppendLine("\t\t\tUnk4: %f", desiredTimescale.Unk4)
+}
+
+func (svcUserMessage *SvcUserMessage) parseCreditsPortalMsg(reader *bitreader.Reader) {
+	creditsPortalMsg := struct{ Byte uint8 }{
+		Byte: reader.TryReadUInt8(),
+	}
+	svcUserMessage.Data = creditsPortalMsg
+	writer.TempAppendLine("\t\t\tByte: %v", creditsPortalMsg.Byte)
 }
 
 func (svcUserMessage *SvcUserMessage) parseMpMapCompleted(reader *bitreader.Reader) {
@@ -782,6 +818,33 @@ func (svcUserMessage *SvcUserMessage) parsePaintWorld(reader *bitreader.Reader) 
 	writer.TempAppendLine("\t\t\tPositions: %v", paintWorld.Positions)
 }
 
+func (svcUserMessage *SvcUserMessage) parseRemovePaint(reader *bitreader.Reader) {
+	removePaint := struct {
+		Unk uint32
+	}{
+		Unk: reader.TryReadUInt32(),
+	}
+	svcUserMessage.Data = removePaint
+	writer.TempAppendLine("\t\t\tUnk: %d", removePaint.Unk)
+}
+
+func (svcUserMessage *SvcUserMessage) parseApplyHitBoxDamageEffect(reader *bitreader.Reader) {
+	applyHitBotDamageStruct := struct {
+		UnkInt   uint32
+		UnkByte1 uint8
+		UnkByte2 uint8
+	}{
+		UnkInt:   reader.TryReadUInt32(),
+		UnkByte1: reader.TryReadUInt8(),
+		UnkByte2: reader.TryReadUInt8(),
+	}
+	svcUserMessage.Data = applyHitBotDamageStruct
+	writer.TempAppendLine("\t\t\tUnkInt: %d", applyHitBotDamageStruct.UnkInt)
+	writer.TempAppendLine("\t\t\tUnkByte1: %v", applyHitBotDamageStruct.UnkByte1)
+	writer.TempAppendLine("\t\t\tUnkByte2: %v", applyHitBotDamageStruct.UnkByte2)
+
+}
+
 func (svcUserMessage *SvcUserMessage) parseTransitionFade(reader *bitreader.Reader) {
 	transitionFade := struct {
 		Seconds float32
@@ -830,17 +893,17 @@ const (
 	EUserMessageTypeRequestState
 	EUserMessageTypeCloseCaption       // done // Show a caption (by string id number)(duration in 10th of a second)
 	EUserMessageTypeCloseCaptionDirect // Show a forced caption (by string id number)(duration in 10th of a second)
-	EUserMessageTypeHintText           // Displays hint text display
+	EUserMessageTypeHintText           // done // Displays hint text display
 	EUserMessageTypeKeyHintText        // done // Displays hint text display
 	EUserMessageTypeSquadMemberDied
 	EUserMessageTypeAmmoDenied
-	EUserMessageTypeCreditsMsg
+	EUserMessageTypeCreditsMsg       // done
 	EUserMessageTypeLogoTimeMsg      // done
 	EUserMessageTypeAchievementEvent // done
 	EUserMessageTypeUpdateJalopyRadar
 	EUserMessageTypeCurrentTimescale // done // Send one float for the new timescale
-	EUserMessageTypeDesiredTimescale // Send timescale and some blending vars
-	EUserMessageTypeCreditsPortalMsg // portal 1 end
+	EUserMessageTypeDesiredTimescale // done // Send timescale and some blending vars
+	EUserMessageTypeCreditsPortalMsg // done // portal 1 end
 	EUserMessageTypeInventoryFlash   // portal 2 start
 	EUserMessageTypeIndicatorFlash
 	EUserMessageTypeControlHelperAnimate
@@ -857,15 +920,15 @@ const (
 	EUserMessageTypeMPTauntLocked // done
 	EUserMessageTypeMPAllTauntsLocked
 	EUserMessageTypePortalFX_Surface // done
-	EUserMessageTypePaintWorld       // d
+	EUserMessageTypePaintWorld       // done
 	EUserMessageTypePaintEntity
 	EUserMessageTypeChangePaintColor
 	EUserMessageTypePaintBombExplode
 	EUserMessageTypeRemoveAllPaint
 	EUserMessageTypePaintAllSurfaces
-	EUserMessageTypeRemovePaint
+	EUserMessageTypeRemovePaint // done
 	EUserMessageTypeStartSurvey
-	EUserMessageTypeApplyHitBoxDamageEffect
+	EUserMessageTypeApplyHitBoxDamageEffect // done
 	EUserMessageTypeSetMixLayerTriggerFactor
 	EUserMessageTypeTransitionFade       // done
 	EUserMessageTypeScoreboardTempUpdate // done
