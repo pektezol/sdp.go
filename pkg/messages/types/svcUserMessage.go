@@ -2,6 +2,7 @@ package messages
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/pektezol/bitreader"
 	"github.com/pektezol/demoparser/pkg/writer"
@@ -802,7 +803,9 @@ func (svcUserMessage *SvcUserMessage) parseScoreboardTempUpdate(reader *bitreade
 	}
 	svcUserMessage.Data = scoreboardTempUpdate
 	writer.TempAppendLine("\t\t\tPortal Count: %d", scoreboardTempUpdate.NumPortals)
-	writer.TempAppendLine("\t\t\tCM Ticks: %d", scoreboardTempUpdate.TimeTaken)
+	writer.TempAppendLine("\t\t\tTime Taken: %.2f", float32(scoreboardTempUpdate.TimeTaken)/100.0)
+
+	writer.TempAppendLine("\t\t\tTicks Taken: %d", int(math.Round(float64((float32(scoreboardTempUpdate.TimeTaken)/100.0)/float32(1.0/60.0)))))
 }
 
 type UserMessageType uint8
