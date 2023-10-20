@@ -2,6 +2,7 @@ package messages
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/pektezol/bitreader"
 )
@@ -36,5 +37,5 @@ func (svcUserMessage *SvcUserMessage) parseScoreboardTempUpdate(reader *bitreade
 	}
 	svcUserMessage.Data = scoreboardTempUpdate
 	fmt.Printf("Portal Count: %d\n", scoreboardTempUpdate.NumPortals)
-	fmt.Printf("CM Ticks: %d\n", scoreboardTempUpdate.TimeTaken)
+	fmt.Printf("CM Ticks: %d\n", int(math.Round(float64((float32(scoreboardTempUpdate.TimeTaken)/100.0)/float32(1.0/60.0)))))
 }
