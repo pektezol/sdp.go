@@ -4,8 +4,8 @@ import (
 	"reflect"
 
 	"github.com/pektezol/bitreader"
-	messages "github.com/pektezol/demoparser/pkg/messages/types"
-	"github.com/pektezol/demoparser/pkg/writer"
+	messages "github.com/pektezol/sdp.go/pkg/messages/types"
+	"github.com/pektezol/sdp.go/pkg/writer"
 )
 
 func ParseMessages(messageType uint64, reader *bitreader.Reader) any {

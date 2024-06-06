@@ -5,7 +5,7 @@ import (
 	"math"
 
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/writer"
 )
 
 type SvcUserMessage struct {

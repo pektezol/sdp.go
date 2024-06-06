@@ -2,8 +2,8 @@ package classes
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/messages"
-	"github.com/pektezol/demoparser/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/messages"
+	"github.com/pektezol/sdp.go/pkg/writer"
 )
 
 type SignOn struct {

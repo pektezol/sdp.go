@@ -21,8 +21,8 @@ func AppendLine(str string, a ...any) {
 	output.WriteString("\n")
 }
 
-func GetString() string {
-	return output.String()
+func GetWriter() strings.Builder {
+	return output
 }
 
 func TempAppend(str string, a ...any) {
