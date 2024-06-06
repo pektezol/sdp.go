@@ -2,63 +2,101 @@ package packets
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/demoparser/pkg/classes"
-	"github.com/pektezol/demoparser/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/classes"
+	"github.com/pektezol/sdp.go/pkg/writer"
 )
 
-type PacketMessageInfo struct {
-	PacketType uint8
+type MessageType uint8
+
+const (
+	SignOn MessageType = iota + 1
+	Packet
+	SyncTick
+	ConsoleCmd
+	UserCmd
+	DataTables
+	Stop
+	CustomData
+	StringTables
+)
+
+type Message struct {
+	PacketType MessageType
 	TickNumber int32
 	SlotNumber uint8
+	Data       any
 }
 
-func ParsePackets(reader *bitreader.Reader) PacketMessageInfo {
-	packetType := reader.TryReadUInt8()
-	tickNumber := reader.TryReadSInt32()
-	slotNumber := reader.TryReadUInt8()
-	switch packetType {
-	case 1: // SignOn
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "SIGNON", packetType)
+func ParseMessage(reader *bitreader.Reader) Message {
+	message := Message{
+		PacketType: MessageType(reader.TryReadUInt8()),
+		TickNumber: reader.TryReadSInt32(),
+		SlotNumber: reader.TryReadUInt8(),
+	}
+	writer.AppendLine("[%d] %s (%d):", message.TickNumber, message.PacketType.String(), message.PacketType)
+	switch message.PacketType {
+	case SignOn:
 		signOn := classes.SignOn{}
 		signOn.ParseSignOn(reader)
-	case 2: // Packet
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "PACKET", packetType)
+		message.Data = signOn
+	case Packet:
 		packet := classes.Packet{}
 		packet.ParsePacket(reader)
-	case 3: // SyncTick
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "SYNCTICK", packetType)
+		message.Data = packet
+	case SyncTick:
 		syncTick := classes.SyncTick{}
 		syncTick.ParseSyncTick()
-	case 4: // ConsoleCmd
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "CONSOLECMD", packetType)
+		message.Data = syncTick
+	case ConsoleCmd:
 		consoleCmd := classes.ConsoleCmd{}
 		consoleCmd.ParseConsoleCmd(reader)
-	case 5: // UserCmd
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "USERCMD", packetType)
+		message.Data = consoleCmd
+	case UserCmd:
 		userCmd := classes.UserCmd{}
 		userCmd.ParseUserCmd(reader)
-	case 6: // DataTables
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "DATATABLES", packetType)
+		message.Data = userCmd
+	case DataTables:
 		dataTables := classes.DataTables{}
 		dataTables.ParseDataTables(reader)
-	case 7: // Stop
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "STOP", packetType)
+		message.Data = dataTables
+	case Stop:
 		stop := classes.Stop{}
 		stop.ParseStop(reader)
-	case 8: // CustomData TODO: not sar data
+		message.Data = stop
+	case CustomData: // TODO: not sar data
 		customData := classes.CustomData{}
-		customData.ParseCustomData(reader, tickNumber, packetType)
-	case 9: // StringTables TODO: parsing string table data
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "STRINGTABLES", packetType)
+		customData.ParseCustomData(reader, message.TickNumber, uint8(message.PacketType))
+		message.Data = customData
+	case StringTables: // TODO: parsing string table data
 		stringTables := classes.StringTables{}
 		stringTables.ParseStringTables(reader)
-	default: // Invalid
-		writer.AppendLine("[%d] %s (%d):", tickNumber, "INVALID", packetType)
+		message.Data = stringTables
+	default:
 		panic("invalid packet type")
 	}
-	return PacketMessageInfo{
-		PacketType: packetType,
-		TickNumber: tickNumber,
-		SlotNumber: slotNumber,
+	return message
+}
+
+func (t MessageType) String() string {
+	switch t {
+	case SignOn:
+		return "SIGNON"
+	case Packet:
+		return "PACKET"
+	case SyncTick:
+		return "SYNCTICK"
+	case ConsoleCmd:
+		return "CONSOLECMD"
+	case UserCmd:
+		return "USERCMD"
+	case DataTables:
+		return "DATATABLES"
+	case Stop:
+		return "STOP"
+	case CustomData:
+		return "CUSTOMDATA"
+	case StringTables:
+		return "STRINGTABLES"
 	}
+	return "INVALID"
 }
