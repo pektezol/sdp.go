@@ -1,7 +1,6 @@
 package writer
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -10,38 +9,40 @@ var output strings.Builder
 var temp strings.Builder
 
 func Append(str string, a ...any) {
-	_, err := output.WriteString(fmt.Sprintf(str, a...))
-	if err != nil {
-		output.WriteString(err.Error())
-	}
+	// _, err := output.WriteString(fmt.Sprintf(str, a...))
+	// if err != nil {
+	// 	output.WriteString(err.Error())
+	// }
 }
 
 func AppendLine(str string, a ...any) {
-	Append(str, a...)
-	output.WriteString("\n")
+	// Append(str, a...)
+	// output.WriteString("\n")
 }
 
 func GetWriter() strings.Builder {
-	return output
+	// return output
+	return strings.Builder{}
 }
 
 func TempAppend(str string, a ...any) {
-	_, err := temp.WriteString(fmt.Sprintf(str, a...))
-	if err != nil {
-		temp.WriteString(err.Error())
-	}
+	// _, err := temp.WriteString(fmt.Sprintf(str, a...))
+	// if err != nil {
+	// 	temp.WriteString(err.Error())
+	// }
 }
 
 func TempAppendLine(str string, a ...any) {
-	TempAppend(str, a...)
-	temp.WriteString("\n")
+	// TempAppend(str, a...)
+	// temp.WriteString("\n")
 }
 
 func TempGetString() string {
-	return temp.String()
+	// return temp.String()
+	return ""
 }
 
 func AppendOutputFromTemp() {
-	output.WriteString(temp.String())
-	temp.Reset()
+	// output.WriteString(temp.String())
+	// temp.Reset()
 }
