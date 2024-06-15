@@ -2,16 +2,16 @@ package classes
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type Stop struct {
-	RemainingData []byte
+	RemainingData []byte `json:"remaining_data"`
 }
 
-func (stop *Stop) ParseStop(reader *bitreader.Reader) {
+func (stop *Stop) ParseStop(reader *bitreader.Reader, demo *types.Demo) {
 	if reader.TryReadBool() {
 		stop.RemainingData = reader.TryReadBitsToSlice(uint64(reader.TryReadRemainingBits()))
-		writer.AppendLine("\tRemaining Data: %v", stop.RemainingData)
+		demo.Writer.AppendLine("\tRemaining Data: %v", stop.RemainingData)
 	}
 }

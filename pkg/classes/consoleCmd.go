@@ -4,16 +4,16 @@ import (
 	"strings"
 
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type ConsoleCmd struct {
-	Size int32
-	Data string
+	Size int32  `json:"size"`
+	Data string `json:"data"`
 }
 
-func (consoleCmd *ConsoleCmd) ParseConsoleCmd(reader *bitreader.Reader) {
+func (consoleCmd *ConsoleCmd) ParseConsoleCmd(reader *bitreader.Reader, demo *types.Demo) {
 	consoleCmd.Size = reader.TryReadSInt32()
 	consoleCmd.Data = reader.TryReadStringLength(uint64(consoleCmd.Size))
-	writer.AppendLine("\t%s", strings.TrimSpace(consoleCmd.Data))
+	demo.Writer.AppendLine("\t%s", strings.TrimSpace(consoleCmd.Data))
 }

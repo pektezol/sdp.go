@@ -4,59 +4,59 @@ import (
 	"fmt"
 
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type DataTables struct {
-	Size            int32
-	SendTable       []SendTable
-	ServerClassInfo []ServerClassInfo
+	Size            int32             `json:"size"`
+	SendTable       []SendTable       `json:"send_table"`
+	ServerClassInfo []ServerClassInfo `json:"server_class_info"`
 }
 
 type SendTable struct {
-	NeedsDecoder bool
-	NetTableName string
-	NumOfProps   int16
-	Props        []SendTableProp
+	NeedsDecoder bool            `json:"needs_decoder"`
+	NetTableName string          `json:"net_table_name"`
+	NumOfProps   int16           `json:"num_of_props"`
+	Props        []SendTableProp `json:"props"`
 }
 
 type ServerClassInfo struct {
-	DataTableID   uint16
-	ClassName     string
-	DataTableName string
+	DataTableID   uint16 `json:"data_table_id"`
+	ClassName     string `json:"class_name"`
+	DataTableName string `json:"data_table_name"`
 }
 
 type SendTableProp struct {
-	SendPropType  SendPropType
-	SendPropName  string
-	SendPropFlags uint32
-	Priority      uint8
-	ExcludeDtName string
-	LowValue      float32
-	HighValue     float32
-	NumBits       int32
-	NumElements   int32
+	SendPropType  SendPropType `json:"send_prop_type"`
+	SendPropName  string       `json:"send_prop_name"`
+	SendPropFlags uint32       `json:"send_prop_flags"`
+	Priority      uint8        `json:"priority"`
+	ExcludeDtName string       `json:"exclude_dt_name"`
+	LowValue      float32      `json:"low_value"`
+	HighValue     float32      `json:"high_value"`
+	NumBits       int32        `json:"num_bits"`
+	NumElements   int32        `json:"num_elements"`
 }
 
-func (dataTables *DataTables) ParseDataTables(reader *bitreader.Reader) {
+func (dataTables *DataTables) ParseDataTables(reader *bitreader.Reader, demo *types.Demo) {
 	dataTables.Size = int32(reader.TryReadSInt32())
 	dataTableReader := bitreader.NewReaderFromBytes(reader.TryReadBytesToSlice(uint64(dataTables.Size)), true)
 	count := 0
 	for dataTableReader.TryReadBool() {
 		count++
-		dataTables.SendTable = append(dataTables.SendTable, ParseSendTable(dataTableReader))
+		dataTables.SendTable = append(dataTables.SendTable, ParseSendTable(dataTableReader, demo))
 	}
-	writer.AppendLine("\t%d Send Tables:", count)
-	writer.AppendOutputFromTemp()
+	demo.Writer.AppendLine("\t%d Send Tables:", count)
+	demo.Writer.AppendOutputFromTemp()
 	numOfClasses := dataTableReader.TryReadBits(16)
 	for count = 0; count < int(numOfClasses); count++ {
-		dataTables.ServerClassInfo = append(dataTables.ServerClassInfo, ParseServerClassInfo(dataTableReader, count, int(numOfClasses)))
+		dataTables.ServerClassInfo = append(dataTables.ServerClassInfo, ParseServerClassInfo(dataTableReader, count, int(numOfClasses), demo))
 	}
-	writer.AppendLine("\t%d Classes:", count)
-	writer.AppendOutputFromTemp()
+	demo.Writer.AppendLine("\t%d Classes:", count)
+	demo.Writer.AppendOutputFromTemp()
 }
 
-func ParseSendTable(reader *bitreader.Reader) SendTable {
+func ParseSendTable(reader *bitreader.Reader, demo *types.Demo) SendTable {
 	sendTable := SendTable{
 		NeedsDecoder: reader.TryReadBool(),
 		NetTableName: reader.TryReadString(),
@@ -65,7 +65,7 @@ func ParseSendTable(reader *bitreader.Reader) SendTable {
 	if sendTable.NumOfProps < 0 {
 		return sendTable
 	}
-	writer.TempAppendLine("\t\t%s (%d Props):", sendTable.NetTableName, sendTable.NumOfProps)
+	demo.Writer.TempAppendLine("\t\t%s (%d Props):", sendTable.NetTableName, sendTable.NumOfProps)
 	for count := 0; count < int(sendTable.NumOfProps); count++ {
 		propType := int8(reader.TryReadBits(5))
 		if propType >= int8(7) {
@@ -77,38 +77,38 @@ func ParseSendTable(reader *bitreader.Reader) SendTable {
 			SendPropFlags: uint32(reader.TryReadBits(19)),
 			Priority:      reader.TryReadUInt8(),
 		}
-		writer.TempAppend("\t\t\t%s\t", prop.SendPropType)
+		demo.Writer.TempAppend("\t\t\t%s\t", prop.SendPropType)
 		if propType == int8(ESendPropTypeDataTable) || checkBit(prop.SendPropFlags, 6) {
 			prop.ExcludeDtName = reader.TryReadString()
-			writer.TempAppend(":\t%s\t", prop.ExcludeDtName)
+			demo.Writer.TempAppend(":\t%s\t", prop.ExcludeDtName)
 		} else {
 			switch propType {
 			case int8(ESendPropTypeString), int8(ESendPropTypeInt), int8(ESendPropTypeFloat), int8(ESendPropTypeVector3), int8(ESendPropTypeVector2):
 				prop.LowValue = reader.TryReadFloat32()
 				prop.HighValue = reader.TryReadFloat32()
 				prop.NumBits = int32(reader.TryReadBits(7))
-				writer.TempAppend("Low: %f\tHigh: %f\t%d bits\t", prop.LowValue, prop.HighValue, prop.NumBits)
+				demo.Writer.TempAppend("Low: %f\tHigh: %f\t%d bits\t", prop.LowValue, prop.HighValue, prop.NumBits)
 			case int8(ESendPropTypeArray):
 				prop.NumElements = int32(reader.TryReadBits(10))
-				writer.TempAppend("Elements: %d\t", prop.NumElements)
+				demo.Writer.TempAppend("Elements: %d\t", prop.NumElements)
 			default:
-				writer.TempAppend("Unknown Prop Type: %v\t", propType)
+				demo.Writer.TempAppend("Unknown Prop Type: %v\t", propType)
 				return sendTable
 			}
 		}
-		writer.TempAppend("Flags: %v\tPriority: %d\n", prop.GetFlags(), prop.Priority)
+		demo.Writer.TempAppend("Flags: %v\tPriority: %d\n", prop.GetFlags(), prop.Priority)
 		sendTable.Props = append(sendTable.Props, prop)
 	}
 	return sendTable
 }
 
-func ParseServerClassInfo(reader *bitreader.Reader, count int, numOfClasses int) ServerClassInfo {
+func ParseServerClassInfo(reader *bitreader.Reader, count int, numOfClasses int, demo *types.Demo) ServerClassInfo {
 	serverClassInfo := ServerClassInfo{
 		DataTableID:   reader.TryReadUInt16(),
 		ClassName:     reader.TryReadString(),
 		DataTableName: reader.TryReadString(),
 	}
-	writer.TempAppendLine("\t\t\t[%d] %s (%s)", serverClassInfo.DataTableID, serverClassInfo.ClassName, serverClassInfo.DataTableName)
+	demo.Writer.TempAppendLine("\t\t\t[%d] %s (%s)", serverClassInfo.DataTableID, serverClassInfo.ClassName, serverClassInfo.DataTableName)
 	return serverClassInfo
 }
 

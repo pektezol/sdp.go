@@ -5,134 +5,134 @@ import (
 	"math"
 
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type SvcUserMessage struct {
-	Type   int8
-	Length int16
-	Data   any
+	Type   int8  `json:"type"`
+	Length int16 `json:"length"`
+	Data   any   `json:"data"`
 }
 
-func ParseSvcUserMessage(reader *bitreader.Reader) SvcUserMessage {
+func ParseSvcUserMessage(reader *bitreader.Reader, demo *types.Demo) SvcUserMessage {
 	svcUserMessage := SvcUserMessage{
 		Type:   int8(reader.TryReadBits(8)),
 		Length: int16(reader.TryReadBits(12)),
 	}
 	svcUserMessage.Data = reader.TryReadBitsToSlice(uint64(svcUserMessage.Length))
 	userMessageReader := bitreader.NewReaderFromBytes(svcUserMessage.Data.([]byte), true)
-	writer.TempAppendLine("\t\t%s (%d):", UserMessageType(svcUserMessage.Type).String(), svcUserMessage.Type)
+	demo.Writer.TempAppendLine("\t\t%s (%d):", UserMessageType(svcUserMessage.Type).String(), svcUserMessage.Type)
 	switch UserMessageType(svcUserMessage.Type) {
 	case EUserMessageTypeGeiger:
-		svcUserMessage.parseGeiger(userMessageReader)
+		svcUserMessage.parseGeiger(userMessageReader, demo)
 	case EUserMessageTypeTrain:
-		svcUserMessage.parseTrain(userMessageReader)
+		svcUserMessage.parseTrain(userMessageReader, demo)
 	case EUserMessageTypeHudText:
-		svcUserMessage.parseHUDText(userMessageReader)
+		svcUserMessage.parseHUDText(userMessageReader, demo)
 	case EUserMessageTypeSayText:
-		svcUserMessage.parseSayText(userMessageReader)
+		svcUserMessage.parseSayText(userMessageReader, demo)
 	case EUserMessageTypeSayText2:
-		svcUserMessage.parseSayText2(userMessageReader)
+		svcUserMessage.parseSayText2(userMessageReader, demo)
 	case EUserMessageTypeTextMsg:
-		svcUserMessage.parseTextMsg(userMessageReader)
+		svcUserMessage.parseTextMsg(userMessageReader, demo)
 	case EUserMessageTypeHUDMsg:
-		svcUserMessage.parseHUDMsg(userMessageReader)
+		svcUserMessage.parseHUDMsg(userMessageReader, demo)
 	case EUserMessageTypeResetHUD:
-		svcUserMessage.parseResetHUD(userMessageReader)
+		svcUserMessage.parseResetHUD(userMessageReader, demo)
 	case EUserMessageTypeShake:
-		svcUserMessage.parseShake(userMessageReader)
+		svcUserMessage.parseShake(userMessageReader, demo)
 	case EUserMessageTypeFade:
-		svcUserMessage.parseFade(userMessageReader)
+		svcUserMessage.parseFade(userMessageReader, demo)
 	case EUserMessageTypeVGUIMenu:
-		svcUserMessage.parseVguiMenu(userMessageReader)
+		svcUserMessage.parseVguiMenu(userMessageReader, demo)
 	case EUserMessageTypeRumble:
-		svcUserMessage.parseRumble(userMessageReader)
+		svcUserMessage.parseRumble(userMessageReader, demo)
 	case EUserMessageTypeBattery:
-		svcUserMessage.parseBattery(userMessageReader)
+		svcUserMessage.parseBattery(userMessageReader, demo)
 	case EUserMessageTypeDamage:
-		svcUserMessage.parseDamage(userMessageReader)
+		svcUserMessage.parseDamage(userMessageReader, demo)
 	case EUserMessageTypeVoiceMask:
-		svcUserMessage.parseVoiceMask(userMessageReader)
+		svcUserMessage.parseVoiceMask(userMessageReader, demo)
 	case EUserMessageTypeCloseCaption:
-		svcUserMessage.parseCloseCaption(userMessageReader)
+		svcUserMessage.parseCloseCaption(userMessageReader, demo)
 	case EUserMessageTypeKeyHintText:
-		svcUserMessage.parseKeyHintText(userMessageReader)
+		svcUserMessage.parseKeyHintText(userMessageReader, demo)
 	case EUserMessageTypeLogoTimeMsg:
-		svcUserMessage.parseLogoTimeMsg(userMessageReader)
+		svcUserMessage.parseLogoTimeMsg(userMessageReader, demo)
 	case EUserMessageTypeAchievementEvent:
-		svcUserMessage.parseAchivementEvent(userMessageReader)
+		svcUserMessage.parseAchivementEvent(userMessageReader, demo)
 	case EUserMessageTypeCurrentTimescale:
-		svcUserMessage.parseCurrentTimescale(userMessageReader)
+		svcUserMessage.parseCurrentTimescale(userMessageReader, demo)
 	case EUserMessageTypeDesiredTimescale:
-		svcUserMessage.parseDesiredTimescale(userMessageReader)
+		svcUserMessage.parseDesiredTimescale(userMessageReader, demo)
 	case EUserMessageTypeMPMapCompleted:
-		svcUserMessage.parseMpMapCompleted(userMessageReader)
+		svcUserMessage.parseMpMapCompleted(userMessageReader, demo)
 	case EUserMessageTypeMPMapIncomplete:
-		svcUserMessage.parseMpMapIncomplete(userMessageReader)
+		svcUserMessage.parseMpMapIncomplete(userMessageReader, demo)
 	case EUserMessageTypeMPTauntEarned:
-		svcUserMessage.parseMpTauntEarned(userMessageReader)
+		svcUserMessage.parseMpTauntEarned(userMessageReader, demo)
 	case EUserMessageTypeMPTauntLocked:
-		svcUserMessage.parseMpTauntLocked(userMessageReader)
+		svcUserMessage.parseMpTauntLocked(userMessageReader, demo)
 	case EUserMessageTypePortalFX_Surface:
-		svcUserMessage.parsePortalFxSurface(userMessageReader)
+		svcUserMessage.parsePortalFxSurface(userMessageReader, demo)
 	case EUserMessageTypePaintWorld:
-		svcUserMessage.parsePaintWorld(userMessageReader)
+		svcUserMessage.parsePaintWorld(userMessageReader, demo)
 	case EUserMessageTypeTransitionFade:
-		svcUserMessage.parseTransitionFade(userMessageReader)
+		svcUserMessage.parseTransitionFade(userMessageReader, demo)
 	case EUserMessageTypeScoreboardTempUpdate:
-		svcUserMessage.parseScoreboardTempUpdate(userMessageReader)
+		svcUserMessage.parseScoreboardTempUpdate(userMessageReader, demo)
 	default:
-		writer.TempAppendLine("\t\t\tData: %v", svcUserMessage.Data)
+		demo.Writer.TempAppendLine("\t\t\tData: %v", svcUserMessage.Data)
 	}
 	return svcUserMessage
 }
 
-func (svcUserMessage *SvcUserMessage) parseGeiger(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseGeiger(reader *bitreader.Reader, demo *types.Demo) {
 	geiger := struct{ Range uint8 }{
 		Range: reader.TryReadUInt8(),
 	}
 	svcUserMessage.Data = geiger
-	writer.TempAppendLine("\t\t\tGeiger Range: %d", geiger.Range)
+	demo.Writer.TempAppendLine("\t\t\tGeiger Range: %d", geiger.Range)
 }
 
-func (svcUserMessage *SvcUserMessage) parseTrain(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseTrain(reader *bitreader.Reader, demo *types.Demo) {
 	train := struct{ Pos uint8 }{
 		Pos: reader.TryReadUInt8(),
 	}
 	svcUserMessage.Data = train
-	writer.TempAppendLine("\t\t\tPos: %d", train.Pos)
+	demo.Writer.TempAppendLine("\t\t\tPos: %d", train.Pos)
 }
 
-func (svcUserMessage *SvcUserMessage) parseHUDText(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseHUDText(reader *bitreader.Reader, demo *types.Demo) {
 	hudText := struct{ Text string }{
 		Text: reader.TryReadString(),
 	}
 	svcUserMessage.Data = hudText
-	writer.TempAppendLine("\t\t\tText: %s", hudText.Text)
+	demo.Writer.TempAppendLine("\t\t\tText: %s", hudText.Text)
 }
 
-func (svcUserMessage *SvcUserMessage) parseSayText(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseSayText(reader *bitreader.Reader, demo *types.Demo) {
 	sayText := struct {
-		Client      uint8
-		Message     string
-		WantsToChat bool
+		Client      uint8  `json:"client"`
+		Message     string `json:"message"`
+		WantsToChat bool   `json:"wants_to_chat"`
 	}{
 		Client:      reader.TryReadUInt8(),
 		Message:     reader.TryReadString(),
 		WantsToChat: reader.TryReadUInt8() != 0,
 	}
 	svcUserMessage.Data = sayText
-	writer.TempAppendLine("\t\t\tClient: %d", sayText.Client)
-	writer.TempAppendLine("\t\t\tMessage: %s", sayText.Message)
-	writer.TempAppendLine("\t\t\tWants To Chat: %t", sayText.WantsToChat)
+	demo.Writer.TempAppendLine("\t\t\tClient: %d", sayText.Client)
+	demo.Writer.TempAppendLine("\t\t\tMessage: %s", sayText.Message)
+	demo.Writer.TempAppendLine("\t\t\tWants To Chat: %t", sayText.WantsToChat)
 }
 
-func (svcUserMessage *SvcUserMessage) parseSayText2(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseSayText2(reader *bitreader.Reader, demo *types.Demo) {
 	sayText2 := struct {
-		Client      uint8
-		WantsToChat bool
-		MessageName string
-		Messages    []string
+		Client      uint8    `json:"client"`
+		WantsToChat bool     `json:"wants_to_chat"`
+		MessageName string   `json:"message_name"`
+		Messages    []string `json:"messages"`
 	}{
 		Client:      reader.TryReadUInt8(),
 		WantsToChat: reader.TryReadUInt8() != 0,
@@ -140,15 +140,15 @@ func (svcUserMessage *SvcUserMessage) parseSayText2(reader *bitreader.Reader) {
 		Messages:    []string{reader.TryReadString(), reader.TryReadString(), reader.TryReadString()},
 	}
 	svcUserMessage.Data = sayText2
-	writer.TempAppendLine("\t\t\tClient: %d", sayText2.Client)
-	writer.TempAppendLine("\t\t\tWants To Chat: %t", sayText2.WantsToChat)
-	writer.TempAppendLine("\t\t\tName: %s", sayText2.MessageName)
+	demo.Writer.TempAppendLine("\t\t\tClient: %d", sayText2.Client)
+	demo.Writer.TempAppendLine("\t\t\tWants To Chat: %t", sayText2.WantsToChat)
+	demo.Writer.TempAppendLine("\t\t\tName: %s", sayText2.MessageName)
 	for index, message := range sayText2.Messages {
-		writer.TempAppendLine("\t\t\tMessage %d: %s", index, message)
+		demo.Writer.TempAppendLine("\t\t\tMessage %d: %s", index, message)
 	}
 }
 
-func (svcUserMessage *SvcUserMessage) parseTextMsg(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseTextMsg(reader *bitreader.Reader, demo *types.Demo) {
 	const MessageCount int = 5
 	textMsg := struct {
 		Destination uint8
@@ -161,47 +161,57 @@ func (svcUserMessage *SvcUserMessage) parseTextMsg(reader *bitreader.Reader) {
 		textMsg.Messages[i] = reader.TryReadString()
 	}
 	svcUserMessage.Data = textMsg
-	writer.TempAppendLine("\t\t\tDestination: %d", textMsg.Destination)
+	demo.Writer.TempAppendLine("\t\t\tDestination: %d", textMsg.Destination)
 	for i := 0; i < MessageCount; i++ {
-		writer.TempAppendLine("\t\t\tMessage %d: %s", i+1, textMsg.Messages)
+		demo.Writer.TempAppendLine("\t\t\tMessage %d: %s", i+1, textMsg.Messages)
 	}
 }
 
-func (svcUserMessage *SvcUserMessage) parseHUDMsg(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseHUDMsg(reader *bitreader.Reader, demo *types.Demo) {
 	const MaxNetMessage uint8 = 6
 	hudMsg := struct {
-		Channel uint8
+		Channel uint8 `json:"channel"`
 		Info    struct {
-			X, Y                              float32 // 0-1 & resolution independent, -1 means center in each dimension
-			R1, G1, B1, A1                    uint8
-			R2, G2, B2, A2                    uint8
-			Effect                            uint8
-			FadeIn, FadeOut, HoldTime, FxTime float32 // the fade times seem to be per character
-			Message                           string
-		}
+			X        float32 `json:"x"` // 0-1 & resolution independent, -1 means center in each dimension
+			Y        float32 `json:"y"`
+			R1       uint8   `json:"r_1"`
+			G1       uint8   `json:"g_1"`
+			B1       uint8   `json:"b_1"`
+			A1       uint8   `json:"a_1"`
+			R2       uint8   `json:"r_2"`
+			G2       uint8   `json:"g_2"`
+			B2       uint8   `json:"b_2"`
+			A2       uint8   `json:"a_2"`
+			Effect   uint8   `json:"effect"`
+			FadeIn   float32 `json:"fade_in"` // the fade times seem to be per character
+			FadeOut  float32 `json:"fade_out"`
+			HoldTime float32 `json:"hold_time"`
+			FxTime   float32 `json:"fx_time"`
+			Message  string  `json:"message"`
+		} `json:"info"`
 	}{
 		Channel: reader.TryReadUInt8() % MaxNetMessage,
 	}
 	svcUserMessage.Data = hudMsg
-	writer.TempAppendLine("\t\t\tChannel: %d", hudMsg.Channel)
+	demo.Writer.TempAppendLine("\t\t\tChannel: %d", hudMsg.Channel)
 	if reader.TryReadRemainingBits() >= 148 {
 		hudMsg.Info = struct {
-			X        float32
-			Y        float32
-			R1       uint8
-			G1       uint8
-			B1       uint8
-			A1       uint8
-			R2       uint8
-			G2       uint8
-			B2       uint8
-			A2       uint8
-			Effect   uint8
-			FadeIn   float32
-			FadeOut  float32
-			HoldTime float32
-			FxTime   float32
-			Message  string
+			X        float32 `json:"x"`
+			Y        float32 `json:"y"`
+			R1       uint8   `json:"r_1"`
+			G1       uint8   `json:"g_1"`
+			B1       uint8   `json:"b_1"`
+			A1       uint8   `json:"a_1"`
+			R2       uint8   `json:"r_2"`
+			G2       uint8   `json:"g_2"`
+			B2       uint8   `json:"b_2"`
+			A2       uint8   `json:"a_2"`
+			Effect   uint8   `json:"effect"`
+			FadeIn   float32 `json:"fade_in"`
+			FadeOut  float32 `json:"fade_out"`
+			HoldTime float32 `json:"hold_time"`
+			FxTime   float32 `json:"fx_time"`
+			Message  string  `json:"message"`
 		}{
 			X:        reader.TryReadFloat32(),
 			Y:        reader.TryReadFloat32(),
@@ -221,27 +231,27 @@ func (svcUserMessage *SvcUserMessage) parseHUDMsg(reader *bitreader.Reader) {
 			Message:  reader.TryReadString(),
 		}
 		svcUserMessage.Data = hudMsg
-		writer.TempAppendLine("\t\t\tX: %f, Y: %f", hudMsg.Info.X, hudMsg.Info.Y)
-		writer.TempAppendLine("\t\t\tRGBA1: %3d %3d %3d %3d", hudMsg.Info.R1, hudMsg.Info.G1, hudMsg.Info.B1, hudMsg.Info.A1)
-		writer.TempAppendLine("\t\t\tRGBA2: %3d %3d %3d %3d", hudMsg.Info.R2, hudMsg.Info.G2, hudMsg.Info.B2, hudMsg.Info.A2)
-		writer.TempAppendLine("\t\t\tEffect: %d", hudMsg.Info.Effect)
-		writer.TempAppendLine("\t\t\tFade In: %f", hudMsg.Info.FadeIn)
-		writer.TempAppendLine("\t\t\tFade Out: %f", hudMsg.Info.FadeOut)
-		writer.TempAppendLine("\t\t\tHold Time: %f", hudMsg.Info.HoldTime)
-		writer.TempAppendLine("\t\t\tFX Time: %f", hudMsg.Info.FxTime)
-		writer.TempAppendLine("\t\t\tMessage: %s", hudMsg.Info.Message)
+		demo.Writer.TempAppendLine("\t\t\tX: %f, Y: %f", hudMsg.Info.X, hudMsg.Info.Y)
+		demo.Writer.TempAppendLine("\t\t\tRGBA1: %3d %3d %3d %3d", hudMsg.Info.R1, hudMsg.Info.G1, hudMsg.Info.B1, hudMsg.Info.A1)
+		demo.Writer.TempAppendLine("\t\t\tRGBA2: %3d %3d %3d %3d", hudMsg.Info.R2, hudMsg.Info.G2, hudMsg.Info.B2, hudMsg.Info.A2)
+		demo.Writer.TempAppendLine("\t\t\tEffect: %d", hudMsg.Info.Effect)
+		demo.Writer.TempAppendLine("\t\t\tFade In: %f", hudMsg.Info.FadeIn)
+		demo.Writer.TempAppendLine("\t\t\tFade Out: %f", hudMsg.Info.FadeOut)
+		demo.Writer.TempAppendLine("\t\t\tHold Time: %f", hudMsg.Info.HoldTime)
+		demo.Writer.TempAppendLine("\t\t\tFX Time: %f", hudMsg.Info.FxTime)
+		demo.Writer.TempAppendLine("\t\t\tMessage: %s", hudMsg.Info.Message)
 	}
 }
 
-func (svcUserMessage *SvcUserMessage) parseResetHUD(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseResetHUD(reader *bitreader.Reader, demo *types.Demo) {
 	resetHUD := struct{ Unknown uint8 }{
 		Unknown: reader.TryReadUInt8(),
 	}
 	svcUserMessage.Data = resetHUD
-	writer.TempAppendLine("\t\t\tUnknown: %d", resetHUD.Unknown)
+	demo.Writer.TempAppendLine("\t\t\tUnknown: %d", resetHUD.Unknown)
 }
 
-func (svcUserMessage *SvcUserMessage) parseShake(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseShake(reader *bitreader.Reader, demo *types.Demo) {
 	type ShakeCommand uint8
 	const (
 		Start      ShakeCommand = iota // Starts the screen shake for all players within the radius.
@@ -252,10 +262,10 @@ func (svcUserMessage *SvcUserMessage) parseShake(reader *bitreader.Reader) {
 		NoRumble                       // Starts a shake that does NOT rumble the controller.
 	)
 	shake := struct {
-		Command   uint8
-		Amplitude float32
-		Frequency float32
-		Duration  float32
+		Command   uint8   `json:"command"`
+		Amplitude float32 `json:"amplitude"`
+		Frequency float32 `json:"frequency"`
+		Duration  float32 `json:"duration"`
 	}{
 		Command:   reader.TryReadUInt8(),
 		Amplitude: reader.TryReadFloat32(),
@@ -281,13 +291,13 @@ func (svcUserMessage *SvcUserMessage) parseShake(reader *bitreader.Reader) {
 		}
 	}
 	svcUserMessage.Data = shake
-	writer.TempAppendLine("\t\t\tCommand: %s", shakeCommandToString(ShakeCommand(shake.Command)))
-	writer.TempAppendLine("\t\t\tAmplitude: %f", shake.Amplitude)
-	writer.TempAppendLine("\t\t\tFrequency: %f", shake.Frequency)
-	writer.TempAppendLine("\t\t\tDuration: %f", shake.Duration)
+	demo.Writer.TempAppendLine("\t\t\tCommand: %s", shakeCommandToString(ShakeCommand(shake.Command)))
+	demo.Writer.TempAppendLine("\t\t\tAmplitude: %f", shake.Amplitude)
+	demo.Writer.TempAppendLine("\t\t\tFrequency: %f", shake.Frequency)
+	demo.Writer.TempAppendLine("\t\t\tDuration: %f", shake.Duration)
 }
 
-func (svcUserMessage *SvcUserMessage) parseFade(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseFade(reader *bitreader.Reader, demo *types.Demo) {
 	type FadeFlag uint16
 	const (
 		None     FadeFlag = 0
@@ -298,13 +308,13 @@ func (svcUserMessage *SvcUserMessage) parseFade(reader *bitreader.Reader) {
 		Purge    FadeFlag = 1 << 4 // Purges all other fades, replacing them with this one
 	)
 	fade := struct {
-		Duration float32
-		HoldTime uint16
-		Flags    uint16
-		R        uint8
-		G        uint8
-		B        uint8
-		A        uint8
+		Duration float32 `json:"duration"`
+		HoldTime uint16  `json:"hold_time"`
+		Flags    uint16  `json:"flags"`
+		R        uint8   `json:"r"`
+		G        uint8   `json:"g"`
+		B        uint8   `json:"b"`
+		A        uint8   `json:"a"`
 	}{
 		Duration: float32(reader.TryReadUInt16()) / float32(1<<9), // might be useful: #define SCREENFADE_FRACBITS 9
 		HoldTime: reader.TryReadUInt16(),
@@ -334,17 +344,17 @@ func (svcUserMessage *SvcUserMessage) parseFade(reader *bitreader.Reader) {
 		return flagStrings
 	}
 	svcUserMessage.Data = fade
-	writer.TempAppendLine("\t\t\tDuration: %f", fade.Duration)
-	writer.TempAppendLine("\t\t\tHold Time: %d", fade.HoldTime)
-	writer.TempAppendLine("\t\t\tFlags: %v", getFlags(FadeFlag(fade.Flags)))
-	writer.TempAppendLine("\t\t\tRGBA: %3d %3d %3d %3d", fade.R, fade.G, fade.B, fade.A)
+	demo.Writer.TempAppendLine("\t\t\tDuration: %f", fade.Duration)
+	demo.Writer.TempAppendLine("\t\t\tHold Time: %d", fade.HoldTime)
+	demo.Writer.TempAppendLine("\t\t\tFlags: %v", getFlags(FadeFlag(fade.Flags)))
+	demo.Writer.TempAppendLine("\t\t\tRGBA: %3d %3d %3d %3d", fade.R, fade.G, fade.B, fade.A)
 }
 
-func (svcUserMessage *SvcUserMessage) parseVguiMenu(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseVguiMenu(reader *bitreader.Reader, demo *types.Demo) {
 	vguiMenu := struct {
-		Message   string
-		Show      bool
-		KeyValues []map[string]string
+		Message   string              `json:"message"`
+		Show      bool                `json:"show"`
+		KeyValues []map[string]string `json:"key_values"`
 	}{
 		Message: reader.TryReadString(),
 		Show:    reader.TryReadUInt8() != 0,
@@ -354,19 +364,19 @@ func (svcUserMessage *SvcUserMessage) parseVguiMenu(reader *bitreader.Reader) {
 		vguiMenu.KeyValues = append(vguiMenu.KeyValues, map[string]string{"Key": reader.TryReadString(), "Value": reader.TryReadString()})
 	}
 	svcUserMessage.Data = vguiMenu
-	writer.TempAppendLine("\t\t\tMessage: %s", vguiMenu.Message)
-	writer.TempAppendLine("\t\t\tShow: %t", vguiMenu.Show)
+	demo.Writer.TempAppendLine("\t\t\tMessage: %s", vguiMenu.Message)
+	demo.Writer.TempAppendLine("\t\t\tShow: %t", vguiMenu.Show)
 	if len(vguiMenu.KeyValues) > 0 {
-		writer.TempAppendLine("\t\t\t%d Key Value Pairs:", len(vguiMenu.KeyValues))
+		demo.Writer.TempAppendLine("\t\t\t%d Key Value Pairs:", len(vguiMenu.KeyValues))
 		for _, kv := range vguiMenu.KeyValues {
-			writer.TempAppendLine("\t\t\t\t%s: %s", kv["Key"], kv["Value"])
+			demo.Writer.TempAppendLine("\t\t\t\t%s: %s", kv["Key"], kv["Value"])
 		}
 	} else {
-		writer.TempAppendLine("\t\t\tNo Key Value Pairs")
+		demo.Writer.TempAppendLine("\t\t\tNo Key Value Pairs")
 	}
 }
 
-func (svcUserMessage *SvcUserMessage) parseRumble(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseRumble(reader *bitreader.Reader, demo *types.Demo) {
 	type RumbleLookup int8
 	const (
 		RumbleInvalid          RumbleLookup = -1
@@ -418,9 +428,9 @@ func (svcUserMessage *SvcUserMessage) parseRumble(reader *bitreader.Reader) {
 		InitialScale    RumbleFlag = 1 << 4 // Data is the initial scale to start this effect ( * 100 )
 	)
 	rumble := struct {
-		Type  int8
-		Scale float32
-		Flags uint8
+		Type  int8    `json:"type"`
+		Scale float32 `json:"scale"`
+		Flags uint8   `json:"flags"`
 	}{
 		Type:  reader.TryReadSInt8(),
 		Scale: float32(reader.TryReadUInt8()) / 100,
@@ -452,25 +462,25 @@ func (svcUserMessage *SvcUserMessage) parseRumble(reader *bitreader.Reader) {
 		return flagStrings
 	}
 	svcUserMessage.Data = rumble
-	writer.TempAppendLine("\t\t\tType: %s", getRumbleLookup(RumbleLookup(rumble.Type)))
-	writer.TempAppendLine("\t\t\tScale: %f", rumble.Scale)
-	writer.TempAppendLine("\t\t\tFlags: %v", getFlags(RumbleFlag(rumble.Flags)))
+	demo.Writer.TempAppendLine("\t\t\tType: %s", getRumbleLookup(RumbleLookup(rumble.Type)))
+	demo.Writer.TempAppendLine("\t\t\tScale: %f", rumble.Scale)
+	demo.Writer.TempAppendLine("\t\t\tFlags: %v", getFlags(RumbleFlag(rumble.Flags)))
 }
 
-func (svcUserMessage *SvcUserMessage) parseBattery(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseBattery(reader *bitreader.Reader, demo *types.Demo) {
 	battery := struct{ BatteryVal uint16 }{
 		BatteryVal: reader.TryReadUInt16(),
 	}
 	svcUserMessage.Data = battery
-	writer.TempAppendLine("\t\t\tBattery: %d", battery.BatteryVal)
+	demo.Writer.TempAppendLine("\t\t\tBattery: %d", battery.BatteryVal)
 }
 
-func (svcUserMessage *SvcUserMessage) parseDamage(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseDamage(reader *bitreader.Reader, demo *types.Demo) {
 	damage := struct {
-		Armor       uint8
-		DamageTaken uint8
-		BitsDamage  int32
-		VecFrom     []float32
+		Armor       uint8     `json:"armor"`
+		DamageTaken uint8     `json:"damage_taken"`
+		BitsDamage  int32     `json:"bits_damage"`
+		VecFrom     []float32 `json:"vec_from"`
 	}{
 		Armor:       reader.TryReadUInt8(),
 		DamageTaken: reader.TryReadUInt8(),
@@ -478,24 +488,24 @@ func (svcUserMessage *SvcUserMessage) parseDamage(reader *bitreader.Reader) {
 		VecFrom:     []float32{reader.TryReadFloat32(), reader.TryReadFloat32(), reader.TryReadFloat32()},
 	}
 	svcUserMessage.Data = damage
-	writer.TempAppendLine("\t\t\tArmor: %d", damage.Armor)
-	writer.TempAppendLine("\t\t\tDamage Taken: %d", damage.DamageTaken)
-	writer.TempAppendLine("\t\t\tBits Damage: %d", damage.BitsDamage)
-	writer.TempAppendLine("\t\t\tVecFrom: %v", damage.VecFrom)
+	demo.Writer.TempAppendLine("\t\t\tArmor: %d", damage.Armor)
+	demo.Writer.TempAppendLine("\t\t\tDamage Taken: %d", damage.DamageTaken)
+	demo.Writer.TempAppendLine("\t\t\tBits Damage: %d", damage.BitsDamage)
+	demo.Writer.TempAppendLine("\t\t\tVecFrom: %v", damage.VecFrom)
 }
 
-func (svcUserMessage *SvcUserMessage) parseVoiceMask(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseVoiceMask(reader *bitreader.Reader, demo *types.Demo) {
 	// const VoiceMaxPlayers = 2
 	voiceMask := struct {
 		PlayerMasks []struct {
-			GameRulesMask int32
-			BanMask       int32
-		}
-		PlayerModEnable bool
+			GameRulesMask int32 `json:"game_rules_mask"`
+			BanMask       int32 `json:"ban_mask"`
+		} `json:"player_masks"`
+		PlayerModEnable bool `json:"player_mod_enable"`
 	}{
 		PlayerMasks: []struct {
-			GameRulesMask int32
-			BanMask       int32
+			GameRulesMask int32 `json:"game_rules_mask"`
+			BanMask       int32 `json:"ban_mask"`
 		}{
 			{
 				GameRulesMask: reader.TryReadSInt32(),
@@ -509,15 +519,15 @@ func (svcUserMessage *SvcUserMessage) parseVoiceMask(reader *bitreader.Reader) {
 		PlayerModEnable: reader.TryReadUInt8() != 0,
 	}
 	svcUserMessage.Data = voiceMask
-	writer.TempAppendLine("\t\t\tPlayer Masks:")
-	writer.TempAppendLine("\t\t\t\t[0] Game Rules Mask: %d", voiceMask.PlayerMasks[0].GameRulesMask)
-	writer.TempAppendLine("\t\t\t\t[0] Ban Mask: %d", voiceMask.PlayerMasks[0].BanMask)
-	writer.TempAppendLine("\t\t\t\t[1] Game Rules Mask: %d", voiceMask.PlayerMasks[1].GameRulesMask)
-	writer.TempAppendLine("\t\t\t\t[1] Ban Mask: %d", voiceMask.PlayerMasks[1].BanMask)
-	writer.TempAppendLine("\t\t\t\tPlayer Mod Enable: %t", voiceMask.PlayerModEnable)
+	demo.Writer.TempAppendLine("\t\t\tPlayer Masks:")
+	demo.Writer.TempAppendLine("\t\t\t\t[0] Game Rules Mask: %d", voiceMask.PlayerMasks[0].GameRulesMask)
+	demo.Writer.TempAppendLine("\t\t\t\t[0] Ban Mask: %d", voiceMask.PlayerMasks[0].BanMask)
+	demo.Writer.TempAppendLine("\t\t\t\t[1] Game Rules Mask: %d", voiceMask.PlayerMasks[1].GameRulesMask)
+	demo.Writer.TempAppendLine("\t\t\t\t[1] Ban Mask: %d", voiceMask.PlayerMasks[1].BanMask)
+	demo.Writer.TempAppendLine("\t\t\t\tPlayer Mod Enable: %t", voiceMask.PlayerModEnable)
 }
 
-func (svcUserMessage *SvcUserMessage) parseCloseCaption(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseCloseCaption(reader *bitreader.Reader, demo *types.Demo) {
 	type CloseCaptionFlag uint8
 	const (
 		None          CloseCaptionFlag = 0
@@ -527,9 +537,9 @@ func (svcUserMessage *SvcUserMessage) parseCloseCaption(reader *bitreader.Reader
 		GenderFemale  CloseCaptionFlag = 1 << 3
 	)
 	closeCaption := struct {
-		TokenName string
-		Duration  float32
-		Flags     uint8
+		TokenName string  `json:"token_name"`
+		Duration  float32 `json:"duration"`
+		Flags     uint8   `json:"flags"`
 	}{
 		TokenName: reader.TryReadString(),
 		Duration:  float32(reader.TryReadSInt16()) * 0.1,
@@ -552,54 +562,58 @@ func (svcUserMessage *SvcUserMessage) parseCloseCaption(reader *bitreader.Reader
 		return flagStrings
 	}
 	svcUserMessage.Data = closeCaption
-	writer.TempAppendLine("\t\t\tToken Name: %s", closeCaption.TokenName)
-	writer.TempAppendLine("\t\t\tDuration: %f", closeCaption.Duration)
-	writer.TempAppendLine("\t\t\tFlags: %v", getFlags(CloseCaptionFlag(closeCaption.Flags)))
+	demo.Writer.TempAppendLine("\t\t\tToken Name: %s", closeCaption.TokenName)
+	demo.Writer.TempAppendLine("\t\t\tDuration: %f", closeCaption.Duration)
+	demo.Writer.TempAppendLine("\t\t\tFlags: %v", getFlags(CloseCaptionFlag(closeCaption.Flags)))
 }
 
-func (svcUserMessage *SvcUserMessage) parseKeyHintText(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseKeyHintText(reader *bitreader.Reader, demo *types.Demo) {
 	keyHintText := struct {
-		Count     uint8
-		KeyString string
+		Count     uint8  `json:"count"`
+		KeyString string `json:"key_string"`
 	}{
 		Count:     reader.TryReadUInt8(),
 		KeyString: reader.TryReadString(),
 	}
 	svcUserMessage.Data = keyHintText
-	writer.TempAppendLine("\t\t\tCount: %d", keyHintText.Count)
-	writer.TempAppendLine("\t\t\tString: %s", keyHintText.KeyString)
+	demo.Writer.TempAppendLine("\t\t\tCount: %d", keyHintText.Count)
+	demo.Writer.TempAppendLine("\t\t\tString: %s", keyHintText.KeyString)
 }
 
-func (svcUserMessage *SvcUserMessage) parseLogoTimeMsg(reader *bitreader.Reader) {
-	logoTimeMsg := struct{ Time float32 }{
+func (svcUserMessage *SvcUserMessage) parseLogoTimeMsg(reader *bitreader.Reader, demo *types.Demo) {
+	logoTimeMsg := struct {
+		Time float32 `json:"time"`
+	}{
 		Time: reader.TryReadFloat32(),
 	}
 	svcUserMessage.Data = logoTimeMsg
-	writer.TempAppendLine("\t\t\tTime: %f", logoTimeMsg.Time)
+	demo.Writer.TempAppendLine("\t\t\tTime: %f", logoTimeMsg.Time)
 }
 
-func (svcUserMessage *SvcUserMessage) parseAchivementEvent(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseAchivementEvent(reader *bitreader.Reader, demo *types.Demo) {
 	achivementEvent := struct{ AchivementID int32 }{
 		AchivementID: reader.TryReadSInt32(),
 	}
 	svcUserMessage.Data = achivementEvent
-	writer.TempAppendLine("\t\t\tAchivement ID: %d", achivementEvent.AchivementID)
+	demo.Writer.TempAppendLine("\t\t\tAchivement ID: %d", achivementEvent.AchivementID)
 }
 
-func (svcUserMessage *SvcUserMessage) parseCurrentTimescale(reader *bitreader.Reader) {
-	currentTimescale := struct{ Timescale float32 }{
+func (svcUserMessage *SvcUserMessage) parseCurrentTimescale(reader *bitreader.Reader, demo *types.Demo) {
+	currentTimescale := struct {
+		Timescale float32 `json:"timescale"`
+	}{
 		Timescale: reader.TryReadFloat32(),
 	}
 	svcUserMessage.Data = currentTimescale
-	writer.TempAppendLine("\t\t\tTimescale: %f", currentTimescale.Timescale)
+	demo.Writer.TempAppendLine("\t\t\tTimescale: %f", currentTimescale.Timescale)
 }
 
-func (svcUserMessage *SvcUserMessage) parseDesiredTimescale(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseDesiredTimescale(reader *bitreader.Reader, demo *types.Demo) {
 	desiredTimescale := struct {
-		Unk1 float32
-		Unk2 float32
-		Unk3 uint8
-		Unk4 float32
+		Unk1 float32 `json:"unk_1"`
+		Unk2 float32 `json:"unk_2"`
+		Unk3 uint8   `json:"unk_3"`
+		Unk4 float32 `json:"unk_4"`
 	}{
 		Unk1: reader.TryReadFloat32(),
 		Unk2: reader.TryReadFloat32(),
@@ -607,49 +621,52 @@ func (svcUserMessage *SvcUserMessage) parseDesiredTimescale(reader *bitreader.Re
 		Unk4: reader.TryReadFloat32(),
 	}
 	svcUserMessage.Data = desiredTimescale
-	writer.TempAppendLine("\t\t\tUnk1: %f", desiredTimescale.Unk1)
-	writer.TempAppendLine("\t\t\tUnk2: %f", desiredTimescale.Unk2)
-	writer.TempAppendLine("\t\t\tUnk3: %d", desiredTimescale.Unk3)
-	writer.TempAppendLine("\t\t\tUnk4: %f", desiredTimescale.Unk4)
+	demo.Writer.TempAppendLine("\t\t\tUnk1: %f", desiredTimescale.Unk1)
+	demo.Writer.TempAppendLine("\t\t\tUnk2: %f", desiredTimescale.Unk2)
+	demo.Writer.TempAppendLine("\t\t\tUnk3: %d", desiredTimescale.Unk3)
+	demo.Writer.TempAppendLine("\t\t\tUnk4: %f", desiredTimescale.Unk4)
 }
 
-func (svcUserMessage *SvcUserMessage) parseMpMapCompleted(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseMpMapCompleted(reader *bitreader.Reader, demo *types.Demo) {
 	mpMapCompleted := struct {
-		Branch uint8
-		Level  uint8
+		Branch uint8 `json:"branch"`
+		Level  uint8 `json:"level"`
 	}{
 		Branch: reader.TryReadUInt8(),
 		Level:  reader.TryReadUInt8(),
 	}
 	svcUserMessage.Data = mpMapCompleted
-	writer.TempAppendLine("\t\t\tBranch: %d", mpMapCompleted.Branch)
-	writer.TempAppendLine("\t\t\tLevel: %d", mpMapCompleted.Level)
+	demo.Writer.TempAppendLine("\t\t\tBranch: %d", mpMapCompleted.Branch)
+	demo.Writer.TempAppendLine("\t\t\tLevel: %d", mpMapCompleted.Level)
 }
 
-func (svcUserMessage *SvcUserMessage) parseMpMapIncomplete(reader *bitreader.Reader) {}
+func (svcUserMessage *SvcUserMessage) parseMpMapIncomplete(reader *bitreader.Reader, demo *types.Demo) {
+}
 
-func (svcUserMessage *SvcUserMessage) parseMpTauntEarned(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseMpTauntEarned(reader *bitreader.Reader, demo *types.Demo) {
 	mpTauntEarned := struct {
-		TauntName     string
-		AwardSilently bool
+		TauntName     string `json:"taunt_name"`
+		AwardSilently bool   `json:"award_silently"`
 	}{
 		TauntName:     reader.TryReadString(),
 		AwardSilently: reader.TryReadBool(),
 	}
 	svcUserMessage.Data = mpTauntEarned
-	writer.TempAppendLine("\t\t\tTaunt Name: %s", mpTauntEarned.TauntName)
-	writer.TempAppendLine("\t\t\tAward Silently: %t", mpTauntEarned.AwardSilently)
+	demo.Writer.TempAppendLine("\t\t\tTaunt Name: %s", mpTauntEarned.TauntName)
+	demo.Writer.TempAppendLine("\t\t\tAward Silently: %t", mpTauntEarned.AwardSilently)
 }
 
-func (svcUserMessage *SvcUserMessage) parseMpTauntLocked(reader *bitreader.Reader) {
-	mpTauntLocked := struct{ TauntName string }{
+func (svcUserMessage *SvcUserMessage) parseMpTauntLocked(reader *bitreader.Reader, demo *types.Demo) {
+	mpTauntLocked := struct {
+		TauntName string `json:"taunt_name"`
+	}{
 		TauntName: reader.TryReadString(),
 	}
 	svcUserMessage.Data = mpTauntLocked
-	writer.TempAppendLine("\t\t\tTaunt Name: %s", mpTauntLocked.TauntName)
+	demo.Writer.TempAppendLine("\t\t\tTaunt Name: %s", mpTauntLocked.TauntName)
 }
 
-func (svcUserMessage *SvcUserMessage) parsePortalFxSurface(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parsePortalFxSurface(reader *bitreader.Reader, demo *types.Demo) {
 	type PortalFizzleType int8
 	const (
 		PortalFizzleSuccess PortalFizzleType = iota // Placed fine (no fizzle)
@@ -693,13 +710,13 @@ func (svcUserMessage *SvcUserMessage) parsePortalFxSurface(reader *bitreader.Rea
 		}
 	}
 	portalFxSurface := struct {
-		PortalEnt uint16
-		OwnerEnt  uint16
-		Team      uint8
-		PortalNum uint8
-		Effect    uint8
-		Origin    []float32
-		Angles    []float32
+		PortalEnt uint16    `json:"portal_ent"`
+		OwnerEnt  uint16    `json:"owner_ent"`
+		Team      uint8     `json:"team"`
+		PortalNum uint8     `json:"portal_num"`
+		Effect    uint8     `json:"effect"`
+		Origin    []float32 `json:"origin"`
+		Angles    []float32 `json:"angles"`
 	}{
 		PortalEnt: reader.TryReadUInt16(),
 		OwnerEnt:  reader.TryReadUInt16(),
@@ -743,23 +760,23 @@ func (svcUserMessage *SvcUserMessage) parsePortalFxSurface(reader *bitreader.Rea
 	}
 	svcUserMessage.Data = portalFxSurface
 	_ = getPortalFizzleType(PortalFizzleType(2))
-	writer.TempAppendLine("\t\t\tPortal Entity: %d", portalFxSurface.PortalEnt)
-	writer.TempAppendLine("\t\t\tOwner Entity: %d", portalFxSurface.OwnerEnt)
-	writer.TempAppendLine("\t\t\tTeam: %d", portalFxSurface.Team)
-	writer.TempAppendLine("\t\t\tPortal Number: %d", portalFxSurface.PortalNum)
-	writer.TempAppendLine("\t\t\tEffect: %s", getPortalFizzleType(PortalFizzleType(portalFxSurface.Effect)))
-	writer.TempAppendLine("\t\t\tOrigin: %v", portalFxSurface.Origin)
-	writer.TempAppendLine("\t\t\tAngles: %v", portalFxSurface.Angles)
+	demo.Writer.TempAppendLine("\t\t\tPortal Entity: %d", portalFxSurface.PortalEnt)
+	demo.Writer.TempAppendLine("\t\t\tOwner Entity: %d", portalFxSurface.OwnerEnt)
+	demo.Writer.TempAppendLine("\t\t\tTeam: %d", portalFxSurface.Team)
+	demo.Writer.TempAppendLine("\t\t\tPortal Number: %d", portalFxSurface.PortalNum)
+	demo.Writer.TempAppendLine("\t\t\tEffect: %s", getPortalFizzleType(PortalFizzleType(portalFxSurface.Effect)))
+	demo.Writer.TempAppendLine("\t\t\tOrigin: %v", portalFxSurface.Origin)
+	demo.Writer.TempAppendLine("\t\t\tAngles: %v", portalFxSurface.Angles)
 }
 
-func (svcUserMessage *SvcUserMessage) parsePaintWorld(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parsePaintWorld(reader *bitreader.Reader, demo *types.Demo) {
 	paintWorld := struct {
-		Type      uint8
-		EHandle   uint32
-		UnkHf1    float32
-		UnkHf2    float32
-		Center    []float32
-		Positions [][]float32
+		Type      uint8       `json:"type"`
+		EHandle   uint32      `json:"e_handle"`
+		UnkHf1    float32     `json:"unk_hf_1"`
+		UnkHf2    float32     `json:"unk_hf_2"`
+		Center    []float32   `json:"center"`
+		Positions [][]float32 `json:"positions"`
 	}{
 		Type:    reader.TryReadUInt8(),
 		EHandle: reader.TryReadUInt32(),
@@ -775,37 +792,37 @@ func (svcUserMessage *SvcUserMessage) parsePaintWorld(reader *bitreader.Reader) 
 		paintWorld.Positions[i] = []float32{paintWorld.Center[0] + float32(reader.TryReadSInt16()), paintWorld.Center[1] + float32(reader.TryReadSInt16()), paintWorld.Center[2] + float32(reader.TryReadSInt16())}
 	}
 	svcUserMessage.Data = paintWorld
-	writer.TempAppendLine("\t\t\tType: %d", paintWorld.Type)
-	writer.TempAppendLine("\t\t\tEHandle: %d", paintWorld.EHandle)
-	writer.TempAppendLine("\t\t\tUnkHf1: %f", paintWorld.UnkHf1)
-	writer.TempAppendLine("\t\t\tUnkHf2: %f", paintWorld.UnkHf2)
-	writer.TempAppendLine("\t\t\tCenter: %v", paintWorld.Center)
-	writer.TempAppendLine("\t\t\tPositions: %v", paintWorld.Positions)
+	demo.Writer.TempAppendLine("\t\t\tType: %d", paintWorld.Type)
+	demo.Writer.TempAppendLine("\t\t\tEHandle: %d", paintWorld.EHandle)
+	demo.Writer.TempAppendLine("\t\t\tUnkHf1: %f", paintWorld.UnkHf1)
+	demo.Writer.TempAppendLine("\t\t\tUnkHf2: %f", paintWorld.UnkHf2)
+	demo.Writer.TempAppendLine("\t\t\tCenter: %v", paintWorld.Center)
+	demo.Writer.TempAppendLine("\t\t\tPositions: %v", paintWorld.Positions)
 }
 
-func (svcUserMessage *SvcUserMessage) parseTransitionFade(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseTransitionFade(reader *bitreader.Reader, demo *types.Demo) {
 	transitionFade := struct {
-		Seconds float32
+		Seconds float32 `json:"seconds"`
 	}{
 		Seconds: reader.TryReadFloat32(),
 	}
 	svcUserMessage.Data = transitionFade
-	writer.TempAppendLine("\t\t\tSeconds: %f", transitionFade.Seconds)
+	demo.Writer.TempAppendLine("\t\t\tSeconds: %f", transitionFade.Seconds)
 }
 
-func (svcUserMessage *SvcUserMessage) parseScoreboardTempUpdate(reader *bitreader.Reader) {
+func (svcUserMessage *SvcUserMessage) parseScoreboardTempUpdate(reader *bitreader.Reader, demo *types.Demo) {
 	scoreboardTempUpdate := struct {
-		NumPortals int32
-		TimeTaken  int32
+		NumPortals int32 `json:"num_portals"`
+		TimeTaken  int32 `json:"time_taken"`
 	}{
 		NumPortals: reader.TryReadSInt32(),
 		TimeTaken:  reader.TryReadSInt32(),
 	}
 	svcUserMessage.Data = scoreboardTempUpdate
-	writer.TempAppendLine("\t\t\tPortal Count: %d", scoreboardTempUpdate.NumPortals)
-	writer.TempAppendLine("\t\t\tTime Taken: %.2f", float32(scoreboardTempUpdate.TimeTaken)/100.0)
+	demo.Writer.TempAppendLine("\t\t\tPortal Count: %d", scoreboardTempUpdate.NumPortals)
+	demo.Writer.TempAppendLine("\t\t\tTime Taken: %.2f", float32(scoreboardTempUpdate.TimeTaken)/100.0)
 
-	writer.TempAppendLine("\t\t\tTicks Taken: %d", int(math.Round(float64((float32(scoreboardTempUpdate.TimeTaken)/100.0)/float32(1.0/60.0)))))
+	demo.Writer.TempAppendLine("\t\t\tTicks Taken: %d", int(math.Round(float64((float32(scoreboardTempUpdate.TimeTaken)/100.0)/float32(1.0/60.0)))))
 }
 
 type UserMessageType uint8

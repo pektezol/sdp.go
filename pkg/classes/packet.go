@@ -5,32 +5,32 @@ import (
 
 	"github.com/pektezol/bitreader"
 	"github.com/pektezol/sdp.go/pkg/messages"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 const MSSC int = 2
 
 type Packet struct {
-	PacketInfo  []CmdInfo
-	InSequence  uint32
-	OutSequence uint32
-	Size        uint32
-	Data        []any
+	PacketInfo  []CmdInfo `json:"packet_info"`
+	InSequence  uint32    `json:"in_sequence"`
+	OutSequence uint32    `json:"out_sequence"`
+	Size        uint32    `json:"size"`
+	Data        []any     `json:"data"`
 }
 
 type CmdInfo struct {
-	Flags            uint32
-	ViewOrigin       []float32
-	ViewAngles       []float32
-	LocalViewAngles  []float32
-	ViewOrigin2      []float32
-	ViewAngles2      []float32
-	LocalViewAngles2 []float32
+	Flags            uint32    `json:"flags"`
+	ViewOrigin       []float32 `json:"view_origin"`
+	ViewAngles       []float32 `json:"view_angles"`
+	LocalViewAngles  []float32 `json:"local_view_angles"`
+	ViewOrigin2      []float32 `json:"view_origin_2"`
+	ViewAngles2      []float32 `json:"view_angles_2"`
+	LocalViewAngles2 []float32 `json:"local_view_angles_2"`
 }
 
-func (packet *Packet) ParsePacket(reader *bitreader.Reader) {
+func (packet *Packet) ParsePacket(reader *bitreader.Reader, demo *types.Demo) {
 	for count := 0; count < MSSC; count++ {
-		packet.ParseCmdInfo(reader)
+		packet.ParseCmdInfo(reader, demo)
 	}
 	packet.InSequence = reader.TryReadUInt32()
 	packet.OutSequence = reader.TryReadUInt32()
@@ -41,11 +41,11 @@ func (packet *Packet) ParsePacket(reader *bitreader.Reader) {
 		if err != nil {
 			break
 		}
-		packet.Data = append(packet.Data, messages.ParseMessages(messageType, packetReader))
+		packet.Data = append(packet.Data, messages.ParseMessages(messageType, packetReader, demo))
 	}
 }
 
-func (packet *Packet) ParseCmdInfo(reader *bitreader.Reader) {
+func (packet *Packet) ParseCmdInfo(reader *bitreader.Reader, demo *types.Demo) {
 	packet.PacketInfo = append(packet.PacketInfo, CmdInfo{
 		Flags:            reader.TryReadUInt32(),
 		ViewOrigin:       []float32{reader.TryReadFloat32(), reader.TryReadFloat32(), reader.TryReadFloat32()},
@@ -55,14 +55,14 @@ func (packet *Packet) ParseCmdInfo(reader *bitreader.Reader) {
 		ViewAngles2:      []float32{reader.TryReadFloat32(), reader.TryReadFloat32(), reader.TryReadFloat32()},
 		LocalViewAngles2: []float32{reader.TryReadFloat32(), reader.TryReadFloat32(), reader.TryReadFloat32()},
 	})
-	writer.AppendLine("\tFlags: %s", CmdInfoFlags(packet.PacketInfo[len(packet.PacketInfo)-1].Flags).String())
-	writer.AppendLine("\tView Origin: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewOrigin)
-	writer.AppendLine("\tView Angles: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewAngles)
-	writer.AppendLine("\tLocal View Angles: %v", packet.PacketInfo[len(packet.PacketInfo)-1].LocalViewAngles)
-	writer.AppendLine("\tView Origin 2: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewOrigin2)
-	writer.AppendLine("\tView Angles 2: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewAngles2)
-	writer.AppendLine("\tLocal View Angles 2: %v", packet.PacketInfo[len(packet.PacketInfo)-1].LocalViewAngles2)
-	writer.AppendLine("")
+	demo.Writer.AppendLine("\tFlags: %s", CmdInfoFlags(packet.PacketInfo[len(packet.PacketInfo)-1].Flags).String())
+	demo.Writer.AppendLine("\tView Origin: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewOrigin)
+	demo.Writer.AppendLine("\tView Angles: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewAngles)
+	demo.Writer.AppendLine("\tLocal View Angles: %v", packet.PacketInfo[len(packet.PacketInfo)-1].LocalViewAngles)
+	demo.Writer.AppendLine("\tView Origin 2: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewOrigin2)
+	demo.Writer.AppendLine("\tView Angles 2: %v", packet.PacketInfo[len(packet.PacketInfo)-1].ViewAngles2)
+	demo.Writer.AppendLine("\tLocal View Angles 2: %v", packet.PacketInfo[len(packet.PacketInfo)-1].LocalViewAngles2)
+	demo.Writer.AppendLine("")
 }
 
 type CmdInfoFlags int

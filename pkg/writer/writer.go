@@ -5,43 +5,51 @@ import (
 	"strings"
 )
 
-var output strings.Builder
+type Writer struct {
+	output strings.Builder
+	temp   strings.Builder
+}
 
-var temp strings.Builder
-
-func Append(str string, a ...any) {
-	_, err := output.WriteString(fmt.Sprintf(str, a...))
-	if err != nil {
-		output.WriteString(err.Error())
+func NewWriter() *Writer {
+	return &Writer{
+		output: strings.Builder{},
+		temp:   strings.Builder{},
 	}
 }
 
-func AppendLine(str string, a ...any) {
-	Append(str, a...)
-	output.WriteString("\n")
-}
-
-func GetWriter() strings.Builder {
-	return output
-}
-
-func TempAppend(str string, a ...any) {
-	_, err := temp.WriteString(fmt.Sprintf(str, a...))
+func (w *Writer) Append(str string, a ...any) {
+	_, err := w.output.WriteString(fmt.Sprintf(str, a...))
 	if err != nil {
-		temp.WriteString(err.Error())
+		w.output.WriteString(err.Error())
 	}
 }
 
-func TempAppendLine(str string, a ...any) {
-	TempAppend(str, a...)
-	temp.WriteString("\n")
+func (w *Writer) AppendLine(str string, a ...any) {
+	w.Append(str, a...)
+	w.output.WriteString("\n")
 }
 
-func TempGetString() string {
-	return temp.String()
+func (w *Writer) GetOutputString() string {
+	return w.output.String()
 }
 
-func AppendOutputFromTemp() {
-	output.WriteString(temp.String())
-	temp.Reset()
+func (w *Writer) TempAppend(str string, a ...any) {
+	_, err := w.temp.WriteString(fmt.Sprintf(str, a...))
+	if err != nil {
+		w.temp.WriteString(err.Error())
+	}
+}
+
+func (w *Writer) TempAppendLine(str string, a ...any) {
+	w.TempAppend(str, a...)
+	w.temp.WriteString("\n")
+}
+
+func (w *Writer) TempGetString() string {
+	return w.temp.String()
+}
+
+func (w *Writer) AppendOutputFromTemp() {
+	w.output.WriteString(w.temp.String())
+	w.temp.Reset()
 }

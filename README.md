@@ -1,6 +1,7 @@
 # sdp.go [![Go Report Card](https://goreportcard.com/badge/github.com/pektezol/sdp.go)](https://goreportcard.com/report/github.com/pektezol/sdp.go) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/pektezol/sdp.go/blob/main/LICENSE)
 
-Source Demo Parser for Portal 2 written in Golang.
+Source Demo Parser written in Golang.
+Currently supports Portal 2.
 
 ## Couldn't Do This Without Them
 
@@ -18,9 +19,12 @@ $ ./parser demos/
 ## Currently Supports
 
 - File or folder input using the CLI.
+- API calls over library import.
+- Either pretty text or JSON output.
 - Parsing of demo headers and each (most) message type.
 - Parsing of packet classes.
 - Custom injected SAR data parsing.
+- Multi-threaded parsing over multiple demos.
 
 ## TODO
 

@@ -2,23 +2,23 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type SvcBspDecal struct {
-	Pos               []vectorCoord
-	DecalTextureIndex int16
-	EntityIndex       uint16
-	ModelIndex        uint16
-	LowPriority       bool
+	Pos               []vectorCoord `json:"pos"`
+	DecalTextureIndex int16         `json:"decal_texture_index"`
+	EntityIndex       uint16        `json:"entity_index"`
+	ModelIndex        uint16        `json:"model_index"`
+	LowPriority       bool          `json:"low_priority"`
 }
 
 type vectorCoord struct {
-	Value float32
-	Valid bool
+	Value float32 `json:"value"`
+	Valid bool    `json:"valid"`
 }
 
-func ParseSvcBspDecal(reader *bitreader.Reader) SvcBspDecal {
+func ParseSvcBspDecal(reader *bitreader.Reader, demo *types.Demo) SvcBspDecal {
 	svcBspDecal := SvcBspDecal{
 		Pos:               readVectorCoords(reader),
 		DecalTextureIndex: int16(reader.TryReadBits(9)),
@@ -28,11 +28,11 @@ func ParseSvcBspDecal(reader *bitreader.Reader) SvcBspDecal {
 		svcBspDecal.ModelIndex = uint16(reader.TryReadBits(11))
 	}
 	svcBspDecal.LowPriority = reader.TryReadBool()
-	writer.TempAppendLine("\t\tPosition: %v", svcBspDecal.Pos)
-	writer.TempAppendLine("\t\tDecal Texture Index: %d", svcBspDecal.DecalTextureIndex)
-	writer.TempAppendLine("\t\tEntity Index: %d", svcBspDecal.EntityIndex)
-	writer.TempAppendLine("\t\tModel Index: %d", svcBspDecal.ModelIndex)
-	writer.TempAppendLine("\t\tLow Priority: %t", svcBspDecal.LowPriority)
+	demo.Writer.TempAppendLine("\t\tPosition: %v", svcBspDecal.Pos)
+	demo.Writer.TempAppendLine("\t\tDecal Texture Index: %d", svcBspDecal.DecalTextureIndex)
+	demo.Writer.TempAppendLine("\t\tEntity Index: %d", svcBspDecal.EntityIndex)
+	demo.Writer.TempAppendLine("\t\tModel Index: %d", svcBspDecal.ModelIndex)
+	demo.Writer.TempAppendLine("\t\tLow Priority: %t", svcBspDecal.LowPriority)
 	return svcBspDecal
 }
 

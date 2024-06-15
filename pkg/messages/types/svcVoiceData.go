@@ -2,17 +2,17 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type SvcVoiceData struct {
-	FromClient uint8
-	Proximity  bool
-	Length     int16
-	Data       []byte
+	FromClient uint8  `json:"from_client"`
+	Proximity  bool   `json:"proximity"`
+	Length     int16  `json:"length"`
+	Data       []byte `json:"data"`
 }
 
-func ParseSvcVoiceData(reader *bitreader.Reader) SvcVoiceData {
+func ParseSvcVoiceData(reader *bitreader.Reader, demo *types.Demo) SvcVoiceData {
 	svcVoiceData := SvcVoiceData{
 		FromClient: reader.TryReadUInt8(),
 	}
@@ -21,8 +21,8 @@ func ParseSvcVoiceData(reader *bitreader.Reader) SvcVoiceData {
 		svcVoiceData.Proximity = true
 	}
 	svcVoiceData.Data = reader.TryReadBitsToSlice(uint64(svcVoiceData.Length))
-	writer.TempAppendLine("\t\tFrom Client: %d", svcVoiceData.FromClient)
-	writer.TempAppendLine("\t\tProximity: %t", svcVoiceData.Proximity)
-	writer.TempAppendLine("\t\tData: %v", svcVoiceData.Data)
+	demo.Writer.TempAppendLine("\t\tFrom Client: %d", svcVoiceData.FromClient)
+	demo.Writer.TempAppendLine("\t\tProximity: %t", svcVoiceData.Proximity)
+	demo.Writer.TempAppendLine("\t\tData: %v", svcVoiceData.Data)
 	return svcVoiceData
 }

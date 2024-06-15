@@ -2,17 +2,17 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type SvcSetPause struct {
-	Paused bool
+	Paused bool `json:"paused"`
 }
 
-func ParseSvcSetPause(reader *bitreader.Reader) SvcSetPause {
+func ParseSvcSetPause(reader *bitreader.Reader, demo *types.Demo) SvcSetPause {
 	svcSetPause := SvcSetPause{
 		Paused: reader.TryReadBool(),
 	}
-	writer.TempAppendLine("\t\tPaused: %t", svcSetPause.Paused)
+	demo.Writer.TempAppendLine("\t\tPaused: %t", svcSetPause.Paused)
 	return svcSetPause
 }

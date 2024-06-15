@@ -5,84 +5,84 @@ import (
 
 	"github.com/pektezol/bitreader"
 	messages "github.com/pektezol/sdp.go/pkg/messages/types"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	types "github.com/pektezol/sdp.go/pkg/types"
 )
 
-func ParseMessages(messageType uint64, reader *bitreader.Reader) any {
+func ParseMessages(messageType uint64, reader *bitreader.Reader, demo *types.Demo) any {
 	var messageData any
 	switch messageType {
 	case 0:
-		messageData = messages.ParseNetNop(reader)
+		messageData = messages.ParseNetNop(reader, demo)
 	case 1:
-		messageData = messages.ParseNetDisconnect(reader)
+		messageData = messages.ParseNetDisconnect(reader, demo)
 	case 2:
-		messageData = messages.ParseNetFile(reader)
+		messageData = messages.ParseNetFile(reader, demo)
 	case 3:
-		messageData = messages.ParseNetSplitScreenUser(reader)
+		messageData = messages.ParseNetSplitScreenUser(reader, demo)
 	case 4:
-		messageData = messages.ParseNetTick(reader)
+		messageData = messages.ParseNetTick(reader, demo)
 	case 5:
-		messageData = messages.ParseNetStringCmd(reader)
+		messageData = messages.ParseNetStringCmd(reader, demo)
 	case 6:
-		messageData = messages.ParseNetSetConVar(reader)
+		messageData = messages.ParseNetSetConVar(reader, demo)
 	case 7:
-		messageData = messages.ParseNetSignOnState(reader)
+		messageData = messages.ParseNetSignOnState(reader, demo)
 	case 8:
-		messageData = messages.ParseSvcServerInfo(reader)
+		messageData = messages.ParseSvcServerInfo(reader, demo)
 	case 9:
-		messageData = messages.ParseSvcSendTable(reader)
+		messageData = messages.ParseSvcSendTable(reader, demo)
 	case 10:
-		messageData = messages.ParseSvcClassInfo(reader)
+		messageData = messages.ParseSvcClassInfo(reader, demo)
 	case 11:
-		messageData = messages.ParseSvcSetPause(reader)
+		messageData = messages.ParseSvcSetPause(reader, demo)
 	case 12:
-		messageData = messages.ParseSvcCreateStringTable(reader) // TODO:
+		messageData = messages.ParseSvcCreateStringTable(reader, demo) // TODO:
 	case 13:
-		messageData = messages.ParseSvcUpdateStringTable(reader) // TODO:
+		messageData = messages.ParseSvcUpdateStringTable(reader, demo) // TODO:
 	case 14:
-		messageData = messages.ParseSvcVoiceInit(reader)
+		messageData = messages.ParseSvcVoiceInit(reader, demo)
 	case 15:
-		messageData = messages.ParseSvcVoiceData(reader)
+		messageData = messages.ParseSvcVoiceData(reader, demo)
 	case 16:
-		messageData = messages.ParseSvcPrint(reader)
+		messageData = messages.ParseSvcPrint(reader, demo)
 	case 17:
-		messageData = messages.ParseSvcSounds(reader) // TODO:
+		messageData = messages.ParseSvcSounds(reader, demo) // TODO:
 	case 18:
-		messageData = messages.ParseSvcSetView(reader)
+		messageData = messages.ParseSvcSetView(reader, demo)
 	case 19:
-		messageData = messages.ParseSvcFixAngle(reader)
+		messageData = messages.ParseSvcFixAngle(reader, demo)
 	case 20:
-		messageData = messages.ParseSvcCrosshairAngle(reader)
+		messageData = messages.ParseSvcCrosshairAngle(reader, demo)
 	case 21:
-		messageData = messages.ParseSvcBspDecal(reader) // untested
+		messageData = messages.ParseSvcBspDecal(reader, demo) // untested
 	case 22:
-		messageData = messages.ParseSvcSplitScreen(reader) // skipped
+		messageData = messages.ParseSvcSplitScreen(reader, demo) // skipped
 	case 23:
-		messageData = messages.ParseSvcUserMessage(reader)
+		messageData = messages.ParseSvcUserMessage(reader, demo)
 	case 24:
-		messageData = messages.ParseSvcEntityMessage(reader) // skipped
+		messageData = messages.ParseSvcEntityMessage(reader, demo) // skipped
 	case 25:
-		messageData = messages.ParseSvcGameEvent(reader)
+		messageData = messages.ParseSvcGameEvent(reader, demo)
 	case 26:
-		messageData = messages.ParseSvcPacketEntities(reader) // TODO:
+		messageData = messages.ParseSvcPacketEntities(reader, demo) // TODO:
 	case 27:
-		messageData = messages.ParseSvcTempEntities(reader) // skipped
+		messageData = messages.ParseSvcTempEntities(reader, demo) // skipped
 	case 28:
-		messageData = messages.ParseSvcPrefetch(reader)
+		messageData = messages.ParseSvcPrefetch(reader, demo)
 	case 29:
-		messageData = messages.ParseSvcMenu(reader) // skipped
+		messageData = messages.ParseSvcMenu(reader, demo) // skipped
 	case 30:
-		messageData = messages.ParseSvcGameEventList(reader)
+		messageData = messages.ParseSvcGameEventList(reader, demo)
 	case 31:
-		messageData = messages.ParseSvcGetCvarValue(reader)
+		messageData = messages.ParseSvcGetCvarValue(reader, demo)
 	case 32:
-		messageData = messages.ParseSvcCmdKeyValues(reader)
+		messageData = messages.ParseSvcCmdKeyValues(reader, demo)
 	case 33:
-		messageData = messages.ParseSvcPaintmapData(reader) // skipped
+		messageData = messages.ParseSvcPaintmapData(reader, demo) // skipped
 	default:
 		return nil
 	}
-	writer.AppendLine("\tMessage: %s (%d):", reflect.ValueOf(messageData).Type(), messageType)
-	writer.AppendOutputFromTemp()
+	demo.Writer.AppendLine("\tMessage: %s (%d):", reflect.ValueOf(messageData).Type(), messageType)
+	demo.Writer.AppendOutputFromTemp()
 	return messageData
 }
