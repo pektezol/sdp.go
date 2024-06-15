@@ -1,4 +1,4 @@
-# sdp.go [![Go Report Card](https://goreportcard.com/badge/github.com/pektezol/sdp.go)](https://goreportcard.com/report/github.com/pektezol/sdp.go) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/pektezol/sdp.go/blob/main/LICENSE)
+# sdp.go [![Go Reference](https://pkg.go.dev/badge/github.com/pektezol/sdp.go.svg)](https://pkg.go.dev/github.com/pektezol/sdp.go) [![Go Report Card](https://goreportcard.com/badge/github.com/pektezol/sdp.go)](https://goreportcard.com/report/github.com/pektezol/sdp.go) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/pektezol/sdp.go/blob/main/LICENSE)
 
 Source Demo Parser written in Golang.
 Currently supports Portal 2.
