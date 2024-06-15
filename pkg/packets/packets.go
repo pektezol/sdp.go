@@ -3,100 +3,55 @@ package packets
 import (
 	"github.com/pektezol/bitreader"
 	"github.com/pektezol/sdp.go/pkg/classes"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
-type MessageType uint8
-
-const (
-	SignOn MessageType = iota + 1
-	Packet
-	SyncTick
-	ConsoleCmd
-	UserCmd
-	DataTables
-	Stop
-	CustomData
-	StringTables
-)
-
-type Message struct {
-	PacketType MessageType
-	TickNumber int32
-	SlotNumber uint8
-	Data       any
-}
-
-func ParseMessage(reader *bitreader.Reader) Message {
-	message := Message{
-		PacketType: MessageType(reader.TryReadUInt8()),
+func ParseMessage(reader *bitreader.Reader, demo *types.Demo) types.Message {
+	message := types.Message{
+		PacketType: types.MessageType(reader.TryReadUInt8()),
 		TickNumber: reader.TryReadSInt32(),
 		SlotNumber: reader.TryReadUInt8(),
 	}
-	writer.AppendLine("[%d] %s (%d):", message.TickNumber, message.PacketType.String(), message.PacketType)
+	demo.Writer.AppendLine("[%d] %s (%d):", message.TickNumber, message.PacketType.String(), message.PacketType)
 	switch message.PacketType {
-	case SignOn:
+	case types.SignOn:
 		signOn := classes.SignOn{}
-		signOn.ParseSignOn(reader)
+		signOn.ParseSignOn(reader, demo)
 		message.Data = signOn
-	case Packet:
+	case types.Packet:
 		packet := classes.Packet{}
-		packet.ParsePacket(reader)
+		packet.ParsePacket(reader, demo)
 		message.Data = packet
-	case SyncTick:
+	case types.SyncTick:
 		syncTick := classes.SyncTick{}
 		syncTick.ParseSyncTick()
 		message.Data = syncTick
-	case ConsoleCmd:
+	case types.ConsoleCmd:
 		consoleCmd := classes.ConsoleCmd{}
-		consoleCmd.ParseConsoleCmd(reader)
+		consoleCmd.ParseConsoleCmd(reader, demo)
 		message.Data = consoleCmd
-	case UserCmd:
+	case types.UserCmd:
 		userCmd := classes.UserCmd{}
-		userCmd.ParseUserCmd(reader)
+		userCmd.ParseUserCmd(reader, demo)
 		message.Data = userCmd
-	case DataTables:
+	case types.DataTables:
 		dataTables := classes.DataTables{}
-		dataTables.ParseDataTables(reader)
+		dataTables.ParseDataTables(reader, demo)
 		message.Data = dataTables
-	case Stop:
+	case types.Stop:
 		stop := classes.Stop{}
-		stop.ParseStop(reader)
+		stop.ParseStop(reader, demo)
 		message.Data = stop
-	case CustomData: // TODO: not sar data
+	case types.CustomData: // TODO: not sar data
 		customData := classes.CustomData{}
-		customData.ParseCustomData(reader, message.TickNumber, uint8(message.PacketType))
+		customData.ParseCustomData(reader, message.TickNumber, uint8(message.PacketType), demo)
 		message.Data = customData
-	case StringTables: // TODO: parsing string table data
+	case types.StringTables: // TODO: parsing string table data
 		stringTables := classes.StringTables{}
-		stringTables.ParseStringTables(reader)
+		stringTables.ParseStringTables(reader, demo)
 		message.Data = stringTables
 	default:
 		panic("invalid packet type")
 	}
 	return message
-}
-
-func (t MessageType) String() string {
-	switch t {
-	case SignOn:
-		return "SIGNON"
-	case Packet:
-		return "PACKET"
-	case SyncTick:
-		return "SYNCTICK"
-	case ConsoleCmd:
-		return "CONSOLECMD"
-	case UserCmd:
-		return "USERCMD"
-	case DataTables:
-		return "DATATABLES"
-	case Stop:
-		return "STOP"
-	case CustomData:
-		return "CUSTOMDATA"
-	case StringTables:
-		return "STRINGTABLES"
-	}
-	return "INVALID"
 }

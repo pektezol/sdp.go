@@ -2,17 +2,17 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type SvcSetView struct {
-	EntityIndex uint16
+	EntityIndex uint16 `json:"entity_index"`
 }
 
-func ParseSvcSetView(reader *bitreader.Reader) SvcSetView {
+func ParseSvcSetView(reader *bitreader.Reader, demo *types.Demo) SvcSetView {
 	svcSetView := SvcSetView{
 		EntityIndex: uint16(reader.TryReadBits(11)),
 	}
-	writer.TempAppendLine("\t\tEntity Index: %d", svcSetView.EntityIndex)
+	demo.Writer.TempAppendLine("\t\tEntity Index: %d", svcSetView.EntityIndex)
 	return svcSetView
 }

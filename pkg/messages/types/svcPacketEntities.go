@@ -2,21 +2,21 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type SvcPacketEntities struct {
-	MaxEntries      uint16
-	IsDelta         bool
-	DeltaFrom       int32
-	BaseLine        bool
-	UpdatedEntries  uint16
-	Length          uint32
-	UpdatedBaseline bool
-	Data            []byte
+	MaxEntries      uint16 `json:"max_entries"`
+	IsDelta         bool   `json:"is_delta"`
+	DeltaFrom       int32  `json:"delta_from"`
+	BaseLine        bool   `json:"base_line"`
+	UpdatedEntries  uint16 `json:"updated_entries"`
+	Length          uint32 `json:"length"`
+	UpdatedBaseline bool   `json:"updated_baseline"`
+	Data            []byte `json:"data"`
 }
 
-func ParseSvcPacketEntities(reader *bitreader.Reader) SvcPacketEntities {
+func ParseSvcPacketEntities(reader *bitreader.Reader, demo *types.Demo) SvcPacketEntities {
 	svcPacketEntities := SvcPacketEntities{
 		MaxEntries: uint16(reader.TryReadBits(11)),
 		IsDelta:    reader.TryReadBool(),
@@ -31,12 +31,12 @@ func ParseSvcPacketEntities(reader *bitreader.Reader) SvcPacketEntities {
 	svcPacketEntities.Length = uint32(reader.TryReadBits(20))
 	svcPacketEntities.UpdatedBaseline = reader.TryReadBool()
 	svcPacketEntities.Data = reader.TryReadBitsToSlice(uint64(svcPacketEntities.Length))
-	writer.TempAppendLine("\t\tMax Entries: %d", svcPacketEntities.MaxEntries)
-	writer.TempAppendLine("\t\tIs Delta: %t", svcPacketEntities.IsDelta)
-	writer.TempAppendLine("\t\tDelta From: %d", svcPacketEntities.DeltaFrom)
-	writer.TempAppendLine("\t\tBaseline: %t", svcPacketEntities.BaseLine)
-	writer.TempAppendLine("\t\tUpdated Baseline: %t", svcPacketEntities.UpdatedBaseline)
-	writer.TempAppendLine("\t\t%d Updated Entries:", svcPacketEntities.UpdatedEntries)
-	writer.TempAppendLine("\t\tData: %v", svcPacketEntities.Data)
+	demo.Writer.TempAppendLine("\t\tMax Entries: %d", svcPacketEntities.MaxEntries)
+	demo.Writer.TempAppendLine("\t\tIs Delta: %t", svcPacketEntities.IsDelta)
+	demo.Writer.TempAppendLine("\t\tDelta From: %d", svcPacketEntities.DeltaFrom)
+	demo.Writer.TempAppendLine("\t\tBaseline: %t", svcPacketEntities.BaseLine)
+	demo.Writer.TempAppendLine("\t\tUpdated Baseline: %t", svcPacketEntities.UpdatedBaseline)
+	demo.Writer.TempAppendLine("\t\t%d Updated Entries:", svcPacketEntities.UpdatedEntries)
+	demo.Writer.TempAppendLine("\t\tData: %v", svcPacketEntities.Data)
 	return svcPacketEntities
 }

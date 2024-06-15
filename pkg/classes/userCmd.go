@@ -2,40 +2,40 @@ package classes
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type UserCmd struct {
-	Cmd  uint32
-	Size uint32
-	Data UserCmdInfo
+	Cmd  uint32      `json:"cmd"`
+	Size uint32      `json:"size"`
+	Data UserCmdInfo `json:"data"`
 }
 
 type UserCmdInfo struct {
-	CommandNumber uint32
-	TickCount     uint32
-	ViewAnglesX   float32
-	ViewAnglesY   float32
-	ViewAnglesZ   float32
-	ForwardMove   float32
-	SideMove      float32
-	UpMove        float32
-	Buttons       uint32
-	Impulse       uint8
-	WeaponSelect  uint16
-	WeaponSubType uint8
-	MouseDx       uint16
-	MouseDy       uint16
+	CommandNumber uint32  `json:"command_number"`
+	TickCount     uint32  `json:"tick_count"`
+	ViewAnglesX   float32 `json:"view_angles_x"`
+	ViewAnglesY   float32 `json:"view_angles_y"`
+	ViewAnglesZ   float32 `json:"view_angles_z"`
+	ForwardMove   float32 `json:"forward_move"`
+	SideMove      float32 `json:"side_move"`
+	UpMove        float32 `json:"up_move"`
+	Buttons       uint32  `json:"buttons"`
+	Impulse       uint8   `json:"impulse"`
+	WeaponSelect  uint16  `json:"weapon_select"`
+	WeaponSubType uint8   `json:"weapon_sub_type"`
+	MouseDx       uint16  `json:"mouse_dx"`
+	MouseDy       uint16  `json:"mouse_dy"`
 }
 
-func (userCmd *UserCmd) ParseUserCmd(reader *bitreader.Reader) {
+func (userCmd *UserCmd) ParseUserCmd(reader *bitreader.Reader, demo *types.Demo) {
 	userCmd.Cmd = reader.TryReadUInt32()
 	userCmd.Size = reader.TryReadUInt32()
 	userCmdReader := bitreader.NewReaderFromBytes(reader.TryReadBytesToSlice(uint64(userCmd.Size)), true)
-	userCmd.ParseUserCmdInfo(userCmdReader)
+	userCmd.ParseUserCmdInfo(userCmdReader, demo)
 }
 
-func (userCmd *UserCmd) ParseUserCmdInfo(reader *bitreader.Reader) {
+func (userCmd *UserCmd) ParseUserCmdInfo(reader *bitreader.Reader, demo *types.Demo) {
 	if reader.TryReadBool() {
 		userCmd.Data.CommandNumber = reader.TryReadUInt32()
 	}
@@ -78,14 +78,14 @@ func (userCmd *UserCmd) ParseUserCmdInfo(reader *bitreader.Reader) {
 	if reader.TryReadBool() {
 		userCmd.Data.MouseDy = reader.TryReadUInt16()
 	}
-	writer.AppendLine("\tCommand Number: %v", userCmd.Data.CommandNumber)
-	writer.AppendLine("\tTick Count: %v", userCmd.Data.TickCount)
-	writer.AppendLine("\tView Angles: %v", []float32{userCmd.Data.ViewAnglesX, userCmd.Data.ViewAnglesY, userCmd.Data.ViewAnglesZ})
-	writer.AppendLine("\tMovement: %v", []float32{userCmd.Data.ForwardMove, userCmd.Data.SideMove, userCmd.Data.UpMove})
-	writer.AppendLine("\tButtons: %v", Buttons(userCmd.Data.Buttons).GetButtons())
-	writer.AppendLine("\tImpulse: %v", userCmd.Data.Impulse)
-	writer.AppendLine("\tWeapon, Subtype: %v, %v", userCmd.Data.WeaponSelect, userCmd.Data.WeaponSubType)
-	writer.AppendLine("\tMouse Dx, Mouse Dy: %v, %v", userCmd.Data.MouseDx, userCmd.Data.MouseDy)
+	demo.Writer.AppendLine("\tCommand Number: %v", userCmd.Data.CommandNumber)
+	demo.Writer.AppendLine("\tTick Count: %v", userCmd.Data.TickCount)
+	demo.Writer.AppendLine("\tView Angles: %v", []float32{userCmd.Data.ViewAnglesX, userCmd.Data.ViewAnglesY, userCmd.Data.ViewAnglesZ})
+	demo.Writer.AppendLine("\tMovement: %v", []float32{userCmd.Data.ForwardMove, userCmd.Data.SideMove, userCmd.Data.UpMove})
+	demo.Writer.AppendLine("\tButtons: %v", Buttons(userCmd.Data.Buttons).GetButtons())
+	demo.Writer.AppendLine("\tImpulse: %v", userCmd.Data.Impulse)
+	demo.Writer.AppendLine("\tWeapon, Subtype: %v, %v", userCmd.Data.WeaponSelect, userCmd.Data.WeaponSubType)
+	demo.Writer.AppendLine("\tMouse Dx, Mouse Dy: %v, %v", userCmd.Data.MouseDx, userCmd.Data.MouseDy)
 }
 
 func (button Buttons) GetButtons() []string {

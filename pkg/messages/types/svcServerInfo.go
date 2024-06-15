@@ -2,29 +2,29 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type SvcServerInfo struct {
-	Protocol         uint16
-	ServerCount      uint32
-	IsHltv           bool
-	IsDedicated      bool
-	ClientCrc        int32
-	StringTableCrc   uint32
-	MaxServerClasses uint16
-	MapCrc           uint32
-	PlayerCount      uint8
-	MaxClients       uint8
-	TickInterval     float32
-	Platform         string
-	GameDir          string
-	MapName          string
-	SkyName          string
-	HostName         string
+	Protocol         uint16  `json:"protocol"`
+	ServerCount      uint32  `json:"server_count"`
+	IsHltv           bool    `json:"is_hltv"`
+	IsDedicated      bool    `json:"is_dedicated"`
+	ClientCrc        int32   `json:"client_crc"`
+	StringTableCrc   uint32  `json:"string_table_crc"`
+	MaxServerClasses uint16  `json:"max_server_classes"`
+	MapCrc           uint32  `json:"map_crc"`
+	PlayerCount      uint8   `json:"player_count"`
+	MaxClients       uint8   `json:"max_clients"`
+	TickInterval     float32 `json:"tick_interval"`
+	Platform         string  `json:"platform"`
+	GameDir          string  `json:"game_dir"`
+	MapName          string  `json:"map_name"`
+	SkyName          string  `json:"sky_name"`
+	HostName         string  `json:"host_name"`
 }
 
-func ParseSvcServerInfo(reader *bitreader.Reader) SvcServerInfo {
+func ParseSvcServerInfo(reader *bitreader.Reader, demo *types.Demo) SvcServerInfo {
 	svcServerInfo := SvcServerInfo{
 		Protocol:         reader.TryReadUInt16(),
 		ServerCount:      reader.TryReadUInt32(),
@@ -43,21 +43,21 @@ func ParseSvcServerInfo(reader *bitreader.Reader) SvcServerInfo {
 		SkyName:          reader.TryReadString(),
 		HostName:         reader.TryReadString(),
 	}
-	writer.TempAppendLine("\t\tNetwork Protocol: %d", svcServerInfo.Protocol)
-	writer.TempAppendLine("\t\tServer Count: %d", svcServerInfo.ServerCount)
-	writer.TempAppendLine("\t\tIs Hltv: %t", svcServerInfo.IsHltv)
-	writer.TempAppendLine("\t\tIs Dedicated: %t", svcServerInfo.IsDedicated)
-	writer.TempAppendLine("\t\tServer Client CRC: %d", svcServerInfo.ClientCrc)
-	writer.TempAppendLine("\t\tString Table CRC: %d", svcServerInfo.StringTableCrc)
-	writer.TempAppendLine("\t\tMax Server Classes: %d", svcServerInfo.MaxServerClasses)
-	writer.TempAppendLine("\t\tServer Map CRC: %d", svcServerInfo.MapCrc)
-	writer.TempAppendLine("\t\tCurrent Player Count: %d", svcServerInfo.PlayerCount)
-	writer.TempAppendLine("\t\tMax Player Count: %d", svcServerInfo.MaxClients)
-	writer.TempAppendLine("\t\tInterval Per Tick: %f", svcServerInfo.TickInterval)
-	writer.TempAppendLine("\t\tPlatform: %s", svcServerInfo.Platform)
-	writer.TempAppendLine("\t\tGame Directory: %s", svcServerInfo.GameDir)
-	writer.TempAppendLine("\t\tMap Name: %s", svcServerInfo.MapName)
-	writer.TempAppendLine("\t\tSky Name: %s", svcServerInfo.SkyName)
-	writer.TempAppendLine("\t\tHost Name: %s", svcServerInfo.HostName)
+	demo.Writer.TempAppendLine("\t\tNetwork Protocol: %d", svcServerInfo.Protocol)
+	demo.Writer.TempAppendLine("\t\tServer Count: %d", svcServerInfo.ServerCount)
+	demo.Writer.TempAppendLine("\t\tIs Hltv: %t", svcServerInfo.IsHltv)
+	demo.Writer.TempAppendLine("\t\tIs Dedicated: %t", svcServerInfo.IsDedicated)
+	demo.Writer.TempAppendLine("\t\tServer Client CRC: %d", svcServerInfo.ClientCrc)
+	demo.Writer.TempAppendLine("\t\tString Table CRC: %d", svcServerInfo.StringTableCrc)
+	demo.Writer.TempAppendLine("\t\tMax Server Classes: %d", svcServerInfo.MaxServerClasses)
+	demo.Writer.TempAppendLine("\t\tServer Map CRC: %d", svcServerInfo.MapCrc)
+	demo.Writer.TempAppendLine("\t\tCurrent Player Count: %d", svcServerInfo.PlayerCount)
+	demo.Writer.TempAppendLine("\t\tMax Player Count: %d", svcServerInfo.MaxClients)
+	demo.Writer.TempAppendLine("\t\tInterval Per Tick: %f", svcServerInfo.TickInterval)
+	demo.Writer.TempAppendLine("\t\tPlatform: %s", svcServerInfo.Platform)
+	demo.Writer.TempAppendLine("\t\tGame Directory: %s", svcServerInfo.GameDir)
+	demo.Writer.TempAppendLine("\t\tMap Name: %s", svcServerInfo.MapName)
+	demo.Writer.TempAppendLine("\t\tSky Name: %s", svcServerInfo.SkyName)
+	demo.Writer.TempAppendLine("\t\tHost Name: %s", svcServerInfo.HostName)
 	return svcServerInfo
 }

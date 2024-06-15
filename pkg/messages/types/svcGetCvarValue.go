@@ -2,20 +2,20 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type SvcGetCvarValue struct {
-	Cookie   int32
-	CvarName string
+	Cookie   int32  `json:"cookie"`
+	CvarName string `json:"cvar_name"`
 }
 
-func ParseSvcGetCvarValue(reader *bitreader.Reader) SvcGetCvarValue {
+func ParseSvcGetCvarValue(reader *bitreader.Reader, demo *types.Demo) SvcGetCvarValue {
 	svcGetCvarValue := SvcGetCvarValue{
 		Cookie:   reader.TryReadSInt32(),
 		CvarName: reader.TryReadString(),
 	}
-	writer.TempAppendLine("\t\tCookie: %d", svcGetCvarValue.Cookie)
-	writer.TempAppendLine("\t\tCvar: \"%s\"", svcGetCvarValue.CvarName)
+	demo.Writer.TempAppendLine("\t\tCookie: %d", svcGetCvarValue.Cookie)
+	demo.Writer.TempAppendLine("\t\tCvar: \"%s\"", svcGetCvarValue.CvarName)
 	return svcGetCvarValue
 }

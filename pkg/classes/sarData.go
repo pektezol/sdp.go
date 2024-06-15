@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type SarDataType uint8
@@ -69,89 +69,89 @@ func (sarDataType SarDataType) String() string {
 }
 
 type SarData struct {
-	Type SarDataType
-	Slot int
-	Data any
+	Type SarDataType `json:"type"`
+	Slot int         `json:"slot"`
+	Data any         `json:"data"`
 }
 
 type SarDataTimescaleCheat struct {
-	Timescale float32
+	Timescale float32 `json:"timescale"`
 }
 
 type SarDataInitialCVar struct {
-	CVar string
-	Val  string
+	CVar string `json:"cvar"`
+	Val  string `json:"val"`
 }
 
 type SarDataChecksum struct {
-	DemoSum uint32
-	SarSum  uint32
+	DemoSum uint32 `json:"demo_sum"`
+	SarSum  uint32 `json:"sar_sum"`
 }
 
 type SarDataChecksumV2 struct {
-	SarSum    uint32
-	Signature [64]byte
+	SarSum    uint32   `json:"sar_sum"`
+	Signature [64]byte `json:"signature"`
 }
 
 type SarDataEntityInput struct {
-	TargetName string
-	ClassName  string
-	InputName  string
-	Parameter  string
+	TargetName string `json:"target_name"`
+	ClassName  string `json:"class_name"`
+	InputName  string `json:"input_name"`
+	Parameter  string `json:"parameter"`
 }
 
 type SarDataPortalPlacement struct {
-	Orange bool
-	X      float32
-	Y      float32
-	Z      float32
+	Orange bool    `json:"orange"`
+	X      float32 `json:"x"`
+	Y      float32 `json:"y"`
+	Z      float32 `json:"z"`
 }
 
 type SarDataPause struct {
-	PauseTicks uint32
+	PauseTicks uint32 `json:"pause_ticks"`
 }
 
 type SarDataWaitRun struct {
-	Ticks int
-	Cmd   string
+	Ticks int    `json:"ticks"`
+	Cmd   string `json:"cmd"`
 }
 
 type SarDataHWaitRun struct {
-	Ticks int
-	Cmd   string
+	Ticks int    `json:"ticks"`
+	Cmd   string `json:"cmd"`
 }
 
 type SarDataSpeedrunTime struct {
-	NSplits uint32
-	Splits  []SarDataSpeedrunTimeSplits
+	NSplits uint32                      `json:"n_splits"`
+	Splits  []SarDataSpeedrunTimeSplits `json:"splits"`
 }
 
 type SarDataSpeedrunTimeSegs struct {
-	Name  string
-	Ticks uint32
+	Name  string `json:"name"`
+	Ticks uint32 `json:"ticks"`
 }
 
 type SarDataSpeedrunTimeSplits struct {
-	Name  string
-	NSegs uint32
-	Segs  []SarDataSpeedrunTimeSegs
+	Name  string                    `json:"name"`
+	NSegs uint32                    `json:"n_segs"`
+	Segs  []SarDataSpeedrunTimeSegs `json:"segs"`
 }
 
 type SarDataTimestamp struct {
-	Year   uint16
-	Month  uint8
-	Day    uint8
-	Hour   uint8
-	Minute uint8
-	Second uint8
+	Year   uint16 `json:"year"`
+	Month  uint8  `json:"month"`
+	Day    uint8  `json:"day"`
+	Hour   uint8  `json:"hour"`
+	Minute uint8  `json:"minute"`
+	Second uint8  `json:"second"`
 }
 
 type SarDataFileChecksum struct {
-	Sum  uint32
-	Path string
+	Sum  uint32 `json:"sum"`
+	Path string `json:"path"`
 }
 
-func (sarData *SarData) ParseSarData(reader *bitreader.Reader) (err error) {
+func (sarData *SarData) ParseSarData(reader *bitreader.Reader, demo *types.Demo) (err error) {
 	reader.SkipBytes(8)
 	len := reader.TryReadRemainingBits() / 8
 	if len == 0 {
@@ -164,32 +164,32 @@ func (sarData *SarData) ParseSarData(reader *bitreader.Reader) (err error) {
 		len = 9
 	}
 	dataReader := bitreader.NewReaderFromBytes(reader.TryReadBytesToSlice(len-1), true)
-	writer.AppendLine("\tMessage: %s (%d):", sarData.Type.String(), sarData.Type)
+	demo.Writer.AppendLine("\tMessage: %s (%d):", sarData.Type.String(), sarData.Type)
 	switch sarData.Type {
 	case ESarDataTimescaleCheat:
-		sarData.Data, err = parseTimescaleCheatData(dataReader, len)
+		sarData.Data, err = parseTimescaleCheatData(dataReader, len, demo)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataInitialCVar:
-		sarData.Data = parseInitialCVarData(dataReader)
+		sarData.Data = parseInitialCVarData(dataReader, demo)
 	case ESarDataEntityInputSlot:
 		sarData.Slot = int(dataReader.TryReadBytes(1))
-		writer.AppendLine("\t\tSlot: %d", sarData.Slot)
+		demo.Writer.AppendLine("\t\tSlot: %d", sarData.Slot)
 	case ESarDataEntityInput:
-		sarData.Data = parseEntityInputData(dataReader)
+		sarData.Data = parseEntityInputData(dataReader, demo)
 	case ESarDataChecksum:
-		sarData.Data, err = parseChecksumData(dataReader, len)
+		sarData.Data, err = parseChecksumData(dataReader, len, demo)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataChecksumV2:
-		sarData.Data, err = parseChecksumV2Data(dataReader, len)
+		sarData.Data, err = parseChecksumV2Data(dataReader, len, demo)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataPortalPlacement:
-		data, slot, err := parsePortalPlacementData(dataReader, len)
+		data, slot, err := parsePortalPlacementData(dataReader, len, demo)
 		if err != nil {
 			sarData.Data = nil
 		} else {
@@ -201,34 +201,34 @@ func (sarData *SarData) ParseSarData(reader *bitreader.Reader) (err error) {
 		if err != nil {
 			sarData.Data = nil
 		}
-		writer.AppendLine("\t\tSlot: %d", sarData.Slot)
+		demo.Writer.AppendLine("\t\tSlot: %d", sarData.Slot)
 	case ESarDataPause:
-		sarData.Data, err = parsePauseData(dataReader, len)
+		sarData.Data, err = parsePauseData(dataReader, len, demo)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataWaitRun:
-		sarData.Data, err = parseWaitRunData(dataReader, len)
+		sarData.Data, err = parseWaitRunData(dataReader, len, demo)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataHWaitRun:
-		sarData.Data, err = parseHWaitRunData(dataReader, len)
+		sarData.Data, err = parseHWaitRunData(dataReader, len, demo)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataSpeedrunTime:
-		sarData.Data, err = parseSpeedrunTimeData(dataReader, len)
+		sarData.Data, err = parseSpeedrunTimeData(dataReader, len, demo)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataTimestamp:
-		sarData.Data, err = parseTimestampData(dataReader, len)
+		sarData.Data, err = parseTimestampData(dataReader, len, demo)
 		if err != nil {
 			sarData.Data = nil
 		}
 	case ESarDataFileChecksum:
-		sarData.Data, err = parseFileChecksumData(dataReader, len)
+		sarData.Data, err = parseFileChecksumData(dataReader, len, demo)
 		if err != nil {
 			sarData.Data = nil
 		}
@@ -239,41 +239,41 @@ func (sarData *SarData) ParseSarData(reader *bitreader.Reader) (err error) {
 	return nil
 }
 
-func parseTimescaleCheatData(reader *bitreader.Reader, length uint64) (SarDataTimescaleCheat, error) {
+func parseTimescaleCheatData(reader *bitreader.Reader, length uint64, demo *types.Demo) (SarDataTimescaleCheat, error) {
 	if length != 5 {
 		return SarDataTimescaleCheat{}, errors.New("sar data invalid")
 	}
 	sarDataTimescaleCheat := SarDataTimescaleCheat{
 		Timescale: reader.TryReadFloat32(),
 	}
-	writer.AppendLine("\t\tTimescale: %f", sarDataTimescaleCheat.Timescale)
+	demo.Writer.AppendLine("\t\tTimescale: %f", sarDataTimescaleCheat.Timescale)
 	return sarDataTimescaleCheat, nil
 }
 
-func parseInitialCVarData(reader *bitreader.Reader) SarDataInitialCVar {
+func parseInitialCVarData(reader *bitreader.Reader, demo *types.Demo) SarDataInitialCVar {
 	sarDataInitialCvar := SarDataInitialCVar{
 		CVar: reader.TryReadString(),
 		Val:  reader.TryReadString(),
 	}
-	writer.AppendLine("\t\tCvar: \"%s\" = \"%s\"", sarDataInitialCvar.CVar, sarDataInitialCvar.Val)
+	demo.Writer.AppendLine("\t\tCvar: \"%s\" = \"%s\"", sarDataInitialCvar.CVar, sarDataInitialCvar.Val)
 	return sarDataInitialCvar
 }
 
-func parseEntityInputData(reader *bitreader.Reader) SarDataEntityInput {
+func parseEntityInputData(reader *bitreader.Reader, demo *types.Demo) SarDataEntityInput {
 	sarDataEntityInput := SarDataEntityInput{
 		TargetName: reader.TryReadString(),
 		ClassName:  reader.TryReadString(),
 		InputName:  reader.TryReadString(),
 		Parameter:  reader.TryReadString(),
 	}
-	writer.AppendLine("\t\tTarget: %s", sarDataEntityInput.TargetName)
-	writer.AppendLine("\t\tClass: %s", sarDataEntityInput.ClassName)
-	writer.AppendLine("\t\tInput: %s", sarDataEntityInput.InputName)
-	writer.AppendLine("\t\tParameter: %s", sarDataEntityInput.Parameter)
+	demo.Writer.AppendLine("\t\tTarget: %s", sarDataEntityInput.TargetName)
+	demo.Writer.AppendLine("\t\tClass: %s", sarDataEntityInput.ClassName)
+	demo.Writer.AppendLine("\t\tInput: %s", sarDataEntityInput.InputName)
+	demo.Writer.AppendLine("\t\tParameter: %s", sarDataEntityInput.Parameter)
 	return sarDataEntityInput
 }
 
-func parseChecksumData(reader *bitreader.Reader, length uint64) (SarDataChecksum, error) {
+func parseChecksumData(reader *bitreader.Reader, length uint64, demo *types.Demo) (SarDataChecksum, error) {
 	if length != 9 {
 		return SarDataChecksum{}, errors.New("sar data invalid")
 	}
@@ -281,12 +281,12 @@ func parseChecksumData(reader *bitreader.Reader, length uint64) (SarDataChecksum
 		DemoSum: reader.TryReadUInt32(),
 		SarSum:  reader.TryReadUInt32(),
 	}
-	writer.AppendLine("\t\tDemo Checksum: %d", sarDataChecksum.DemoSum)
-	writer.AppendLine("\t\tSAR Checksum: %d", sarDataChecksum.SarSum)
+	demo.Writer.AppendLine("\t\tDemo Checksum: %d", sarDataChecksum.DemoSum)
+	demo.Writer.AppendLine("\t\tSAR Checksum: %d", sarDataChecksum.SarSum)
 	return sarDataChecksum, nil
 }
 
-func parseChecksumV2Data(reader *bitreader.Reader, length uint64) (SarDataChecksumV2, error) {
+func parseChecksumV2Data(reader *bitreader.Reader, length uint64, demo *types.Demo) (SarDataChecksumV2, error) {
 	if length != 69 {
 		return SarDataChecksumV2{}, errors.New("sar data invalid")
 	}
@@ -294,12 +294,12 @@ func parseChecksumV2Data(reader *bitreader.Reader, length uint64) (SarDataChecks
 		SarSum:    reader.TryReadUInt32(),
 		Signature: [64]byte(reader.TryReadBytesToSlice(60)),
 	}
-	writer.AppendLine("\t\tSAR Checksum: %d", sarDataChecksumV2.SarSum)
-	writer.AppendLine("\t\tSignature: %v", sarDataChecksumV2.Signature)
+	demo.Writer.AppendLine("\t\tSAR Checksum: %d", sarDataChecksumV2.SarSum)
+	demo.Writer.AppendLine("\t\tSignature: %v", sarDataChecksumV2.Signature)
 	return sarDataChecksumV2, nil
 }
 
-func parsePortalPlacementData(reader *bitreader.Reader, length uint64) (SarDataPortalPlacement, int, error) {
+func parsePortalPlacementData(reader *bitreader.Reader, length uint64, demo *types.Demo) (SarDataPortalPlacement, int, error) {
 	if length != 15 {
 		return SarDataPortalPlacement{}, 0, errors.New("sar data invalid")
 	}
@@ -312,10 +312,10 @@ func parsePortalPlacementData(reader *bitreader.Reader, length uint64) (SarDataP
 		Y:      reader.TryReadFloat32(),
 		Z:      reader.TryReadFloat32(),
 	}
-	writer.AppendLine("\t\tOrange: %t", orange)
-	writer.AppendLine("\t\tX: %f", sarDataPortalPlacement.X)
-	writer.AppendLine("\t\tY: %f", sarDataPortalPlacement.Y)
-	writer.AppendLine("\t\tZ: %f", sarDataPortalPlacement.Z)
+	demo.Writer.AppendLine("\t\tOrange: %t", orange)
+	demo.Writer.AppendLine("\t\tX: %f", sarDataPortalPlacement.X)
+	demo.Writer.AppendLine("\t\tY: %f", sarDataPortalPlacement.Y)
+	demo.Writer.AppendLine("\t\tZ: %f", sarDataPortalPlacement.Z)
 	return sarDataPortalPlacement, slot, nil
 }
 
@@ -326,18 +326,18 @@ func parseChallengeFlagsCrouchFlyData(reader *bitreader.Reader, length uint64) (
 	return int(reader.TryReadBytes(1)), nil
 }
 
-func parsePauseData(reader *bitreader.Reader, length uint64) (SarDataPause, error) {
+func parsePauseData(reader *bitreader.Reader, length uint64, demo *types.Demo) (SarDataPause, error) {
 	if length != 5 {
 		return SarDataPause{}, errors.New("sar data invalid")
 	}
 	sarDataPause := SarDataPause{
 		PauseTicks: reader.TryReadUInt32(),
 	}
-	writer.AppendLine("\t\tPause Ticks: %d", sarDataPause.PauseTicks)
+	demo.Writer.AppendLine("\t\tPause Ticks: %d", sarDataPause.PauseTicks)
 	return sarDataPause, nil
 }
 
-func parseWaitRunData(reader *bitreader.Reader, length uint64) (SarDataWaitRun, error) {
+func parseWaitRunData(reader *bitreader.Reader, length uint64, demo *types.Demo) (SarDataWaitRun, error) {
 	if length < 6 {
 		return SarDataWaitRun{}, errors.New("sar data invalid")
 	}
@@ -345,12 +345,12 @@ func parseWaitRunData(reader *bitreader.Reader, length uint64) (SarDataWaitRun, 
 		Ticks: int(reader.TryReadUInt32()),
 		Cmd:   reader.TryReadString(),
 	}
-	writer.AppendLine("\t\tTicks: %d", sarDataWaitRun.Ticks)
-	writer.AppendLine("\t\tCmd: \"%s\"", sarDataWaitRun.Cmd)
+	demo.Writer.AppendLine("\t\tTicks: %d", sarDataWaitRun.Ticks)
+	demo.Writer.AppendLine("\t\tCmd: \"%s\"", sarDataWaitRun.Cmd)
 	return sarDataWaitRun, nil
 }
 
-func parseHWaitRunData(reader *bitreader.Reader, length uint64) (SarDataHWaitRun, error) {
+func parseHWaitRunData(reader *bitreader.Reader, length uint64, demo *types.Demo) (SarDataHWaitRun, error) {
 	if length < 6 {
 		return SarDataHWaitRun{}, errors.New("sar data invalid")
 	}
@@ -358,12 +358,12 @@ func parseHWaitRunData(reader *bitreader.Reader, length uint64) (SarDataHWaitRun
 		Ticks: int(reader.TryReadUInt32()),
 		Cmd:   reader.TryReadString(),
 	}
-	writer.AppendLine("\t\tTicks: %d", sarDataHWaitRun.Ticks)
-	writer.AppendLine("\t\tCmd: \"%s\"", sarDataHWaitRun.Cmd)
+	demo.Writer.AppendLine("\t\tTicks: %d", sarDataHWaitRun.Ticks)
+	demo.Writer.AppendLine("\t\tCmd: \"%s\"", sarDataHWaitRun.Cmd)
 	return sarDataHWaitRun, nil
 }
 
-func parseSpeedrunTimeData(reader *bitreader.Reader, length uint64) (SarDataSpeedrunTime, error) {
+func parseSpeedrunTimeData(reader *bitreader.Reader, length uint64, demo *types.Demo) (SarDataSpeedrunTime, error) {
 	if length < 5 {
 		return SarDataSpeedrunTime{}, errors.New("sar data invalid")
 	}
@@ -372,14 +372,14 @@ func parseSpeedrunTimeData(reader *bitreader.Reader, length uint64) (SarDataSpee
 	for splitCount := 0; splitCount < int(numberOfSplits); splitCount++ {
 		splits[splitCount].Name = reader.TryReadString()
 		splits[splitCount].NSegs = reader.TryReadUInt32()
-		writer.AppendLine("\t\t[%d] Split Name: \"%s\"", splitCount, splits[splitCount].Name)
-		writer.AppendLine("\t\t[%d] Number of Segments: %d", splitCount, splits[splitCount].NSegs)
+		demo.Writer.AppendLine("\t\t[%d] Split Name: \"%s\"", splitCount, splits[splitCount].Name)
+		demo.Writer.AppendLine("\t\t[%d] Number of Segments: %d", splitCount, splits[splitCount].NSegs)
 		splits[splitCount].Segs = make([]SarDataSpeedrunTimeSegs, splits[splitCount].NSegs)
 		for segCount := 0; segCount < int(splits[splitCount].NSegs); segCount++ {
 			splits[splitCount].Segs[segCount].Name = reader.TryReadString()
 			splits[splitCount].Segs[segCount].Ticks = reader.TryReadUInt32()
-			writer.AppendLine("\t\t\t[%d] Segment Name: \"%s\"", segCount, splits[splitCount].Segs[segCount].Name)
-			writer.AppendLine("\t\t\t[%d] Segment Ticks: %d", segCount, splits[splitCount].Segs[segCount].Ticks)
+			demo.Writer.AppendLine("\t\t\t[%d] Segment Name: \"%s\"", segCount, splits[splitCount].Segs[segCount].Name)
+			demo.Writer.AppendLine("\t\t\t[%d] Segment Ticks: %d", segCount, splits[splitCount].Segs[segCount].Ticks)
 		}
 	}
 	return SarDataSpeedrunTime{
@@ -388,7 +388,7 @@ func parseSpeedrunTimeData(reader *bitreader.Reader, length uint64) (SarDataSpee
 	}, nil
 }
 
-func parseTimestampData(reader *bitreader.Reader, length uint64) (SarDataTimestamp, error) {
+func parseTimestampData(reader *bitreader.Reader, length uint64, demo *types.Demo) (SarDataTimestamp, error) {
 	if length != 8 {
 		return SarDataTimestamp{}, errors.New("sar data invalid")
 	}
@@ -401,16 +401,16 @@ func parseTimestampData(reader *bitreader.Reader, length uint64) (SarDataTimesta
 		Minute: timestamp[5],
 		Second: timestamp[6],
 	}
-	writer.AppendLine("\t\tYear: %d", sarDataTimeStamp.Year)
-	writer.AppendLine("\t\tMonth: %d", sarDataTimeStamp.Month)
-	writer.AppendLine("\t\tDay: %d", sarDataTimeStamp.Day)
-	writer.AppendLine("\t\tHour: %d", sarDataTimeStamp.Hour)
-	writer.AppendLine("\t\tMinute: %d", sarDataTimeStamp.Minute)
-	writer.AppendLine("\t\tSecond: %d", sarDataTimeStamp.Second)
+	demo.Writer.AppendLine("\t\tYear: %d", sarDataTimeStamp.Year)
+	demo.Writer.AppendLine("\t\tMonth: %d", sarDataTimeStamp.Month)
+	demo.Writer.AppendLine("\t\tDay: %d", sarDataTimeStamp.Day)
+	demo.Writer.AppendLine("\t\tHour: %d", sarDataTimeStamp.Hour)
+	demo.Writer.AppendLine("\t\tMinute: %d", sarDataTimeStamp.Minute)
+	demo.Writer.AppendLine("\t\tSecond: %d", sarDataTimeStamp.Second)
 	return sarDataTimeStamp, nil
 }
 
-func parseFileChecksumData(reader *bitreader.Reader, length uint64) (SarDataFileChecksum, error) {
+func parseFileChecksumData(reader *bitreader.Reader, length uint64, demo *types.Demo) (SarDataFileChecksum, error) {
 	if length < 6 {
 		return SarDataFileChecksum{}, errors.New("sar data invalid")
 	}
@@ -418,7 +418,7 @@ func parseFileChecksumData(reader *bitreader.Reader, length uint64) (SarDataFile
 		Sum:  reader.TryReadUInt32(),
 		Path: reader.TryReadString(),
 	}
-	writer.AppendLine("\t\tChecksum: %d", sarDataFileChecksum.Sum)
-	writer.AppendLine("\t\tPath: \"%s\"", sarDataFileChecksum.Path)
+	demo.Writer.AppendLine("\t\tChecksum: %d", sarDataFileChecksum.Sum)
+	demo.Writer.AppendLine("\t\tPath: \"%s\"", sarDataFileChecksum.Path)
 	return sarDataFileChecksum, nil
 }

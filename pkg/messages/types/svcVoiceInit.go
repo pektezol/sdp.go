@@ -2,16 +2,16 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type SvcVoiceInit struct {
-	Codec      string
-	Quality    uint8
-	SampleRate int32
+	Codec      string `json:"codec"`
+	Quality    uint8  `json:"quality"`
+	SampleRate int32  `json:"sample_rate"`
 }
 
-func ParseSvcVoiceInit(reader *bitreader.Reader) SvcVoiceInit {
+func ParseSvcVoiceInit(reader *bitreader.Reader, demo *types.Demo) SvcVoiceInit {
 	svcVoiceInit := SvcVoiceInit{
 		Codec:   reader.TryReadString(),
 		Quality: reader.TryReadUInt8(),
@@ -25,8 +25,8 @@ func ParseSvcVoiceInit(reader *bitreader.Reader) SvcVoiceInit {
 			svcVoiceInit.SampleRate = 11025
 		}
 	}
-	writer.TempAppendLine("\t\tCodec: %s", svcVoiceInit.Codec)
-	writer.TempAppendLine("\t\tQuality: %d", svcVoiceInit.Quality)
-	writer.TempAppendLine("\t\tSample Rate: %d", svcVoiceInit.SampleRate)
+	demo.Writer.TempAppendLine("\t\tCodec: %s", svcVoiceInit.Codec)
+	demo.Writer.TempAppendLine("\t\tQuality: %d", svcVoiceInit.Quality)
+	demo.Writer.TempAppendLine("\t\tSample Rate: %d", svcVoiceInit.SampleRate)
 	return svcVoiceInit
 }

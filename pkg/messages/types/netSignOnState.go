@@ -4,17 +4,17 @@ import (
 	"fmt"
 
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type NetSignOnState struct {
-	SignOnState        string
-	SpawnCount         int32
-	NumServerPlayers   uint32
-	IdsLength          uint32
-	PlayersNetworksIds []byte
-	MapNameLength      uint32
-	MapName            string
+	SignOnState        string `json:"sign_on_state"`
+	SpawnCount         int32  `json:"spawn_count"`
+	NumServerPlayers   uint32 `json:"num_server_players"`
+	IdsLength          uint32 `json:"ids_length"`
+	PlayersNetworksIds []byte `json:"players_networks_ids"`
+	MapNameLength      uint32 `json:"map_name_length"`
+	MapName            string `json:"map_name"`
 }
 
 type SignOnState int
@@ -53,24 +53,24 @@ func (signOnState SignOnState) String() string {
 	}
 }
 
-func ParseNetSignOnState(reader *bitreader.Reader) NetSignOnState {
+func ParseNetSignOnState(reader *bitreader.Reader, demo *types.Demo) NetSignOnState {
 	netSignOnState := NetSignOnState{
 		SignOnState:      SignOnState(reader.TryReadUInt8()).String(),
 		SpawnCount:       reader.TryReadSInt32(),
 		NumServerPlayers: reader.TryReadUInt32(),
 		IdsLength:        reader.TryReadUInt32(),
 	}
-	writer.TempAppendLine("\t\tSign On State: %s", netSignOnState.SignOnState)
-	writer.TempAppendLine("\t\tSpawn Count: %d", netSignOnState.SpawnCount)
-	writer.TempAppendLine("\t\tNumber Of Server Players: %d", netSignOnState.NumServerPlayers)
+	demo.Writer.TempAppendLine("\t\tSign On State: %s", netSignOnState.SignOnState)
+	demo.Writer.TempAppendLine("\t\tSpawn Count: %d", netSignOnState.SpawnCount)
+	demo.Writer.TempAppendLine("\t\tNumber Of Server Players: %d", netSignOnState.NumServerPlayers)
 	if netSignOnState.IdsLength > 0 {
 		netSignOnState.PlayersNetworksIds = reader.TryReadBytesToSlice(uint64(netSignOnState.IdsLength))
-		writer.TempAppendLine("\t\tPlayer Network IDs: %v", netSignOnState.PlayersNetworksIds)
+		demo.Writer.TempAppendLine("\t\tPlayer Network IDs: %v", netSignOnState.PlayersNetworksIds)
 	}
 	netSignOnState.MapNameLength = reader.TryReadUInt32()
 	if netSignOnState.MapNameLength > 0 {
 		netSignOnState.MapName = reader.TryReadStringLength(uint64(netSignOnState.MapNameLength))
-		writer.TempAppendLine("\t\tMap Name: %s", netSignOnState.MapName)
+		demo.Writer.TempAppendLine("\t\tMap Name: %s", netSignOnState.MapName)
 	}
 	return netSignOnState
 }

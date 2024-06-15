@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type NetFile struct {
-	TransferId uint32
-	FileName   string
-	FileFlags  string
+	TransferId uint32 `json:"transfer_id"`
+	FileName   string `json:"file_name"`
+	FileFlags  string `json:"file_flags"`
 }
 
 type NetFileFlags int
@@ -34,14 +34,14 @@ func (netFileFlags NetFileFlags) String() string {
 	}
 }
 
-func ParseNetFile(reader *bitreader.Reader) NetFile {
+func ParseNetFile(reader *bitreader.Reader, demo *types.Demo) NetFile {
 	netFile := NetFile{
 		TransferId: reader.TryReadUInt32(),
 		FileName:   reader.TryReadString(),
 		FileFlags:  NetFileFlags(reader.TryReadBits(2)).String(),
 	}
-	writer.TempAppendLine("\t\tTransfer ID: %d", netFile.TransferId)
-	writer.TempAppendLine("\t\tFile Name: %s", netFile.FileName)
-	writer.TempAppendLine("\t\tFile Flags: %s", netFile.FileFlags)
+	demo.Writer.TempAppendLine("\t\tTransfer ID: %d", netFile.TransferId)
+	demo.Writer.TempAppendLine("\t\tFile Name: %s", netFile.FileName)
+	demo.Writer.TempAppendLine("\t\tFile Flags: %s", netFile.FileFlags)
 	return netFile
 }

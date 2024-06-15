@@ -2,17 +2,17 @@ package messages
 
 import (
 	"github.com/pektezol/bitreader"
-	"github.com/pektezol/sdp.go/pkg/writer"
+	"github.com/pektezol/sdp.go/pkg/types"
 )
 
 type NetSplitScreenUser struct {
-	Slot bool
+	Slot bool `json:"slot"`
 }
 
-func ParseNetSplitScreenUser(reader *bitreader.Reader) NetSplitScreenUser {
+func ParseNetSplitScreenUser(reader *bitreader.Reader, demo *types.Demo) NetSplitScreenUser {
 	netSplitScreenUser := NetSplitScreenUser{
 		Slot: reader.TryReadBool(),
 	}
-	writer.TempAppendLine("\t\tSlot: %t", netSplitScreenUser.Slot)
+	demo.Writer.TempAppendLine("\t\tSlot: %t", netSplitScreenUser.Slot)
 	return netSplitScreenUser
 }
